@@ -1,0 +1,6 @@
+{
+  "name": "DetailCorner",
+  "description": "Premium automotive detailing products eCommerce platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
