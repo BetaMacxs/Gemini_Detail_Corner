@@ -48,31 +48,31 @@ export function Orders() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8">Order History</h1>
+      <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight mb-8">Order History</h1>
 
       {orders.length === 0 ? (
-        <div className="text-center py-24 bg-gray-50 rounded-2xl border border-gray-100">
-          <Package className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No orders found</h3>
-          <p className="mt-2 text-sm text-gray-500">You haven't placed any orders yet.</p>
+        <div className="text-center py-24 bg-brand-bg rounded-2xl border border-brand-border/50">
+          <Package className="mx-auto h-12 w-12 text-brand-text-secondary" />
+          <h3 className="mt-4 text-lg font-medium text-brand-text-primary">No orders found</h3>
+          <p className="mt-2 text-sm text-brand-text-secondary">You haven't placed any orders yet.</p>
           <div className="mt-6">
             <Link
-              to="/shop"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+              to="/products"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover transition-colors"
             >
               Start Shopping
             </Link>
           </div>
         </div>
       ) : (
-        <div className="bg-white shadow-sm overflow-hidden sm:rounded-2xl border border-gray-100">
+        <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
           <ul className="divide-y divide-gray-200">
             {orders.map((order) => (
               <li key={order.id}>
-                <Link to={`/account/orders/${order.id}`} className="block hover:bg-gray-50 transition-colors">
+                <Link to={`/account/orders/${order.id}`} className="block hover:bg-brand-bg transition-colors">
                   <div className="px-4 py-6 sm:px-6">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">
+                      <p className="text-sm font-medium text-brand-accent truncate">
                         Order #{order.order_number}
                       </p>
                       <div className="ml-2 flex-shrink-0 flex">
@@ -86,13 +86,13 @@ export function Orders() {
                     </div>
                     <div className="mt-2 sm:flex sm:justify-between">
                       <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
+                        <p className="flex items-center text-sm text-brand-text-secondary">
                           {new Date(order.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <p className="font-medium text-gray-900">{formatPrice(order.total)}</p>
-                        <ChevronRight className="ml-2 h-5 w-5 text-gray-400" />
+                      <div className="mt-2 flex items-center text-sm text-brand-text-secondary sm:mt-0">
+                        <p className="font-medium text-brand-text-primary">{formatPrice(order.total)}</p>
+                        <ChevronRight className="ml-2 h-5 w-5 text-brand-text-secondary" />
                       </div>
                     </div>
                   </div>

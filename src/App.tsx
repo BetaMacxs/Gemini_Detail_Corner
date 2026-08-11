@@ -23,6 +23,10 @@ import { AdminProducts } from './pages/admin/AdminProducts';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuthStore } from './features/auth/store';
 
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Gallery } from './pages/Gallery';
+
 export default function App() {
   const initialize = useAuthStore(state => state.initialize);
 
@@ -36,8 +40,12 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/products" element={<Shop />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           

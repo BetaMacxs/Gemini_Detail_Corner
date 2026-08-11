@@ -325,3 +325,20 @@ create trigger on_auth_user_created
 
 -- Default Admin Creation (Optional, you can set the first user as admin manually)
 -- update public.profiles set is_admin = true where email = 'admin@example.com';
+
+-- Product Reviews
+create table if not exists public.product_reviews (
+  id uuid default uuid_generate_v4() primary key,
+  product_id uuid references public.products on delete cascade not null,
+  profile_id uuid references public.profiles on delete set null,
+  rating integer not null check (rating >= 1 and rating <= 5),
+  comment text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.product_reviews enable row level security;
+
+create policy "Reviews are viewable by everyone." on public.product_reviews for select using (true);
+create policy "Authenticated users can insert reviews." on public.product_reviews for insert to authenticated with check (true);
+create policy "Users can update their own reviews." on public.product_reviews for update using (auth.uid() = profile_id);
+create policy "Users can delete their own reviews." on public.product_reviews for delete using (auth.uid() = profile_id);

@@ -57,25 +57,25 @@ export function OrderDetails() {
   if (!order) {
     return (
       <div className="text-center py-24">
-        <p className="text-gray-500">Order not found.</p>
-        <Link to="/account/orders" className="text-blue-600 hover:underline mt-4 inline-block">Back to orders</Link>
+        <p className="text-brand-text-secondary">Order not found.</p>
+        <Link to="/account/orders" className="text-brand-accent hover:underline mt-4 inline-block">Back to orders</Link>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link to="/account/orders" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-6 transition-colors">
+      <Link to="/account/orders" className="inline-flex items-center text-sm text-brand-text-secondary hover:text-brand-text-primary mb-6 transition-colors">
         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Orders
       </Link>
       
-      <div className="bg-white shadow-sm sm:rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-gray-200">
+      <div className="bg-black/40 shadow-sm sm:rounded-2xl border border-brand-border/50 overflow-hidden">
+        <div className="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-brand-border">
           <div>
-            <h3 className="text-lg leading-6 font-bold text-gray-900">
+            <h3 className="text-lg leading-6 font-bold text-brand-text-primary">
               Order #{order.order_number}
             </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            <p className="mt-1 max-w-2xl text-sm text-brand-text-secondary">
               Placed on {new Date(order.created_at).toLocaleDateString()}
             </p>
           </div>
@@ -90,13 +90,13 @@ export function OrderDetails() {
         <div className="px-4 py-5 sm:p-0">
           <dl className="sm:divide-y sm:divide-gray-200">
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Payment Status</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{order.payment_status}</dd>
+              <dt className="text-sm font-medium text-brand-text-secondary">Payment Status</dt>
+              <dd className="mt-1 text-sm text-brand-text-primary sm:mt-0 sm:col-span-2">{order.payment_status}</dd>
             </div>
             
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Shipping Address</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt className="text-sm font-medium text-brand-text-secondary">Shipping Address</dt>
+              <dd className="mt-1 text-sm text-brand-text-primary sm:mt-0 sm:col-span-2">
                 {order.shipping_information.address}<br />
                 {order.shipping_information.city}, {order.shipping_information.province}<br />
                 {order.shipping_information.postalCode}, {order.shipping_information.country}
@@ -104,17 +104,17 @@ export function OrderDetails() {
             </div>
             
             <div className="py-4 sm:py-5 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500 mb-4">Items</dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                <ul className="divide-y divide-gray-100 border-t border-b border-gray-100">
+              <dt className="text-sm font-medium text-brand-text-secondary mb-4">Items</dt>
+              <dd className="mt-1 text-sm text-brand-text-primary">
+                <ul className="divide-y divide-gray-100 border-t border-b border-brand-border/50">
                   {items.map((item) => (
                     <li key={item.id} className="py-3 flex justify-between">
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{item.product_name_snapshot}</span>
-                        {item.variant_snapshot && <span className="text-gray-500 text-xs mt-0.5">{item.variant_snapshot}</span>}
-                        <span className="text-gray-500 text-sm mt-1">Qty: {item.quantity}</span>
+                        <span className="font-medium text-brand-text-primary">{item.product_name_snapshot}</span>
+                        {item.variant_snapshot && <span className="text-brand-text-secondary text-xs mt-0.5">{item.variant_snapshot}</span>}
+                        <span className="text-brand-text-secondary text-sm mt-1">Qty: {item.quantity}</span>
                       </div>
-                      <span className="font-medium text-gray-900">{formatPrice(item.total)}</span>
+                      <span className="font-medium text-brand-text-primary">{formatPrice(item.total)}</span>
                     </li>
                   ))}
                 </ul>
@@ -122,18 +122,18 @@ export function OrderDetails() {
             </div>
             
             <div className="py-4 sm:py-5 sm:px-6">
-              <dl className="space-y-3 text-sm text-gray-600 text-right">
+              <dl className="space-y-3 text-sm text-brand-text-secondary text-right">
                 <div className="flex justify-between sm:justify-end sm:space-x-12">
                   <dt>Subtotal</dt>
-                  <dd className="font-medium text-gray-900">{formatPrice(order.subtotal)}</dd>
+                  <dd className="font-medium text-brand-text-primary">{formatPrice(order.subtotal)}</dd>
                 </div>
                 <div className="flex justify-between sm:justify-end sm:space-x-12">
                   <dt>Shipping</dt>
-                  <dd className="font-medium text-gray-900">{formatPrice(order.shipping_amount)}</dd>
+                  <dd className="font-medium text-brand-text-primary">{formatPrice(order.shipping_amount)}</dd>
                 </div>
-                <div className="flex justify-between sm:justify-end sm:space-x-12 pt-3 border-t border-gray-200 text-base">
-                  <dt className="font-bold text-gray-900">Total</dt>
-                  <dd className="font-bold text-gray-900">{formatPrice(order.total)}</dd>
+                <div className="flex justify-between sm:justify-end sm:space-x-12 pt-3 border-t border-brand-border text-base">
+                  <dt className="font-bold text-brand-text-primary">Total</dt>
+                  <dd className="font-bold text-brand-text-primary">{formatPrice(order.total)}</dd>
                 </div>
               </dl>
             </div>

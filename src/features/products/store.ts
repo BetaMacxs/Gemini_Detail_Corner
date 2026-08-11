@@ -50,7 +50,8 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
           *,
           category:categories(*),
           images:product_images(*),
-          variants:product_variants(*)
+          variants:product_variants(*),
+          reviews:product_reviews(*, profile:profiles(full_name))
         `)
         .eq('active', true);
 
@@ -71,6 +72,7 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
         ...product,
         images: product.images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [],
         variants: product.variants?.filter((v: any) => v.active) || [],
+        reviews: product.reviews?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [],
       }));
 
       set({ products: transformedData, isLoading: false });
@@ -91,7 +93,8 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
           *,
           category:categories(*),
           images:product_images(*),
-          variants:product_variants(*)
+          variants:product_variants(*),
+          reviews:product_reviews(*, profile:profiles(full_name))
         `)
         .eq('slug', slug)
         .eq('active', true)
@@ -103,6 +106,7 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
         ...data,
         images: data.images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [],
         variants: data.variants?.filter((v: any) => v.active) || [],
+        reviews: data.reviews?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [],
       };
 
       set({ isLoading: false });

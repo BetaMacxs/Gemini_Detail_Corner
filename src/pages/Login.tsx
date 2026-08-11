@@ -34,19 +34,19 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
+    <div className="min-h-[70vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-brand-bg">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Sign in to your account</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-3xl font-extrabold text-brand-text-primary tracking-tight">Sign in to your account</h2>
+        <p className="mt-2 text-sm text-brand-text-secondary">
           Or{' '}
-          <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+          <Link to="/register" className="font-medium text-brand-accent hover:text-brand-accent-hover transition-colors">
             create a new account
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm sm:rounded-2xl sm:px-10 border border-gray-100">
+        <div className="bg-black/40 py-8 px-4 shadow-sm sm:rounded-2xl sm:px-10 border border-brand-border/50">
           <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
               <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
@@ -54,7 +54,7 @@ export function Login() {
               </div>
             )}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary">
                 Email address
               </label>
               <div className="mt-1">
@@ -72,7 +72,7 @@ export function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-brand-text-secondary">
                 Password
               </label>
               <div className="mt-1">
@@ -93,7 +93,7 @@ export function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>

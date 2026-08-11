@@ -102,8 +102,8 @@ export function Checkout() {
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Your cart is empty</h2>
-        <Link to="/shop" className="mt-4 inline-flex text-blue-600 hover:text-blue-500 font-medium">
+        <h2 className="text-2xl font-bold text-brand-text-primary">Your cart is empty</h2>
+        <Link to="/products" className="mt-4 inline-flex text-brand-accent hover:text-brand-accent-hover font-medium">
           Return to shop
         </Link>
       </div>
@@ -111,20 +111,20 @@ export function Checkout() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-brand-bg min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-brand-text-primary mb-8">Checkout</h1>
         
         <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
           <div className="lg:col-span-7">
             <form onSubmit={handleCheckout} className="space-y-8">
               
               {/* Contact Information */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h2>
+              <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50">
+                <h2 className="text-xl font-bold text-brand-text-primary mb-6">Contact Information</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First name</label>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-brand-text-secondary">First name</label>
                     <input
                       type="text"
                       name="firstName"
@@ -136,7 +136,7 @@ export function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last name</label>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-brand-text-secondary">Last name</label>
                     <input
                       type="text"
                       name="lastName"
@@ -148,7 +148,7 @@ export function Checkout() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+                    <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary">Email address</label>
                     <input
                       type="email"
                       name="email"
@@ -160,7 +160,7 @@ export function Checkout() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone number</label>
+                    <label htmlFor="phone" className="block text-sm font-medium text-brand-text-secondary">Phone number</label>
                     <input
                       type="tel"
                       name="phone"
@@ -175,11 +175,11 @@ export function Checkout() {
               </div>
 
               {/* Shipping Address */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
+              <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50">
+                <h2 className="text-xl font-bold text-brand-text-primary mb-6">Shipping Address</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="sm:col-span-2">
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+                    <label htmlFor="address" className="block text-sm font-medium text-brand-text-secondary">Address</label>
                     <input
                       type="text"
                       name="address"
@@ -191,7 +191,7 @@ export function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
+                    <label htmlFor="city" className="block text-sm font-medium text-brand-text-secondary">City</label>
                     <input
                       type="text"
                       name="city"
@@ -203,7 +203,7 @@ export function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="province" className="block text-sm font-medium text-gray-700">Province / State</label>
+                    <label htmlFor="province" className="block text-sm font-medium text-brand-text-secondary">Province / State</label>
                     <input
                       type="text"
                       name="province"
@@ -215,7 +215,7 @@ export function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">Postal code</label>
+                    <label htmlFor="postalCode" className="block text-sm font-medium text-brand-text-secondary">Postal code</label>
                     <input
                       type="text"
                       name="postalCode"
@@ -227,14 +227,14 @@ export function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
+                    <label htmlFor="country" className="block text-sm font-medium text-brand-text-secondary">Country</label>
                     <select
                       name="country"
                       id="country"
                       required
                       value={formData.country}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-white"
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-black/40"
                     >
                       <option value="South Africa">South Africa</option>
                       {/* Add more countries if needed */}
@@ -252,7 +252,7 @@ export function Checkout() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center px-4 py-4 border border-transparent rounded-xl shadow-sm text-lg font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 py-4 border border-transparent rounded-xl shadow-sm text-lg font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Processing...' : `Pay ${formatPrice(total)}`}
               </button>
@@ -261,29 +261,38 @@ export function Checkout() {
 
           {/* Order Summary sidebar */}
           <div className="mt-10 lg:mt-0 lg:col-span-5">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
-              <h2 className="text-lg font-medium text-gray-900 mb-6">Order Summary</h2>
+            <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50 sticky top-24">
+              <h2 className="text-lg font-medium text-brand-text-primary mb-6">Order Summary</h2>
               
-              <ul className="divide-y divide-gray-200 border-b border-gray-200 pb-6 mb-6">
+              <ul className="divide-y divide-gray-200 border-b border-brand-border pb-6 mb-6">
                 {items.map((item) => {
                    const price = item.variant ? item.variant.price : item.product.price;
                    return (
                     <li key={item.id} className="py-4 flex">
-                      <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                      <div className="flex-shrink-0 w-16 h-16 bg-brand-border rounded-lg overflow-hidden border border-brand-border/50">
                         {item.product.images?.[0] ? (
                           <img src={item.product.images[0].storage_path} alt={item.product.name} className="w-full h-full object-cover" />
-                        ) : null}
+                        ) : (
+                          <img 
+                            src={`/${item.product.slug.toLowerCase()}.png`}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
                       </div>
                       <div className="ml-4 flex-1 flex flex-col">
                         <div>
-                          <div className="flex justify-between text-sm font-medium text-gray-900">
+                          <div className="flex justify-between text-sm font-medium text-brand-text-primary">
                             <h3>{item.product.name}</h3>
                             <p className="ml-4">{formatPrice(price * item.quantity)}</p>
                           </div>
-                          {item.variant && <p className="mt-1 text-sm text-gray-500">{item.variant.name}</p>}
+                          {item.variant && <p className="mt-1 text-sm text-brand-text-secondary">{item.variant.name}</p>}
                         </div>
                         <div className="flex-1 flex items-end justify-between text-sm">
-                          <p className="text-gray-500">Qty {item.quantity}</p>
+                          <p className="text-brand-text-secondary">Qty {item.quantity}</p>
                         </div>
                       </div>
                     </li>
@@ -291,18 +300,18 @@ export function Checkout() {
                 })}
               </ul>
 
-              <dl className="space-y-4 text-sm text-gray-600">
+              <dl className="space-y-4 text-sm text-brand-text-secondary">
                 <div className="flex justify-between">
                   <dt>Subtotal</dt>
-                  <dd className="font-medium text-gray-900">{formatPrice(subtotal)}</dd>
+                  <dd className="font-medium text-brand-text-primary">{formatPrice(subtotal)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt>Shipping</dt>
-                  <dd className="font-medium text-gray-900">{formatPrice(shipping)}</dd>
+                  <dd className="font-medium text-brand-text-primary">{formatPrice(shipping)}</dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-200 pt-4 text-base">
-                  <dt className="font-bold text-gray-900">Total</dt>
-                  <dd className="font-bold text-gray-900">{formatPrice(total)}</dd>
+                <div className="flex justify-between border-t border-brand-border pt-4 text-base">
+                  <dt className="font-bold text-brand-text-primary">Total</dt>
+                  <dd className="font-bold text-brand-text-primary">{formatPrice(total)}</dd>
                 </div>
               </dl>
             </div>

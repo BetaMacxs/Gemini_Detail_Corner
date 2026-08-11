@@ -10,29 +10,37 @@ export function Header() {
   const cartItemCount = getTotalItems();
 
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header className="bg-[#f8f8f8] border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold text-gray-900 tracking-tight">
-              {storeConfig.STORE_NAME}
+          <div className="flex-1 flex justify-start lg:w-0">
+            <Link to="/" className="text-xl font-bold text-gray-900 tracking-tight flex items-center">
+              <span className="text-brand-accent">Detail</span> Corner
             </Link>
           </div>
           
           <nav className="hidden md:flex space-x-8">
-            <Link to="/shop" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">
-              Shop
+            <Link to="/" className="text-gray-600 hover:text-brand-accent px-3 py-2 text-sm font-medium transition-colors">
+              Home
             </Link>
-            <Link to="/categories" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">
-              Categories
+            <Link to="/products" className="text-gray-600 hover:text-brand-accent px-3 py-2 text-sm font-medium transition-colors">
+              Products
+            </Link>
+            <Link to="/gallery" className="text-gray-600 hover:text-brand-accent px-3 py-2 text-sm font-medium transition-colors">
+              Gallery
+            </Link>
+            <Link to="/about" className="text-gray-600 hover:text-brand-accent px-3 py-2 text-sm font-medium transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="text-gray-600 hover:text-brand-accent px-3 py-2 text-sm font-medium transition-colors">
+              Contact
             </Link>
           </nav>
-
-          <div className="flex items-center space-x-4">
+          <div className="flex-1 flex items-center justify-end space-x-4">
             {user ? (
               <div className="flex items-center space-x-2">
-                {profile?.is_admin && (
-                  <Link to="/admin" className="p-2 text-blue-600 hover:text-blue-700 transition-colors flex items-center space-x-1">
+                {profile?.role === 'ADMIN' && (
+                  <Link to="/admin" className="p-2 text-brand-accent hover:text-brand-accent-hover transition-colors flex items-center space-x-1">
                     <Shield className="h-5 w-5" />
                     <span className="text-sm font-medium hidden sm:block">Admin</span>
                   </Link>
@@ -45,22 +53,22 @@ export function Header() {
                 </Link>
               </div>
             ) : (
-              <Link to="/login" className="p-2 text-gray-400 hover:text-gray-500 transition-colors">
+              <Link to="/login" className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                 <span className="sr-only">Login</span>
                 <User className="h-5 w-5" />
               </Link>
             )}
             
-            <Link to="/cart" className="p-2 text-gray-400 hover:text-gray-500 transition-colors relative">
+            <Link to="/cart" className="p-2 text-gray-600 hover:text-gray-900 transition-colors relative">
               <span className="sr-only">Cart</span>
               <ShoppingCart className="h-5 w-5" />
               {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-gray-900 rounded-full">
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-brand-text-primary transform translate-x-1/2 -translate-y-1/2 bg-brand-accent rounded-full">
                   {cartItemCount}
                 </span>
               )}
             </Link>
-            <button className="md:hidden p-2 text-gray-400 hover:text-gray-500 transition-colors">
+            <button className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
               <span className="sr-only">Menu</span>
               <Menu className="h-5 w-5" />
             </button>
