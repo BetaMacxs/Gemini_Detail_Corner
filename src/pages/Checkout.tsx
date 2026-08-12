@@ -132,7 +132,7 @@ export function Checkout() {
                       required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div>
@@ -144,7 +144,7 @@ export function Checkout() {
                       required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -156,7 +156,7 @@ export function Checkout() {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -168,7 +168,7 @@ export function Checkout() {
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export function Checkout() {
                       required
                       value={formData.address}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div>
@@ -199,7 +199,7 @@ export function Checkout() {
                       required
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div>
@@ -211,7 +211,7 @@ export function Checkout() {
                       required
                       value={formData.province}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div>
@@ -223,7 +223,7 @@ export function Checkout() {
                       required
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                     />
                   </div>
                   <div>
@@ -234,7 +234,7 @@ export function Checkout() {
                       required
                       value={formData.country}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-black/40"
+                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm bg-black/40"
                     >
                       <option value="South Africa">South Africa</option>
                       {/* Add more countries if needed */}
@@ -264,7 +264,7 @@ export function Checkout() {
             <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50 sticky top-24">
               <h2 className="text-lg font-medium text-brand-text-primary mb-6">Order Summary</h2>
               
-              <ul className="divide-y divide-gray-200 border-b border-brand-border pb-6 mb-6">
+              <ul className="divide-y divide-brand-border border-b border-brand-border pb-6 mb-6">
                 {items.map((item) => {
                    const price = item.variant ? item.variant.price : item.product.price;
                    return (

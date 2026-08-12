@@ -39,7 +39,7 @@ export function Cart() {
 
       <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
         <div className="lg:col-span-8">
-          <ul className="border-t border-b border-brand-border divide-y divide-gray-200">
+          <ul className="border-t border-b border-brand-border divide-y divide-brand-border">
             {items.map((item) => {
               const maxStock = item.variant ? item.variant.stock_quantity : item.product.stock_quantity;
               const price = item.variant ? item.variant.price : item.product.price;
@@ -87,7 +87,7 @@ export function Cart() {
                         <label htmlFor={`quantity-${item.id}`} className="sr-only">
                           Quantity, {item.product.name}
                         </label>
-                        <div className="flex items-center border border-gray-300 rounded-xl w-32 bg-black/40">
+                        <div className="flex items-center border border-brand-border rounded-xl w-32 bg-black/40">
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}

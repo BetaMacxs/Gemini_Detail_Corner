@@ -270,10 +270,10 @@ export function ProductDetails() {
                       key={variant.id}
                       onClick={() => setSelectedVariant(variant)}
                       className={`
-                        border rounded-xl py-2 px-4 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
+                        border rounded-xl py-2 px-4 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent
                         ${selectedVariant?.id === variant.id 
                           ? 'bg-brand-accent border-transparent text-brand-text-primary hover:bg-brand-accent-hover' 
-                          : 'bg-black/40 border-gray-300 text-brand-text-primary hover:bg-brand-bg'
+                          : 'bg-black/40 border-brand-border text-brand-text-primary hover:bg-brand-bg'
                         }
                         ${variant.stock_quantity === 0 ? 'opacity-50 cursor-not-allowed' : ''}
                       `}
@@ -289,7 +289,7 @@ export function ProductDetails() {
             {/* Quantity */}
             <div className="mt-6">
               <h3 className="text-sm font-medium text-brand-text-primary">Quantity</h3>
-              <div className="mt-3 flex items-center border border-gray-300 rounded-xl w-32">
+              <div className="mt-3 flex items-center border border-brand-border rounded-xl w-32">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -323,7 +323,7 @@ export function ProductDetails() {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!inStock || added}
-                className={`w-full border border-transparent rounded-xl py-3 px-8 flex items-center justify-center text-base font-medium text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
+                className={`w-full border border-transparent rounded-xl py-3 px-8 flex items-center justify-center text-base font-medium text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors
                   ${added ? 'bg-green-600 hover:bg-green-700' : 'bg-brand-accent hover:bg-brand-accent-hover'}`}
               >
                 {added ? 'Added to Cart' : 'Add to Cart'}
@@ -413,7 +413,7 @@ export function ProductDetails() {
                       rows={4}
                       value={newReviewComment}
                       onChange={(e) => setNewReviewComment(e.target.value)}
-                      className="block w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="block w-full border border-brand-border rounded-xl px-4 py-3 focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
                       placeholder="What did you like or dislike?"
                       required
                     />
@@ -421,7 +421,7 @@ export function ProductDetails() {
                   <button
                     type="submit"
                     disabled={isSubmittingReview}
-                    className="w-full bg-black/40 border border-gray-300 rounded-xl py-2 px-4 text-sm font-medium text-brand-text-primary hover:bg-brand-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-black/40 border border-brand-border rounded-xl py-2 px-4 text-sm font-medium text-brand-text-primary hover:bg-brand-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isSubmittingReview ? 'Submitting...' : 'Write a Review'}
                   </button>

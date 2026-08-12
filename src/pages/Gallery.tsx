@@ -9,7 +9,7 @@ export function Gallery() {
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="aspect-w-16 aspect-h-9 bg-brand-bg/80 rounded-2xl overflow-hidden border border-[#3a3a3a]">
+          <div key={i} className="aspect-w-16 aspect-h-9 bg-brand-bg/80 rounded-2xl overflow-hidden border border-brand-border">
             <div className="flex items-center justify-center h-full text-brand-text-secondary">
               Gallery Image {i}
             </div>

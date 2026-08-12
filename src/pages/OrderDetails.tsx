@@ -49,7 +49,7 @@ export function OrderDetails() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export function OrderDetails() {
         </div>
         
         <div className="px-4 py-5 sm:p-0">
-          <dl className="sm:divide-y sm:divide-gray-200">
+          <dl className="sm:divide-y sm:divide-brand-border">
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-brand-text-secondary">Payment Status</dt>
               <dd className="mt-1 text-sm text-brand-text-primary sm:mt-0 sm:col-span-2">{order.payment_status}</dd>
@@ -106,7 +106,7 @@ export function OrderDetails() {
             <div className="py-4 sm:py-5 sm:px-6">
               <dt className="text-sm font-medium text-brand-text-secondary mb-4">Items</dt>
               <dd className="mt-1 text-sm text-brand-text-primary">
-                <ul className="divide-y divide-gray-100 border-t border-b border-brand-border/50">
+                <ul className="divide-y divide-brand-border border-t border-b border-brand-border/50">
                   {items.map((item) => (
                     <li key={item.id} className="py-3 flex justify-between">
                       <div className="flex flex-col">

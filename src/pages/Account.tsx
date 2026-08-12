@@ -34,7 +34,7 @@ export function Account() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-brand-border">
             <Link to="/account/orders" className="p-6 flex items-start hover:bg-brand-bg transition-colors">
               <Package className="h-6 w-6 text-brand-text-secondary mt-0.5" />
               <div className="ml-4">

@@ -61,7 +61,7 @@ export function Shop() {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-gray-900 focus:border-gray-900 sm:text-sm transition-shadow"
+              className="w-full sm:w-64 pl-10 pr-4 py-2 border border-brand-border rounded-xl focus:ring-brand-accent focus:border-brand-accent sm:text-sm transition-shadow"
             />
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-brand-text-secondary" />
           </form>
@@ -70,7 +70,7 @@ export function Shop() {
             <select
               value={categoryId}
               onChange={handleCategoryChange}
-              className="w-full sm:w-48 pl-10 pr-8 py-2 border border-gray-300 rounded-xl focus:ring-gray-900 focus:border-gray-900 sm:text-sm appearance-none bg-black/40 transition-shadow"
+              className="w-full sm:w-48 pl-10 pr-8 py-2 border border-brand-border rounded-xl focus:ring-brand-accent focus:border-brand-accent sm:text-sm appearance-none bg-black/40 transition-shadow"
             >
               <option value="">All Categories</option>
               {categories.map(category => (

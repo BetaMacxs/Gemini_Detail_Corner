@@ -35,7 +35,7 @@ export function AdminOrders() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
@@ -46,7 +46,7 @@ export function AdminOrders() {
 
       <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-brand-border">
             <thead className="bg-brand-bg">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
@@ -66,7 +66,7 @@ export function AdminOrders() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-black/40 divide-y divide-gray-200">
+            <tbody className="bg-black/40 divide-y divide-brand-border">
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">

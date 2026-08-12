@@ -23,7 +23,7 @@ export function Categories() {
         </div>
       ) : isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
         </div>
       ) : categories.length === 0 ? (
         <div className="text-center py-24 bg-brand-bg rounded-2xl border border-brand-border/50">

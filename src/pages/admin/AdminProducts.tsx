@@ -35,7 +35,7 @@ export function AdminProducts() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
@@ -44,14 +44,14 @@ export function AdminProducts() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight">Manage Products</h1>
-        <button className="px-4 py-2 bg-gray-900 text-brand-text-primary rounded-xl shadow-sm text-sm font-medium hover:bg-gray-800 transition-colors">
+        <button className="px-4 py-2 bg-brand-accent text-brand-text-primary rounded-xl shadow-sm text-sm font-medium hover:bg-brand-accent-hover transition-colors">
           Add Product
         </button>
       </div>
 
       <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-brand-border">
             <thead className="bg-brand-bg">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
@@ -71,7 +71,7 @@ export function AdminProducts() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-black/40 divide-y divide-gray-200">
+            <tbody className="bg-black/40 divide-y divide-brand-border">
               {products.map((product) => (
                 <tr key={product.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">

@@ -41,7 +41,7 @@ export function Orders() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function Orders() {
         </div>
       ) : (
         <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
-          <ul className="divide-y divide-gray-200">
+          <ul className="divide-y divide-brand-border">
             {orders.map((order) => (
               <li key={order.id}>
                 <Link to={`/account/orders/${order.id}`} className="block hover:bg-brand-bg transition-colors">
