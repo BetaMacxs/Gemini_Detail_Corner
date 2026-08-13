@@ -38,26 +38,27 @@ export function FAQSection() {
   };
 
   return (
-    <section className="py-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-12">
-          <div className="md:w-1/3">
-            <div className="sticky top-24">
-              <div className="flex items-center space-x-2 text-brand-accent mb-4">
+    <section style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
+      <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
+          <div>
+            <div style={{ position: 'sticky', top: '6rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '1rem' }}>
                 <HelpCircle className="h-6 w-6" />
-                <span className="text-sm font-bold uppercase tracking-widest">Support</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Support</span>
               </div>
-              <h2 className="text-4xl font-extrabold text-brand-text-primary leading-tight mb-6">
+              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2, marginBottom: '1.5rem' }}>
                 Common <br />
-                <span className="text-brand-accent">Questions</span>
+                <span style={{ color: 'var(--accent)' }}>Questions</span>
               </h2>
-              <p className="text-brand-text-secondary text-lg">
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem', lineHeight: 1.5 }}>
                 Can't find what you're looking for? Contact our support team for personalized assistance.
               </p>
-              <div className="mt-8">
+              <div style={{ marginTop: '2rem' }}>
                 <a 
                   href="/contact" 
-                  className="inline-flex items-center px-6 py-3 border border-brand-accent text-brand-accent font-semibold rounded-full hover:bg-brand-accent hover:text-white transition-all duration-300"
+                  className="btn btn-outline"
+                  style={{ borderRadius: '9999px', padding: '0.75rem 1.5rem', color: 'var(--accent)', borderColor: 'var(--accent)', display: 'inline-flex', alignItems: 'center' }}
                 >
                   Contact Support
                 </a>
@@ -65,30 +66,62 @@ export function FAQSection() {
             </div>
           </div>
           
-          <div className="md:w-2/3 space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {faqData.map((item, index) => (
               <div 
                 key={index} 
-                className={`group border rounded-2xl transition-all duration-300 ${
-                  openIndex === index 
-                    ? 'border-brand-accent bg-brand-accent/5' 
-                    : 'border-brand-border hover:border-brand-text-secondary/30 bg-black/20'
-                }`}
+                style={{
+                  border: openIndex === index ? '1px solid var(--accent)' : '1px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)',
+                  backgroundColor: openIndex === index ? 'rgba(230, 0, 0, 0.05)' : 'var(--surface)',
+                  transition: 'all 0.3s ease',
+                  overflow: 'hidden'
+                }}
               >
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+                  style={{
+                    width: '100%',
+                    padding: '1.25rem 1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    textAlign: 'left',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
                 >
-                  <span className={`text-lg font-semibold transition-colors duration-300 ${
-                    openIndex === index ? 'text-brand-accent' : 'text-brand-text-primary'
-                  }`}>
+                  <span style={{
+                    fontSize: '1.125rem',
+                    fontWeight: 900,
+                    textTransform: 'uppercase',
+                    fontStyle: 'italic',
+                    letterSpacing: '-0.025em',
+                    color: openIndex === index ? 'var(--accent)' : 'var(--text-primary)',
+                    transition: 'color 0.3s ease'
+                  }}>
                     {item.question}
                   </span>
-                  <div className={`p-2 rounded-full transition-all duration-300 ${
-                    openIndex === index ? 'bg-brand-accent text-white' : 'bg-brand-border text-brand-text-secondary group-hover:bg-brand-border/50'
-                  }`}>
+                  <div style={{
+                    padding: '0.5rem',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: openIndex === index ? 'var(--accent)' : 'var(--bg)',
+                    color: openIndex === index ? '#ffffff' : 'var(--text-secondary)',
+                    border: openIndex === index ? 'none' : '1px solid var(--border)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
                     <ChevronDown 
-                      className={`h-5 w-5 transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`} 
+                      style={{
+                        height: '1.25rem',
+                        width: '1.25rem',
+                        transform: openIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                      }} 
                     />
                   </div>
                 </button>
@@ -100,7 +133,14 @@ export function FAQSection() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                      <div className="px-6 pb-6 text-brand-text-secondary leading-relaxed border-t border-brand-accent/10 pt-4">
+                      <div style={{
+                        padding: '0 1.5rem 1.5rem 1.5rem',
+                        color: 'var(--text-secondary)',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.6,
+                        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                        paddingTop: '1rem'
+                      }}>
                         {item.answer}
                       </div>
                     </motion.div>

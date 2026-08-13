@@ -101,9 +101,9 @@ export function Checkout() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <h2 className="text-2xl font-bold text-brand-text-primary">Your cart is empty</h2>
-        <Link to="/products" className="mt-4 inline-flex text-brand-accent hover:text-brand-accent-hover font-medium">
+      <div className="checkout-container" style={{ textAlign: 'center', paddingTop: '6rem' }}>
+        <h2 className="checkout-title">Your cart is empty</h2>
+        <Link to="/products" className="btn btn-secondary" style={{ display: 'inline-flex', marginTop: '1rem' }}>
           Return to shop
         </Link>
       </div>
@@ -111,20 +111,20 @@ export function Checkout() {
   }
 
   return (
-    <div className="bg-brand-bg min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight text-brand-text-primary mb-8">Checkout</h1>
+    <div className="checkout-page">
+      <div className="checkout-container">
+        <h1 className="checkout-title">Checkout</h1>
         
-        <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
-          <div className="lg:col-span-7">
-            <form onSubmit={handleCheckout} className="space-y-8">
+        <div className="checkout-layout">
+          <div className="checkout-form-container">
+            <form onSubmit={handleCheckout} className="checkout-form">
               
               {/* Contact Information */}
-              <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50">
-                <h2 className="text-xl font-bold text-brand-text-primary mb-6">Contact Information</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="form-card">
+                <h2 className="form-card-title">Contact Information</h2>
+                <div className="form-grid">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-brand-text-secondary">First name</label>
+                    <label htmlFor="firstName" className="input-label">First name</label>
                     <input
                       type="text"
                       name="firstName"
@@ -132,11 +132,11 @@ export function Checkout() {
                       required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-brand-text-secondary">Last name</label>
+                    <label htmlFor="lastName" className="input-label">Last name</label>
                     <input
                       type="text"
                       name="lastName"
@@ -144,11 +144,11 @@ export function Checkout() {
                       required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary">Email address</label>
+                  <div className="form-group-full">
+                    <label htmlFor="email" className="input-label">Email address</label>
                     <input
                       type="email"
                       name="email"
@@ -156,11 +156,11 @@ export function Checkout() {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label htmlFor="phone" className="block text-sm font-medium text-brand-text-secondary">Phone number</label>
+                  <div className="form-group-full">
+                    <label htmlFor="phone" className="input-label">Phone number</label>
                     <input
                       type="tel"
                       name="phone"
@@ -168,18 +168,18 @@ export function Checkout() {
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Shipping Address */}
-              <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50">
-                <h2 className="text-xl font-bold text-brand-text-primary mb-6">Shipping Address</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="sm:col-span-2">
-                    <label htmlFor="address" className="block text-sm font-medium text-brand-text-secondary">Address</label>
+              <div className="form-card">
+                <h2 className="form-card-title">Shipping Address</h2>
+                <div className="form-grid">
+                  <div className="form-group-full">
+                    <label htmlFor="address" className="input-label">Address</label>
                     <input
                       type="text"
                       name="address"
@@ -187,11 +187,11 @@ export function Checkout() {
                       required
                       value={formData.address}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-brand-text-secondary">City</label>
+                    <label htmlFor="city" className="input-label">City</label>
                     <input
                       type="text"
                       name="city"
@@ -199,11 +199,11 @@ export function Checkout() {
                       required
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                   <div>
-                    <label htmlFor="province" className="block text-sm font-medium text-brand-text-secondary">Province / State</label>
+                    <label htmlFor="province" className="input-label">Province / State</label>
                     <input
                       type="text"
                       name="province"
@@ -211,11 +211,11 @@ export function Checkout() {
                       required
                       value={formData.province}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                   <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-brand-text-secondary">Postal code</label>
+                    <label htmlFor="postalCode" className="input-label">Postal code</label>
                     <input
                       type="text"
                       name="postalCode"
@@ -223,18 +223,18 @@ export function Checkout() {
                       required
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm"
+                      className="form-input"
                     />
                   </div>
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-brand-text-secondary">Country</label>
+                    <label htmlFor="country" className="input-label">Country</label>
                     <select
                       name="country"
                       id="country"
                       required
                       value={formData.country}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm focus:ring-brand-accent focus:border-brand-accent sm:text-sm bg-black/40"
+                      className="form-input form-select"
                     >
                       <option value="South Africa">South Africa</option>
                       {/* Add more countries if needed */}
@@ -244,7 +244,7 @@ export function Checkout() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+                <div className="checkout-error-msg">
                   {error}
                 </div>
               )}
@@ -252,7 +252,7 @@ export function Checkout() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center px-4 py-4 border border-transparent rounded-xl shadow-sm text-lg font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-primary pay-btn"
               >
                 {loading ? 'Processing...' : `Pay ${formatPrice(total)}`}
               </button>
@@ -260,16 +260,16 @@ export function Checkout() {
           </div>
 
           {/* Order Summary sidebar */}
-          <div className="mt-10 lg:mt-0 lg:col-span-5">
-            <div className="bg-black/40 p-6 sm:p-8 rounded-2xl shadow-sm border border-brand-border/50 sticky top-24">
-              <h2 className="text-lg font-medium text-brand-text-primary mb-6">Order Summary</h2>
+          <div className="order-summary-sidebar">
+            <div className="summary-sidebar-card">
+              <h2 className="summary-sidebar-title">Order Summary</h2>
               
-              <ul className="divide-y divide-brand-border border-b border-brand-border pb-6 mb-6">
+              <ul className="summary-items-list">
                 {items.map((item) => {
                    const price = item.variant ? item.variant.price : item.product.price;
                    return (
-                    <li key={item.id} className="py-4 flex">
-                      <div className="flex-shrink-0 w-16 h-16 bg-brand-border rounded-lg overflow-hidden border border-brand-border/50">
+                    <li key={item.id} className="summary-item">
+                      <div className="summary-item-image-wrapper">
                         {item.product.images?.[0] ? (
                           <img src={item.product.images[0].storage_path} alt={item.product.name} className="w-full h-full object-cover" />
                         ) : (
@@ -283,16 +283,16 @@ export function Checkout() {
                           />
                         )}
                       </div>
-                      <div className="ml-4 flex-1 flex flex-col">
+                      <div className="summary-item-content">
                         <div>
-                          <div className="flex justify-between text-sm font-medium text-brand-text-primary">
+                          <div className="summary-item-title-row">
                             <h3>{item.product.name}</h3>
-                            <p className="ml-4">{formatPrice(price * item.quantity)}</p>
+                            <p>{formatPrice(price * item.quantity)}</p>
                           </div>
-                          {item.variant && <p className="mt-1 text-sm text-brand-text-secondary">{item.variant.name}</p>}
+                          {item.variant && <p className="summary-item-variant">{item.variant.name}</p>}
                         </div>
-                        <div className="flex-1 flex items-end justify-between text-sm">
-                          <p className="text-brand-text-secondary">Qty {item.quantity}</p>
+                        <div className="summary-item-qty">
+                          <p>Qty {item.quantity}</p>
                         </div>
                       </div>
                     </li>
@@ -300,18 +300,18 @@ export function Checkout() {
                 })}
               </ul>
 
-              <dl className="space-y-4 text-sm text-brand-text-secondary">
-                <div className="flex justify-between">
+              <dl className="summary-costs">
+                <div className="summary-cost-row">
                   <dt>Subtotal</dt>
-                  <dd className="font-medium text-brand-text-primary">{formatPrice(subtotal)}</dd>
+                  <dd className="summary-value">{formatPrice(subtotal)}</dd>
                 </div>
-                <div className="flex justify-between">
+                <div className="summary-cost-row">
                   <dt>Shipping</dt>
-                  <dd className="font-medium text-brand-text-primary">{formatPrice(shipping)}</dd>
+                  <dd className="summary-value">{formatPrice(shipping)}</dd>
                 </div>
-                <div className="flex justify-between border-t border-brand-border pt-4 text-base">
-                  <dt className="font-bold text-brand-text-primary">Total</dt>
-                  <dd className="font-bold text-brand-text-primary">{formatPrice(total)}</dd>
+                <div className="summary-cost-row total">
+                  <dt>Total</dt>
+                  <dd className="total-value">{formatPrice(total)}</dd>
                 </div>
               </dl>
             </div>

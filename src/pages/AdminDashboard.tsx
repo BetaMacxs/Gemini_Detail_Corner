@@ -3,47 +3,47 @@ import { storeConfig } from '../config/store';
 
 export function AdminDashboard() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight mb-8">
-        Admin <span className="text-brand-accent">Dashboard</span>
+    <div className="container" style={{ padding: '3rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2rem' }}>
+        Admin <span style={{ color: 'var(--accent)' }}>Dashboard</span>
       </h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-brand-bg/80 p-6 rounded-2xl shadow-sm border border-brand-border">
-          <h3 className="text-sm font-medium text-brand-text-secondary uppercase tracking-wider">Today's Sales</h3>
-          <p className="mt-2 text-3xl font-bold text-brand-text-primary">ZAR 0.00</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div className="brand-card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Today's Sales</h3>
+          <p style={{ marginTop: '0.5rem', fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>ZAR 0.00</p>
         </div>
-        <div className="bg-brand-bg/80 p-6 rounded-2xl shadow-sm border border-brand-border">
-          <h3 className="text-sm font-medium text-brand-text-secondary uppercase tracking-wider">Pending Orders</h3>
-          <p className="mt-2 text-3xl font-bold text-brand-text-primary">0</p>
+        <div className="brand-card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pending Orders</h3>
+          <p style={{ marginTop: '0.5rem', fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>0</p>
         </div>
-        <div className="bg-brand-bg/80 p-6 rounded-2xl shadow-sm border border-brand-border">
-          <h3 className="text-sm font-medium text-brand-text-secondary uppercase tracking-wider">Low Stock Products</h3>
-          <p className="mt-2 text-3xl font-bold text-brand-text-primary">0</p>
+        <div className="brand-card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Low Stock Products</h3>
+          <p style={{ marginTop: '0.5rem', fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>0</p>
         </div>
       </div>
 
-      <div className="bg-brand-bg/80 shadow-sm rounded-2xl border border-brand-border overflow-hidden">
-        <div className="px-4 py-5 sm:px-6 border-b border-brand-border">
-          <h3 className="text-lg leading-6 font-bold text-brand-text-primary">Management Modules</h3>
-          <p className="mt-1 max-w-2xl text-sm text-brand-text-secondary">Select an area to manage.</p>
+      <div className="brand-card" style={{ overflow: 'hidden' }}>
+        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>Management Modules</h3>
+          <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Select an area to manage.</p>
         </div>
-        <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link to="/admin/orders" className="p-4 border border-brand-border rounded-xl hover:border-brand-accent hover:bg-brand-bg transition-colors">
-            <h4 className="font-bold text-brand-text-primary">Orders</h4>
-            <p className="text-sm text-brand-text-secondary mt-1">Manage customer orders and status.</p>
+        <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+          <Link to="/admin/orders" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', textDecoration: 'none', backgroundColor: 'var(--bg)', display: 'block' }}>
+            <h4 style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Orders</h4>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Manage customer orders and status.</p>
           </Link>
-          <Link to="/admin/products" className="p-4 border border-brand-border rounded-xl hover:border-brand-accent hover:bg-brand-bg transition-colors">
-            <h4 className="font-bold text-brand-text-primary">Products</h4>
-            <p className="text-sm text-brand-text-secondary mt-1">Manage catalogue and categories.</p>
+          <Link to="/admin/products" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', textDecoration: 'none', backgroundColor: 'var(--bg)', display: 'block' }}>
+            <h4 style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Products</h4>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Manage catalogue and categories.</p>
           </Link>
-          <Link to="/admin/inventory" className="p-4 border border-brand-border rounded-xl hover:border-brand-accent hover:bg-brand-bg transition-colors">
-            <h4 className="font-bold text-brand-text-primary">Inventory</h4>
-            <p className="text-sm text-brand-text-secondary mt-1">Manage stock levels.</p>
+          <Link to="/admin/inventory" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', textDecoration: 'none', backgroundColor: 'var(--bg)', display: 'block' }}>
+            <h4 style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Inventory</h4>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Manage stock levels.</p>
           </Link>
-          <Link to="/admin/customers" className="p-4 border border-brand-border rounded-xl hover:border-brand-accent hover:bg-brand-bg transition-colors">
-            <h4 className="font-bold text-brand-text-primary">Customers</h4>
-            <p className="text-sm text-brand-text-secondary mt-1">View customer accounts.</p>
+          <Link to="/admin/customers" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', textDecoration: 'none', backgroundColor: 'var(--bg)', display: 'block' }}>
+            <h4 style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Customers</h4>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>View customer accounts.</p>
           </Link>
         </div>
       </div>

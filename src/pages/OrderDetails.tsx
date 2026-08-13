@@ -48,92 +48,102 @@ export function OrderDetails() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
+      <div className="account-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
+        <div style={{
+          width: '2rem',
+          height: '2rem',
+          borderRadius: '50%',
+          borderBottom: '2px solid var(--accent)',
+          animation: 'spin 1s linear infinite'
+        }} />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="text-center py-24">
-        <p className="text-brand-text-secondary">Order not found.</p>
-        <Link to="/account/orders" className="text-brand-accent hover:underline mt-4 inline-block">Back to orders</Link>
+      <div style={{ textAlign: 'center', padding: '6rem 1rem' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>Order not found.</p>
+        <Link to="/account/orders" style={{ color: 'var(--accent)', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to orders</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link to="/account/orders" className="inline-flex items-center text-sm text-brand-text-secondary hover:text-brand-text-primary mb-6 transition-colors">
+    <div className="account-page" style={{ maxWidth: '48rem' }}>
+      <Link to="/account/orders" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Orders
       </Link>
       
-      <div className="bg-black/40 shadow-sm sm:rounded-2xl border border-brand-border/50 overflow-hidden">
-        <div className="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-brand-border">
+      <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
+        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
           <div>
-            <h3 className="text-lg leading-6 font-bold text-brand-text-primary">
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Order #{order.order_number}
             </h3>
-            <p className="mt-1 max-w-2xl text-sm text-brand-text-secondary">
+            <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               Placed on {new Date(order.created_at).toLocaleDateString()}
             </p>
           </div>
-          <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
-            ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' : 
-              order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 
-              'bg-yellow-100 text-yellow-800'}`}>
+          <span style={{
+            padding: '0.25rem 0.75rem',
+            borderRadius: '9999px',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            backgroundColor: order.status === 'DELIVERED' ? '#dcfce7' : order.status === 'CANCELLED' ? '#fee2e2' : '#fef3c7',
+            color: order.status === 'DELIVERED' ? '#166534' : order.status === 'CANCELLED' ? '#991b1b' : '#854d0e'
+          }}>
             {order.status.replace('_', ' ')}
           </span>
         </div>
         
-        <div className="px-4 py-5 sm:p-0">
-          <dl className="sm:divide-y sm:divide-brand-border">
-            <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-brand-text-secondary">Payment Status</dt>
-              <dd className="mt-1 text-sm text-brand-text-primary sm:mt-0 sm:col-span-2">{order.payment_status}</dd>
+        <div>
+          <dl style={{ margin: 0 }}>
+            <div style={{ padding: '1.25rem 1.5rem', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', borderBottom: '1px solid var(--border)' }}>
+              <dt style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Payment Status</dt>
+              <dd style={{ fontSize: '0.875rem', color: 'var(--text-primary)', margin: 0 }}>{order.payment_status}</dd>
             </div>
             
-            <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-brand-text-secondary">Shipping Address</dt>
-              <dd className="mt-1 text-sm text-brand-text-primary sm:mt-0 sm:col-span-2">
+            <div style={{ padding: '1.25rem 1.5rem', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', borderBottom: '1px solid var(--border)' }}>
+              <dt style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Shipping Address</dt>
+              <dd style={{ fontSize: '0.875rem', color: 'var(--text-primary)', margin: 0 }}>
                 {order.shipping_information.address}<br />
                 {order.shipping_information.city}, {order.shipping_information.province}<br />
                 {order.shipping_information.postalCode}, {order.shipping_information.country}
               </dd>
             </div>
             
-            <div className="py-4 sm:py-5 sm:px-6">
-              <dt className="text-sm font-medium text-brand-text-secondary mb-4">Items</dt>
-              <dd className="mt-1 text-sm text-brand-text-primary">
-                <ul className="divide-y divide-brand-border border-t border-b border-brand-border/50">
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+              <dt style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '1rem' }}>Items</dt>
+              <dd style={{ margin: 0 }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {items.map((item) => (
-                    <li key={item.id} className="py-3 flex justify-between">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-brand-text-primary">{item.product_name_snapshot}</span>
-                        {item.variant_snapshot && <span className="text-brand-text-secondary text-xs mt-0.5">{item.variant_snapshot}</span>}
-                        <span className="text-brand-text-secondary text-sm mt-1">Qty: {item.quantity}</span>
+                    <li key={item.id} style={{ padding: '0.75rem 0', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{item.product_name_snapshot}</span>
+                        {item.variant_snapshot && <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '0.125rem' }}>{item.variant_snapshot}</span>}
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.25rem' }}>Qty: {item.quantity}</span>
                       </div>
-                      <span className="font-medium text-brand-text-primary">{formatPrice(item.total)}</span>
+                      <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{formatPrice(item.total)}</span>
                     </li>
                   ))}
                 </ul>
               </dd>
             </div>
             
-            <div className="py-4 sm:py-5 sm:px-6">
-              <dl className="space-y-3 text-sm text-brand-text-secondary text-right">
-                <div className="flex justify-between sm:justify-end sm:space-x-12">
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              <dl style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <dt>Subtotal</dt>
-                  <dd className="font-medium text-brand-text-primary">{formatPrice(order.subtotal)}</dd>
+                  <dd style={{ fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{formatPrice(order.subtotal)}</dd>
                 </div>
-                <div className="flex justify-between sm:justify-end sm:space-x-12">
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <dt>Shipping</dt>
-                  <dd className="font-medium text-brand-text-primary">{formatPrice(order.shipping_amount)}</dd>
+                  <dd style={{ fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{formatPrice(order.shipping_amount)}</dd>
                 </div>
-                <div className="flex justify-between sm:justify-end sm:space-x-12 pt-3 border-t border-brand-border text-base">
-                  <dt className="font-bold text-brand-text-primary">Total</dt>
-                  <dd className="font-bold text-brand-text-primary">{formatPrice(order.total)}</dd>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', fontSize: '1rem' }}>
+                  <dt style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Total</dt>
+                  <dd style={{ fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{formatPrice(order.total)}</dd>
                 </div>
               </dl>
             </div>

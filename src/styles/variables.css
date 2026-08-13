@@ -1,0 +1,29 @@
+:root {
+  --bg: #0f0f0f;                /* deeper, more premium charcoal */
+  --surface: #1a1a1a;           /* card/container background */
+  --accent: #c41e3a;            /* detail crimson */
+  --accent-hover: #a01830;
+  --accent-glow: rgba(196, 30, 58, 0.15);
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-dark: #0f0f0f;
+  --border: rgba(255, 255, 255, 0.08);
+  --gold: #d4a853;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Semantic brand variables for compatibility during migration */
+  --color-brand-bg: var(--bg);
+  --color-brand-surface: var(--surface);
+  --color-brand-accent: var(--accent);
+  --color-brand-accent-hover: var(--accent-hover);
+  --color-brand-text-primary: var(--text-primary);
+  --color-brand-text-secondary: var(--text-secondary);
+  --color-brand-text-dark: var(--text-dark);
+  --color-brand-border: var(--border);
+  --color-brand-gold: var(--gold);
+}

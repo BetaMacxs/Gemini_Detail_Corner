@@ -34,70 +34,66 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-brand-bg">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <h2 className="text-3xl font-extrabold text-brand-text-primary tracking-tight">Sign in to your account</h2>
-        <p className="mt-2 text-sm text-brand-text-secondary">
+    <div className="auth-page">
+      <div className="auth-header">
+        <h2 className="auth-title">
+          Sign In to <br /> <span className="text-brand-accent">Account</span>
+        </h2>
+        <p className="auth-subtitle">
           Or{' '}
-          <Link to="/register" className="font-medium text-brand-accent hover:text-brand-accent-hover transition-colors">
-            create a new account
+          <Link to="/register" className="auth-subtitle-link">
+            Join the Crew
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-black/40 py-8 px-4 shadow-sm sm:rounded-2xl sm:px-10 border border-brand-border/50">
-          <form className="space-y-6" onSubmit={handleLogin}>
+      <div className="auth-card-container">
+        <div className="auth-card brand-card">
+          <form className="auth-form" onSubmit={handleLogin}>
             {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+              <div className="auth-error">
                 {error}
               </div>
             )}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary">
+              <label htmlFor="email" className="auth-label">
                 Email address
               </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm placeholder-brand-text-secondary\/50 focus:outline-none focus:ring-brand-accent focus:border-brand-accent sm:text-sm transition-shadow"
-                />
-              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+              />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-brand-text-secondary">
+              <label htmlFor="password" className="auth-label">
                 Password
               </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-brand-border rounded-xl shadow-sm placeholder-brand-text-secondary\/50 focus:outline-none focus:ring-brand-accent focus:border-brand-accent sm:text-sm transition-shadow"
-                />
-              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+              />
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Signing in...' : 'Sign in'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary auth-submit-btn"
+            >
+              {loading ? 'Processing...' : 'Engage'}
+            </button>
           </form>
         </div>
       </div>

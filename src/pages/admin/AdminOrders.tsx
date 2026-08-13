@@ -34,58 +34,63 @@ export function AdminOrders() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
+      <div className="container" style={{ padding: '3rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
+        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight mb-8">Manage Orders</h1>
+    <div className="container" style={{ padding: '3rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2rem' }}>Manage Orders</h1>
 
-      <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-brand-border">
-            <thead className="bg-brand-bg">
+      <div className="brand-card" style={{ overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{ backgroundColor: 'var(--bg)' }}>
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Order Number
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Date
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Customer
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Total
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-black/40 divide-y divide-brand-border">
+            <tbody style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
               {orders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">
+                <tr key={order.id} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {order.order_number}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {order.customer_name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-primary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {formatPrice(order.total)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' : 
-                        order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 
-                        'bg-yellow-100 text-yellow-800'}`}>
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      display: 'inline-flex',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      borderRadius: '9999px',
+                      backgroundColor: order.status === 'DELIVERED' ? '#dcfce7' : order.status === 'CANCELLED' ? '#fee2e2' : '#fef3c7',
+                      color: order.status === 'DELIVERED' ? '#166534' : order.status === 'CANCELLED' ? '#991b1b' : '#854d0e'
+                    }}>
                       {order.status}
                     </span>
                   </td>

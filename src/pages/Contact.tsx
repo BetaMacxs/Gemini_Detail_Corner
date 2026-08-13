@@ -42,65 +42,65 @@ export function Contact() {
   };
 
   return (
-    <div className="bg-brand-bg min-h-screen">
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden border-b border-brand-border">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--brand-accent-glow)_0%,_transparent_70%)] opacity-20"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <section style={{ position: 'relative', paddingTop: '6rem', paddingBottom: '6rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%)', opacity: 0.2 }} />
+        <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-brand-text-primary mb-6 leading-none">
-              Get In <span className="text-brand-accent">Touch</span>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
+              Get In <span style={{ color: 'var(--accent)' }}>Touch</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-lg text-brand-text-secondary leading-relaxed">
+            <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1.125rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
               Whether you're a professional detailer or a weekend enthusiast, we're here to provide the technical support and product guidance you need.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 xl:gap-24">
+      <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' }}>
           {/* Contact Info */}
-          <div className="lg:col-span-5 space-y-12">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
             <div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-brand-text-primary mb-8">
-                Connect with the <span className="text-brand-accent">Experts</span>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                Connect with the <span style={{ color: 'var(--accent)' }}>Experts</span>
               </h2>
-              <div className="space-y-8">
-                <div className="flex items-start group">
-                  <div className="p-4 bg-brand-surface border border-brand-border rounded-2xl group-hover:border-brand-accent transition-all">
-                    <Phone className="h-6 w-6 text-brand-accent" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
+                    <Phone className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                   </div>
-                  <div className="ml-6">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-1 italic">Phone Support</div>
-                    <div className="text-xl font-black text-brand-text-primary">021 555 9876</div>
-                  </div>
-                </div>
-                <div className="flex items-start group">
-                  <div className="p-4 bg-brand-surface border border-brand-border rounded-2xl group-hover:border-brand-accent transition-all">
-                    <Mail className="h-6 w-6 text-brand-accent" />
-                  </div>
-                  <div className="ml-6">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-1 italic">Email Inquiries</div>
-                    <div className="text-xl font-black text-brand-text-primary">info@detailcorner.co.za</div>
+                  <div style={{ marginLeft: '1.5rem' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Phone Support</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>021 555 9876</div>
                   </div>
                 </div>
-                <div className="flex items-start group">
-                  <div className="p-4 bg-brand-surface border border-brand-border rounded-2xl group-hover:border-brand-accent transition-all">
-                    <MapPin className="h-6 w-6 text-brand-accent" />
+                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
+                    <Mail className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                   </div>
-                  <div className="ml-6">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-1 italic">Our Location</div>
-                    <div className="text-xl font-black text-brand-text-primary">Pacific Business Park, Mitchell's Plain</div>
+                  <div style={{ marginLeft: '1.5rem' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Email Inquiries</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>info@detailcorner.co.za</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
+                    <MapPin className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                  </div>
+                  <div style={{ marginLeft: '1.5rem' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Our Location</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>Pacific Business Park, Mitchell's Plain</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-brand-surface border border-brand-border rounded-3xl overflow-hidden h-80 grayscale hover:grayscale-0 transition-all duration-700">
+            <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '20rem' }}>
               <iframe
                 src="https://www.openstreetmap.org/export/embed.html?bbox=18.608%2C-34.035%2C18.628%2C-34.015&layer=mapnik&marker=-34.025%2C18.618"
                 width="100%" height="100%" style={{ border: 0 }}
@@ -111,35 +111,35 @@ export function Contact() {
           </div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-7 bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 md:p-12">
-            <div className="flex items-center space-x-2 text-brand-accent mb-8">
+          <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '2rem' }}>
               <MessageSquare className="h-5 w-5" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Send Message</span>
+              <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Send Message</span>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-3 italic">Full Name</label>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Full Name</label>
                   <input 
                     type="text" name="name" placeholder="John Wick" required value={form.name} onChange={handleChange} 
-                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-6 py-4 text-brand-text-primary focus:ring-1 focus:ring-brand-accent outline-none transition-all"
+                    className="auth-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-3 italic">Email Address</label>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Email Address</label>
                   <input 
                     type="email" name="email" placeholder="john@example.com" required value={form.email} onChange={handleChange} 
-                    className="w-full bg-brand-bg border border-brand-border rounded-xl px-6 py-4 text-brand-text-primary focus:ring-1 focus:ring-brand-accent outline-none transition-all"
+                    className="auth-input"
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-3 italic">Subject</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Subject</label>
                 <select 
                   name="subject" required value={form.subject} onChange={handleChange}
-                  className="w-full bg-brand-bg border border-brand-border rounded-xl px-6 py-4 text-brand-text-primary focus:ring-1 focus:ring-brand-accent outline-none transition-all appearance-none"
+                  className="auth-input form-select"
                 >
                   <option value="" disabled hidden>Select a subject</option>
                   <option value="general">General Inquiry</option>
@@ -150,20 +150,22 @@ export function Contact() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-text-secondary mb-3 italic">Your Message</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Your Message</label>
                 <textarea 
                   name="message" rows={5} placeholder="How can we help with your vehicle?" required value={form.message} onChange={handleChange}
-                  className="w-full bg-brand-bg border border-brand-border rounded-2xl px-6 py-4 text-brand-text-primary focus:ring-1 focus:ring-brand-accent outline-none transition-all resize-none"
+                  className="auth-input"
+                  style={{ resize: 'none' }}
                 />
               </div>
 
-              {error && <div className="text-red-500 text-xs font-bold uppercase tracking-widest italic">{error}</div>}
-              {success && <div className="text-green-500 text-xs font-bold uppercase tracking-widest italic">Message received. We'll be in touch soon.</div>}
+              {error && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', fontStyle: 'italic' }}>{error}</div>}
+              {success && <div style={{ color: '#22c55e', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', fontStyle: 'italic' }}>Message received. We'll be in touch soon.</div>}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-brand-accent text-white font-black uppercase italic tracking-widest text-sm rounded-2xl hover:bg-brand-accent-hover shadow-xl shadow-brand-accent/20 transition-all flex items-center justify-center space-x-3 disabled:opacity-50"
+                className="btn btn-primary"
+                style={{ width: '100%', padding: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}
               >
                 {loading ? (
                   <span>Processing...</span>

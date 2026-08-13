@@ -34,61 +34,68 @@ export function AdminProducts() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
+      <div className="container" style={{ padding: '3rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
+        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight">Manage Products</h1>
-        <button className="px-4 py-2 bg-brand-accent text-brand-text-primary rounded-xl shadow-sm text-sm font-medium hover:bg-brand-accent-hover transition-colors">
+    <div className="container" style={{ padding: '3rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>Manage Products</h1>
+        <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
           Add Product
         </button>
       </div>
 
-      <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-brand-border">
-            <thead className="bg-brand-bg">
+      <div className="brand-card" style={{ overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{ backgroundColor: 'var(--bg)' }}>
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Product
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   SKU
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Category
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Price
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-black/40 divide-y divide-brand-border">
+            <tbody style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
               {products.map((product) => (
-                <tr key={product.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">
+                <tr key={product.id} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {product.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {product.sku}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {product.categories?.name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-primary">
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {formatPrice(product.price)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      display: 'inline-flex',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      borderRadius: '9999px',
+                      backgroundColor: product.is_active ? '#dcfce7' : '#fee2e2',
+                      color: product.is_active ? '#166534' : '#991b1b'
+                    }}>
                       {product.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>

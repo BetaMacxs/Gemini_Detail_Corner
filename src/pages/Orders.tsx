@@ -40,59 +40,67 @@ export function Orders() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
+      <div className="account-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
+        <div style={{
+          width: '2rem',
+          height: '2rem',
+          borderRadius: '50%',
+          borderBottom: '2px solid var(--accent)',
+          animation: 'spin 1s linear infinite'
+        }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-extrabold text-brand-text-primary tracking-tight mb-8">Order History</h1>
+    <div className="account-page">
+      <h1 className="account-title" style={{ marginBottom: '2rem' }}>Order History</h1>
 
       {orders.length === 0 ? (
-        <div className="text-center py-24 bg-brand-bg rounded-2xl border border-brand-border/50">
-          <Package className="mx-auto h-12 w-12 text-brand-text-secondary" />
-          <h3 className="mt-4 text-lg font-medium text-brand-text-primary">No orders found</h3>
-          <p className="mt-2 text-sm text-brand-text-secondary">You haven't placed any orders yet.</p>
-          <div className="mt-6">
+        <div style={{ textAlign: 'center', padding: '6rem 1rem', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+          <Package className="mx-auto h-12 w-12 text-brand-text-secondary" style={{ margin: '0 auto', display: 'block' }} />
+          <h3 style={{ marginTop: '1rem', fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-primary)' }}>No orders found</h3>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>You haven't placed any orders yet.</p>
+          <div style={{ marginTop: '1.5rem' }}>
             <Link
               to="/products"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-brand-text-primary bg-brand-accent hover:bg-brand-accent-hover transition-colors"
+              className="btn btn-primary"
             >
               Start Shopping
             </Link>
           </div>
         </div>
       ) : (
-        <div className="bg-black/40 shadow-sm overflow-hidden sm:rounded-2xl border border-brand-border/50">
-          <ul className="divide-y divide-brand-border">
+        <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {orders.map((order) => (
-              <li key={order.id}>
-                <Link to={`/account/orders/${order.id}`} className="block hover:bg-brand-bg transition-colors">
-                  <div className="px-4 py-6 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-brand-accent truncate">
+              <li key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <Link to={`/account/orders/${order.id}`} style={{ display: 'block', padding: '1.5rem', textDecoration: 'none', transition: 'background-color 0.2s' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' }}>
                         Order #{order.order_number}
                       </p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                          ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' : 
-                            order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 
-                            'bg-yellow-100 text-yellow-800'}`}>
+                      <div>
+                        <span style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          backgroundColor: order.status === 'DELIVERED' ? '#dcfce7' : order.status === 'CANCELLED' ? '#fee2e2' : '#fef3c7',
+                          color: order.status === 'DELIVERED' ? '#166534' : order.status === 'CANCELLED' ? '#991b1b' : '#854d0e'
+                        }}>
                           {order.status.replace('_', ' ')}
-                        </p>
+                        </span>
                       </div>
                     </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-brand-text-secondary">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-brand-text-secondary sm:mt-0">
-                        <p className="font-medium text-brand-text-primary">{formatPrice(order.total)}</p>
-                        <ChevronRight className="ml-2 h-5 w-5 text-brand-text-secondary" />
+                    <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{formatPrice(order.total)}</p>
+                        <ChevronRight className="h-5 w-5 text-brand-text-secondary" />
                       </div>
                     </div>
                   </div>

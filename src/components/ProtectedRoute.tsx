@@ -13,8 +13,8 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '16rem' }}>
+        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }}></div>
       </div>
     );
   }
