@@ -106,8 +106,19 @@ export function AdminPOS() {
 
     const newOrder = {
       order_number: orderNum,
-      guest_email: customerEmail,
-      shipping_address: {
+      customer_id: null,
+      email: customerEmail,
+      customer_name: customerName,
+      phone: '0000000000',
+      billing_information: {
+        firstName: customerName,
+        lastName: '(POS Walk-in)',
+        address: 'Over-the-Counter Store Pick',
+        city: 'Johannesburg',
+        postalCode: '2000',
+        email: customerEmail
+      },
+      shipping_information: {
         firstName: customerName,
         lastName: '(POS Walk-in)',
         address: 'Over-the-Counter Store Pick',
@@ -116,23 +127,43 @@ export function AdminPOS() {
         email: customerEmail
       },
       subtotal,
-      shipping_total: 0,
-      tax_total: Math.round((total * 15 / 115) * 100) / 100,
+      shipping_amount: 0,
       total,
+      currency: storeConfig.STORE_CURRENCY || 'ZAR',
       status: 'PAID',
       payment_status: 'PAID',
-      payment_method: paymentMethod,
-      items: cart.map(item => ({
-        product_id: item.product.id,
-        product_name: item.product.name,
-        quantity: item.quantity,
-        price: item.product.price
-      })),
+      notes: `POS In-Store Checkout (${paymentMethod})`,
       created_at: new Date().toISOString()
     };
 
     try {
-      await supabase.from('orders').insert([newOrder]);
+      const { data: dbOrder, error: orderErr } = await supabase
+        .from('orders')
+        .insert([newOrder])
+        .select()
+        .single();
+
+      if (!orderErr && dbOrder) {
+        const orderItemsList = cart.map(item => ({
+          order_id: dbOrder.id,
+          product_id: item.product.id,
+          product_name_snapshot: item.product.name,
+          sku_snapshot: item.product.sku,
+          quantity: item.quantity,
+          unit_price: item.product.price,
+          total: item.product.price * item.quantity
+        }));
+
+        await supabase.from('order_items').insert(orderItemsList);
+
+        await supabase.from('payments').insert({
+          order_id: dbOrder.id,
+          provider: 'POS',
+          amount: total,
+          currency: storeConfig.STORE_CURRENCY || 'ZAR',
+          status: 'PAID'
+        });
+      }
 
       // Decrement stock in database
       for (const item of cart) {

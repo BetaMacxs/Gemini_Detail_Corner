@@ -29,7 +29,7 @@ export function AdminInvoices() {
     try {
       const { data: dbOrders, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, order_items(*)')
         .order('created_at', { ascending: false });
 
       let localOrders: any[] = [];
@@ -41,30 +41,36 @@ export function AdminInvoices() {
 
       if (!error && dbOrders && dbOrders.length > 0) {
         dbOrders.forEach(o => {
-          let customerName = 'Valued Customer';
-          if (o.shipping_address?.firstName) {
-            customerName = `${o.shipping_address.firstName} ${o.shipping_address.lastName || ''}`.trim();
-          } else if (o.guest_email) {
-            customerName = o.guest_email.split('@')[0];
+          let customerName = o.customer_name || 'Valued Customer';
+          if (!o.customer_name && o.shipping_information?.firstName) {
+            customerName = `${o.shipping_information.firstName} ${o.shipping_information.lastName || ''}`.trim();
           }
 
           const tot = Number(o.total || 0);
           const sub = Number(o.subtotal || tot * 0.85);
-          const ship = Number(o.shipping_total || 0);
+          const ship = Number(o.shipping_amount || 0);
           const vat = Math.round((tot * 15 / 115) * 100) / 100;
+
+          const rawItems = Array.isArray(o.order_items) ? o.order_items : (o.items || []);
+          const mappedItems = rawItems.map((item: any) => ({
+            product_name: item.product_name_snapshot || item.product_name || 'Product Item',
+            variant: item.variant_snapshot || item.variant || 'Standard',
+            quantity: Number(item.quantity || 1),
+            price: Number(item.unit_price || item.price || 0)
+          }));
 
           combined.push({
             id: o.id,
             order_number: o.order_number || `INV-${o.id.slice(0, 8)}`,
             created_at: o.created_at || new Date().toISOString(),
             customer_name: customerName,
-            customer_email: o.guest_email || o.shipping_address?.email || 'N/A',
+            customer_email: o.email || o.shipping_information?.email || 'N/A',
             subtotal: sub,
             shipping_total: ship,
             vat_amount: vat,
             total: tot,
-            shipping_address: o.shipping_address,
-            items: o.items || []
+            shipping_address: o.shipping_information || o.billing_information,
+            items: mappedItems
           });
         });
       }

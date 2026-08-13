@@ -27,14 +27,13 @@ function resolveImageUrl(img: any): string {
 
 function transformImage(img: any, index: number) {
   const url = resolveImageUrl(img);
-  const sortOrder = img.sort_order ?? img.display_order ?? index;
+  const sortOrder = img.sort_order ?? index;
   return {
     ...img,
     url,
     storage_path: img.storage_path || url,
-    display_order: sortOrder,
     sort_order: sortOrder,
-    is_primary: img.is_primary ?? (sortOrder === 0)
+    is_primary: sortOrder === 0
   };
 }
 
@@ -59,7 +58,7 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
       if (error) throw error;
       const transformedCategories = (data || []).map((c: any) => ({
         ...c,
-        image_url: c.image_url || c.image || 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=800'
+        image: c.image || 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=800'
       }));
       set({ categories: transformedCategories, isLoading: false });
     } catch (err: any) {

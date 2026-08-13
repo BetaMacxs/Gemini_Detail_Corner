@@ -30,7 +30,7 @@ export function AdminOrders() {
     try {
       const { data: dbOrders, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, order_items(*)')
         .order('created_at', { ascending: false });
 
       let localOrders: any[] = [];
@@ -42,35 +42,45 @@ export function AdminOrders() {
 
       if (!error && dbOrders && dbOrders.length > 0) {
         dbOrders.forEach(o => {
-          let customerName = 'Guest Customer';
-          if (o.shipping_address?.firstName) {
-            customerName = `${o.shipping_address.firstName} ${o.shipping_address.lastName || ''}`.trim();
-          } else if (o.guest_email) {
-            customerName = o.guest_email.split('@')[0];
+          let customerName = o.customer_name || 'Guest Customer';
+          if (!o.customer_name && o.shipping_information?.firstName) {
+            customerName = `${o.shipping_information.firstName} ${o.shipping_information.lastName || ''}`.trim();
           }
 
           let shipAddr = 'No shipping address specified';
-          if (o.shipping_address) {
-            if (typeof o.shipping_address === 'string') {
-              shipAddr = o.shipping_address;
+          if (o.shipping_information) {
+            if (typeof o.shipping_information === 'string') {
+              shipAddr = o.shipping_information;
             } else {
-              shipAddr = `${o.shipping_address.address || ''}, ${o.shipping_address.city || ''}, ${o.shipping_address.postalCode || ''}`.replace(/^,\s*|,\s*$/g, '');
+              const s = o.shipping_information;
+              shipAddr = `${s.address || s.address_line_1 || ''}, ${s.city || ''}, ${s.postalCode || s.postal_code || ''}`.replace(/^,\s*|,\s*$/g, '');
             }
+          } else if (o.billing_information) {
+            const b = o.billing_information;
+            shipAddr = typeof b === 'string' ? b : `${b.address || ''}, ${b.city || ''}, ${b.postalCode || ''}`.replace(/^,\s*|,\s*$/g, '');
           }
+
+          const rawItems = Array.isArray(o.order_items) ? o.order_items : (o.items || []);
+          const mappedItems = rawItems.map((item: any) => ({
+            product_name: item.product_name_snapshot || item.product_name || 'Product Item',
+            variant: item.variant_snapshot || item.variant || 'Standard',
+            quantity: Number(item.quantity || 1),
+            price: Number(item.unit_price || item.price || 0)
+          }));
 
           combined.push({
             id: o.id,
-            order_number: o.order_number || `DC-${o.id.slice(0, 8)}`,
+            order_number: o.order_number || `ORD-${o.id.slice(0, 8)}`,
             created_at: o.created_at,
             customer_name: customerName,
-            customer_email: o.guest_email || o.shipping_address?.email || 'N/A',
-            status: o.status || 'PENDING',
-            payment_status: o.payment_status || 'UNPAID',
+            customer_email: o.email || o.shipping_information?.email || 'N/A',
+            status: o.status || 'PENDING_PAYMENT',
+            payment_status: o.payment_status || 'PENDING',
             total: Number(o.total || 0),
             shipping_address: shipAddr,
-            payment_ref: o.payment_id || `pf_${o.id.slice(0, 8)}`,
+            payment_ref: `ord_${o.id.slice(0, 8)}`,
             expanded: false,
-            items: o.items || []
+            items: mappedItems
           });
         });
       }

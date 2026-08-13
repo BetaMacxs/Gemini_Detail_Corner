@@ -4,7 +4,6 @@ export interface Category {
   slug: string;
   description: string | null;
   image: string | null;
-  image_url?: string | null;
   active: boolean;
   sort_order: number;
   created_at: string;
@@ -35,6 +34,7 @@ export interface ProductVariant {
   sku: string;
   name: string;
   size: string | null;
+  scent: string | null;
   price: number;
   stock_quantity: number;
   active: boolean;
@@ -46,12 +46,12 @@ export interface ProductImage {
   id: string;
   product_id: string;
   storage_path: string;
-  url?: string;
-  alt_text?: string | null;
+  alt_text: string | null;
   sort_order: number;
-  display_order?: number;
-  is_primary?: boolean;
   created_at: string;
+  // Computed property for image display resolved via storage_path
+  url?: string;
+  is_primary?: boolean;
 }
 
 export interface ProductWithDetails extends Product {
