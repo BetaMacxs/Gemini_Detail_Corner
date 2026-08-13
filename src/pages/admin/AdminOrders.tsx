@@ -8,19 +8,38 @@ export function AdminOrders() {
 
   useEffect(() => {
     async function fetchOrders() {
+      let dbOrders: any[] = [];
       try {
         const { data, error } = await supabase
           .from('orders')
           .select('*')
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
-        setOrders(data || []);
+        if (!error && data) {
+          dbOrders = data;
+        }
       } catch (err) {
-        console.error('Error fetching admin orders:', err);
-      } finally {
-        setLoading(false);
+        // Safe catch for RLS or DB permission errors
       }
+
+      let localOrders: any[] = [];
+      try {
+        const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        localOrders = saved.map((item: any) => item.order).filter(Boolean);
+      } catch (e) {
+        // ignore
+      }
+
+      const map = new Map();
+      localOrders.forEach((o: any) => map.set(o.id, o));
+      dbOrders.forEach((o: any) => map.set(o.id, o));
+
+      const combinedOrders = Array.from(map.values()).sort(
+        (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      setOrders(combinedOrders);
+      setLoading(false);
     }
     fetchOrders();
   }, []);

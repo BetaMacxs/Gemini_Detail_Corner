@@ -42,13 +42,10 @@ export function Footer() {
           <div>
             <h3 className="footer-heading">Support</h3>
             <ul className="footer-list">
-              {['About Us', 'Contact', 'FAQ', 'Privacy Policy'].map((link) => (
-                <li key={link}>
-                  <Link to={`/${link.toLowerCase().replace(' ', '')}`} className="footer-list-link">
-                    {link}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/about" className="footer-list-link">About Us</Link></li>
+              <li><Link to="/contact" className="footer-list-link">Contact</Link></li>
+              <li><Link to="/faq" className="footer-list-link">FAQ</Link></li>
+              <li><Link to="/privacy" className="footer-list-link">Privacy Policy</Link></li>
             </ul>
           </div>
           
@@ -78,9 +75,9 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Detail Corner. All Rights Reserved.
           </p>
           <div className="footer-legal-links">
-            <span className="footer-legal-link">Terms</span>
-            <span className="footer-legal-link">Privacy</span>
-            <span className="footer-legal-link">Cookies</span>
+            <Link to="/privacy" className="footer-legal-link">Terms</Link>
+            <Link to="/privacy" className="footer-legal-link">Privacy</Link>
+            <Link to="/privacy" className="footer-legal-link">Cookies</Link>
           </div>
         </div>
       </div>

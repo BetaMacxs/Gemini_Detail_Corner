@@ -3,6 +3,6 @@ export const storeConfig = {
   STORE_DESCRIPTION: "Premium automotive detailing products.",
   STORE_CURRENCY: "ZAR",
   DEFAULT_COUNTRY: "South Africa",
-  CONTACT_EMAIL: "{{CONTACT_EMAIL}}",
-  CONTACT_PHONE: "{{CONTACT_PHONE}}"
+  CONTACT_EMAIL: "info@detailcorner.co.za",
+  CONTACT_PHONE: "021 555 9876"
 };

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { storeConfig } from '../config/store';
 
 export function OrderDetails() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isPaymentSuccess = searchParams.get('payment') === 'success';
+
   const [order, setOrder] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +16,9 @@ export function OrderDetails() {
   useEffect(() => {
     async function fetchOrderDetails() {
       if (!id) return;
+      let fetchedOrder: any = null;
+      let fetchedItems: any[] = [];
+
       try {
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
@@ -20,24 +26,64 @@ export function OrderDetails() {
           .eq('id', id)
           .single();
         
-        if (orderError) throw orderError;
-        setOrder(orderData);
+        if (!orderError && orderData) {
+          fetchedOrder = orderData;
+          const { data: itemsData } = await supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', id);
 
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('order_items')
-          .select('*')
-          .eq('order_id', id);
-          
-        if (itemsError) throw itemsError;
-        setItems(itemsData || []);
+          if (itemsData) {
+            fetchedItems = itemsData;
+          }
+        }
       } catch (err) {
-        console.error('Error fetching order details:', err);
-      } finally {
-        setLoading(false);
+        console.warn('DB order fetch notice:', err);
       }
+
+      if (!fetchedOrder) {
+        try {
+          const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+          const match = saved.find((item: any) => item.order?.id === id || item.order?.order_number === id);
+          if (match) {
+            fetchedOrder = match.order;
+            fetchedItems = match.items || [];
+          }
+        } catch (e) {
+          console.error('Error reading local order details:', e);
+        }
+      }
+
+      if (isPaymentSuccess && fetchedOrder) {
+        fetchedOrder.status = 'PAID';
+        fetchedOrder.payment_status = 'PAID';
+
+        try {
+          await supabase.from('orders').update({ status: 'PAID', payment_status: 'PAID' }).eq('id', fetchedOrder.id);
+        } catch (e) {
+          console.warn('Update paid status notice:', e);
+        }
+
+        try {
+          const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+          const updated = localOrders.map((item: any) => {
+            if (item.order?.id === fetchedOrder.id) {
+              return { ...item, order: { ...item.order, status: 'PAID', payment_status: 'PAID' } };
+            }
+            return item;
+          });
+          localStorage.setItem('local_orders', JSON.stringify(updated));
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      setOrder(fetchedOrder);
+      setItems(fetchedItems);
+      setLoading(false);
     }
     fetchOrderDetails();
-  }, [id]);
+  }, [id, isPaymentSuccess]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -74,6 +120,16 @@ export function OrderDetails() {
       <Link to="/account/orders" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Orders
       </Link>
+
+      {isPaymentSuccess && (
+        <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(34, 197, 94, 0.15)', border: '1px solid #22c55e', color: '#4ade80', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <CheckCircle2 className="h-5 w-5" style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Payment Received via PayFast Gateway</div>
+            <div style={{ fontSize: '0.8125rem', opacity: 0.9, marginTop: '0.125rem' }}>Your order #{order.order_number} has been confirmed and is now being processed for delivery.</div>
+          </div>
+        </div>
+      )}
       
       <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
         <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>

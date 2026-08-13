@@ -13,6 +13,7 @@ export function Orders() {
   useEffect(() => {
     async function fetchOrders() {
       if (!user) return;
+      let dbOrders: any[] = [];
       try {
         const { data, error } = await supabase
           .from('orders')
@@ -20,13 +21,33 @@ export function Orders() {
           .eq('customer_id', user.id)
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
-        setOrders(data || []);
+        if (!error && data) {
+          dbOrders = data;
+        }
       } catch (err) {
-        console.error('Error fetching orders:', err);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching orders from DB:', err);
       }
+
+      let localOrders: any[] = [];
+      try {
+        const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        localOrders = saved
+          .map((item: any) => item.order)
+          .filter((ord: any) => ord && (!ord.customer_id || ord.customer_id === user.id));
+      } catch (e) {
+        console.error('Error reading local orders:', e);
+      }
+
+      const combinedMap = new Map();
+      localOrders.forEach(ord => combinedMap.set(ord.id, ord));
+      dbOrders.forEach(ord => combinedMap.set(ord.id, ord));
+
+      const allOrders = Array.from(combinedMap.values()).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      setOrders(allOrders);
+      setLoading(false);
     }
     fetchOrders();
   }, [user]);

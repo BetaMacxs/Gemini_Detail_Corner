@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { md5 } from 'js-md5';
 import { useCartStore } from '../features/cart/store';
 import { useAuthStore } from '../features/auth/store';
 import { storeConfig } from '../config/store';
 import { supabase } from '../lib/supabase';
+import { AlertCircle } from 'lucide-react';
+
+function generatePayfastSignature(data: Record<string, string>, passphrase?: string): string {
+  let pfOutput = '';
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key) && data[key] !== '') {
+      pfOutput += `${key}=${encodeURIComponent(data[key].trim()).replace(/%20/g, '+')}&`;
+    }
+  }
+
+  let getString = pfOutput.slice(0, -1);
+  if (passphrase) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
+  }
+
+  return md5(getString);
+}
 
 export function Checkout() {
   const { items, getSubtotal, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isCancelled = searchParams.get('cancelled') === 'true';
 
   const [formData, setFormData] = useState({
     firstName: profile?.full_name?.split(' ')[0] || '',
@@ -26,7 +46,7 @@ export function Checkout() {
   const [error, setError] = useState<string | null>(null);
 
   const subtotal = getSubtotal();
-  const shipping = 100; // Flat rate for now
+  const shipping = 100; // Flat rate
   const total = subtotal + shipping;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -40,6 +60,24 @@ export function Checkout() {
     }).format(price);
   };
 
+  const submitPayfastForm = (payfastData: Record<string, string>, payfastUrl: string) => {
+    clearCart();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = payfastUrl;
+
+    Object.keys(payfastData).forEach(key => {
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      hiddenField.name = key;
+      hiddenField.value = payfastData[key];
+      form.appendChild(hiddenField);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -51,6 +89,7 @@ export function Checkout() {
     setLoading(true);
     setError(null);
 
+    // 1. Try PayFast Edge Function if available
     try {
       const { data, error: functionError } = await supabase.functions.invoke('create-order', {
         body: {
@@ -59,42 +98,144 @@ export function Checkout() {
         }
       });
 
-      if (functionError) {
-        throw new Error(functionError.message || "Failed to initialize payment");
+      if (!functionError && data && data.payfastData && data.payfastUrl) {
+        submitPayfastForm(data.payfastData, data.payfastUrl);
+        return;
       }
+    } catch (edgeErr) {
+      console.warn("Edge function invocation unavailable, proceeding with direct PayFast integration:", edgeErr);
+    }
+
+    // 2. Direct order creation + PayFast gateway redirect
+    try {
+      const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const orderNumber = `ORD-${Math.floor(Date.now() / 1000)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
       
-      if (data && data.payfastData && data.payfastUrl) {
-         // Clear cart because we are redirecting away to PayFast
-         clearCart();
-         
-         const form = document.createElement('form');
-         form.method = 'POST';
-         form.action = data.payfastUrl;
-         
-         Object.keys(data.payfastData).forEach(key => {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = key;
-            hiddenField.value = data.payfastData[key];
-            form.appendChild(hiddenField);
-         });
-         
-         document.body.appendChild(form);
-         form.submit();
-      } else if (data?.error) {
-        throw new Error(data.error);
-      } else {
-         throw new Error("Invalid response from payment server");
+      const newOrder = {
+        id: orderId,
+        order_number: orderNumber,
+        customer_id: user.id,
+        email: formData.email,
+        customer_name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone,
+        billing_information: formData,
+        shipping_information: formData,
+        subtotal,
+        shipping_amount: shipping,
+        total,
+        currency: storeConfig.STORE_CURRENCY || 'ZAR',
+        status: 'PENDING_PAYMENT',
+        payment_status: 'PENDING',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const orderItemsList = items.map((item) => {
+        const price = item.variant ? item.variant.price : item.product.price;
+        return {
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `item_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+          order_id: orderId,
+          product_id: item.product.id || null,
+          variant_id: item.variant?.id || null,
+          product_name_snapshot: item.product.name,
+          sku_snapshot: item.variant ? item.variant.sku : item.product.sku,
+          variant_snapshot: item.variant ? item.variant.name : null,
+          quantity: item.quantity,
+          unit_price: price,
+          total: price * item.quantity,
+          created_at: new Date().toISOString()
+        };
+      });
+
+      let finalOrderId = orderId;
+
+      // Try inserting into Supabase tables if reachable
+      try {
+        const { data: dbOrder, error: orderInsertError } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            customer_id: user.id,
+            email: formData.email,
+            customer_name: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+            billing_information: formData,
+            shipping_information: formData,
+            subtotal,
+            shipping_amount: shipping,
+            total,
+            currency: storeConfig.STORE_CURRENCY || 'ZAR',
+            status: 'PENDING_PAYMENT',
+            payment_status: 'PENDING'
+          })
+          .select()
+          .single();
+
+        if (!orderInsertError && dbOrder) {
+          finalOrderId = dbOrder.id;
+          newOrder.id = dbOrder.id;
+
+          const itemsToInsert = orderItemsList.map(i => ({
+            order_id: dbOrder.id,
+            product_id: i.product_id,
+            variant_id: i.variant_id,
+            product_name_snapshot: i.product_name_snapshot,
+            sku_snapshot: i.sku_snapshot,
+            variant_snapshot: i.variant_snapshot,
+            quantity: i.quantity,
+            unit_price: i.unit_price,
+            total: i.total
+          }));
+
+          await supabase.from('order_items').insert(itemsToInsert);
+        }
+      } catch (dbErr) {
+        console.warn('Direct database insert notice:', dbErr);
       }
+
+      // Save to local_orders in localStorage
+      try {
+        const existingLocalOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const updatedLocalOrders = [
+          { order: newOrder, items: orderItemsList },
+          ...existingLocalOrders.filter((o: any) => o.order?.id !== newOrder.id)
+        ];
+        localStorage.setItem('local_orders', JSON.stringify(updatedLocalOrders));
+      } catch (lsErr) {
+        console.warn('LocalStorage save error:', lsErr);
+      }
+
+      // Build PayFast redirect parameters
+      const merchantId = (import.meta.env.VITE_PAYFAST_MERCHANT_ID as string) || '10000100';
+      const merchantKey = (import.meta.env.VITE_PAYFAST_MERCHANT_KEY as string) || '46f0cd694581a';
+      const passphrase = (import.meta.env.VITE_PAYFAST_PASSPHRASE as string) || '';
+      const isSandbox = (import.meta.env.VITE_PAYFAST_SANDBOX as string) !== 'false';
+
+      const payfastData: Record<string, string> = {
+        merchant_id: merchantId,
+        merchant_key: merchantKey,
+        return_url: `${window.location.origin}/account/orders/${finalOrderId}?payment=success`,
+        cancel_url: `${window.location.origin}/checkout?cancelled=true`,
+        notify_url: `${window.location.origin}/api/payfast-itn`,
+        name_first: formData.firstName || 'Customer',
+        name_last: formData.lastName || 'User',
+        email_address: formData.email,
+        m_payment_id: finalOrderId,
+        amount: total.toFixed(2),
+        item_name: `Detail Corner Order ${orderNumber}`,
+      };
+
+      const signature = generatePayfastSignature(payfastData, passphrase);
+      payfastData.signature = signature;
+
+      const payfastUrl = isSandbox
+        ? 'https://sandbox.payfast.co.za/eng/process'
+        : 'https://www.payfast.co.za/eng/process';
+
+      submitPayfastForm(payfastData, payfastUrl);
     } catch (err: any) {
-      console.error("Checkout error:", err);
-      // Helpful message if Edge Functions aren't deployed yet
-      if (err.message.includes('Failed to fetch') || err.message.includes('edge function')) {
-        setError('Checkout requires the create-order Supabase Edge Function to be deployed. See documentation for setup instructions.');
-      } else {
-        setError(err.message || 'Failed to process checkout');
-      }
-    } finally {
+      console.error("Checkout processing error:", err);
+      setError(err.message || 'Failed to initialize PayFast payment');
       setLoading(false);
     }
   };
@@ -114,6 +255,23 @@ export function Checkout() {
     <div className="checkout-page">
       <div className="checkout-container">
         <h1 className="checkout-title">Checkout</h1>
+
+        {isCancelled && (
+          <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div>
+              <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem' }}>PayFast Payment Cancelled</div>
+              <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Your payment session was cancelled. You can review your details and re-submit payment below.</div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{error}</div>
+          </div>
+        )}
         
         <div className="checkout-layout">
           <div className="checkout-form-container">

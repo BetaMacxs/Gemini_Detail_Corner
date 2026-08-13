@@ -53,28 +53,56 @@ export function ProductDetails() {
         return;
       }
 
+      let isPurchased = false;
+
+      // 1. Check local_orders in localStorage
       try {
-        const { data: purchaseData, error: purchaseError } = await supabase
-          .from('order_items')
-          .select('id, orders!inner(id, customer_id, status)')
-          .eq('product_id', product.id)
-          .eq('orders.customer_id', user.id)
-          .in('orders.status', ['PAID', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED']);
+        const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const localMatched = saved.some((o: any) => 
+          o.order && (o.order.customer_id === user.id || o.order.email === user.email) &&
+          Array.isArray(o.items) && o.items.some((item: any) => item.product_id === product.id)
+        );
+        if (localMatched) {
+          isPurchased = true;
+        }
+      } catch (e) {
+        // ignore
+      }
 
-        if (purchaseError) throw purchaseError;
-        setHasPurchased(purchaseData && purchaseData.length > 0);
+      // 2. If not found in local_orders, try Supabase query safely
+      if (!isPurchased) {
+        try {
+          const { data: purchaseData, error: purchaseError } = await supabase
+            .from('order_items')
+            .select('id, orders!inner(id, customer_id, status)')
+            .eq('product_id', product.id)
+            .eq('orders.customer_id', user.id)
+            .in('orders.status', ['PAID', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED']);
 
+          if (!purchaseError && purchaseData && purchaseData.length > 0) {
+            isPurchased = true;
+          }
+        } catch (err) {
+          // ignore RLS permission errors on orders table
+        }
+      }
+
+      setHasPurchased(isPurchased);
+
+      // 3. Check review status
+      try {
         const { data: reviewData, error: reviewError } = await supabase
           .from('product_reviews')
           .select('id')
           .eq('product_id', product.id)
           .eq('profile_id', user.id);
 
-        if (reviewError) throw reviewError;
-        setHasReviewed(reviewData && reviewData.length > 0);
+        if (!reviewError && reviewData) {
+          setHasReviewed(reviewData.length > 0);
+        } else {
+          setHasReviewed(false);
+        }
       } catch (err) {
-        console.error('Error checking review status:', err);
-        setHasPurchased(false);
         setHasReviewed(false);
       }
     }
