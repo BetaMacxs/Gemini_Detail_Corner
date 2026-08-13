@@ -81,11 +81,6 @@ export function Checkout() {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user) {
-      setError("Please log in to complete your checkout.");
-      return;
-    }
 
     setLoading(true);
     setError(null);
@@ -475,7 +470,7 @@ export function Checkout() {
                     <li key={item.id} className="summary-item">
                       <div className="summary-item-image-wrapper">
                         {item.product.images?.[0] ? (
-                          <img src={item.product.images[0].storage_path} alt={item.product.name} className="w-full h-full object-cover" />
+                          <img src={item.product.images[0].url || item.product.images[0].storage_path} alt={item.product.name} className="w-full h-full object-cover" />
                         ) : (
                           <img 
                             src={`/${item.product.slug.toLowerCase()}.png`}

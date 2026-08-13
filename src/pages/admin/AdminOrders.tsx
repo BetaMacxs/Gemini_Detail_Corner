@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { storeConfig } from '../../config/store';
+import { ChevronDown, ChevronUp, Search, Calendar, Filter } from 'lucide-react';
+import { AdminNav } from '../../components/AdminNav';
 
 interface OrderItem {
   id: string;
@@ -20,91 +21,90 @@ interface OrderItem {
 
 export function AdminOrders() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [statusFilter, setStatusFilter] = useState('all statuses');
-  const [dateFilter, setDateFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadOrders() {
-      setLoading(true);
+  const loadOrders = async () => {
+    setLoading(true);
+    try {
+      const { data: dbOrders, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      let localOrders: any[] = [];
       try {
-        const { data: dbOrders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-        let localOrders: any[] = [];
-        try {
-          localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
-        } catch (e) {}
+        localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+      } catch (e) {}
 
-        const combined: OrderItem[] = [];
+      const combined: OrderItem[] = [];
 
-        // Add DB orders
-        if (dbOrders && dbOrders.length > 0) {
-          dbOrders.forEach(o => {
-            combined.push({
-              id: o.id,
-              order_number: o.order_number || `DC-${o.id.slice(0, 8)}`,
-              created_at: o.created_at,
-              customer_name: o.shipping_address?.firstName ? `${o.shipping_address.firstName} ${o.shipping_address.lastName || ''}` : (o.guest_email?.split('@')[0] || 'Ashley'),
-              customer_email: o.guest_email || o.shipping_address?.email || 'ashley@example.com',
-              status: o.status || 'PAID',
-              payment_status: o.payment_status || 'PAID',
-              total: Number(o.total || 60),
-              shipping_address: o.shipping_address ? `${o.shipping_address.address || ''}, ${o.shipping_address.city || ''}` : '12 Main Rd, Cape Town',
-              payment_ref: `pf_${o.id.slice(0, 6)}`,
-              expanded: false,
-              items: o.items || [
-                { product_name: 'Air Freshener', variant: '100ml / Cherry', quantity: 2, price: 30 }
-              ]
-            });
-          });
-        }
-
-        // Add local orders
-        localOrders.forEach(l => {
-          if (l.order && !combined.some(c => c.id === l.order.id)) {
-            combined.push({
-              id: l.order.id,
-              order_number: l.order.order_number || `DC-LOCAL-${l.order.id.slice(0, 6)}`,
-              created_at: l.order.created_at || new Date().toISOString(),
-              customer_name: l.order.shipping_address?.firstName ? `${l.order.shipping_address.firstName} ${l.order.shipping_address.lastName || ''}` : 'Ashley',
-              customer_email: l.order.shipping_address?.email || 'ashley@example.com',
-              status: l.order.status || 'PAID',
-              payment_status: l.order.payment_status || 'PAID',
-              total: Number(l.order.total || 60),
-              shipping_address: l.order.shipping_address ? `${l.order.shipping_address.address}, ${l.order.shipping_address.city}` : 'Retreat, Cape Town',
-              payment_ref: `PF-${l.order.id.slice(0, 6)}`,
-              expanded: false,
-              items: l.items || [{ product_name: 'Air Freshener', variant: '100ml / Lavender', quantity: 2, price: 30 }]
-            });
+      if (!error && dbOrders && dbOrders.length > 0) {
+        dbOrders.forEach(o => {
+          let customerName = 'Guest Customer';
+          if (o.shipping_address?.firstName) {
+            customerName = `${o.shipping_address.firstName} ${o.shipping_address.lastName || ''}`.trim();
+          } else if (o.guest_email) {
+            customerName = o.guest_email.split('@')[0];
           }
-        });
 
-        if (combined.length === 0) {
-          // Default order matching screenshot
+          let shipAddr = 'No shipping address specified';
+          if (o.shipping_address) {
+            if (typeof o.shipping_address === 'string') {
+              shipAddr = o.shipping_address;
+            } else {
+              shipAddr = `${o.shipping_address.address || ''}, ${o.shipping_address.city || ''}, ${o.shipping_address.postalCode || ''}`.replace(/^,\s*|,\s*$/g, '');
+            }
+          }
+
           combined.push({
-            id: 'dc-20260810-3',
-            order_number: 'DC-20260810-3',
-            created_at: '2026-08-10T10:00:00Z',
-            customer_name: 'Ashley',
-            customer_email: 'ashley@example.com',
-            status: 'PAID',
-            payment_status: 'PAID',
-            total: 60,
-            shipping_address: '10 Station Road, Retreat, Cape Town',
-            payment_ref: 'PF-982134',
-            expanded: true,
-            items: [
-              { product_name: 'Air Freshener', variant: '100ml / Cherry', quantity: 2, price: 30 }
-            ]
+            id: o.id,
+            order_number: o.order_number || `DC-${o.id.slice(0, 8)}`,
+            created_at: o.created_at,
+            customer_name: customerName,
+            customer_email: o.guest_email || o.shipping_address?.email || 'N/A',
+            status: o.status || 'PENDING',
+            payment_status: o.payment_status || 'UNPAID',
+            total: Number(o.total || 0),
+            shipping_address: shipAddr,
+            payment_ref: o.payment_id || `pf_${o.id.slice(0, 8)}`,
+            expanded: false,
+            items: o.items || []
+          });
+        });
+      }
+
+      // Merge locally stored guest orders if present
+      localOrders.forEach(l => {
+        if (l.order && !combined.some(c => c.id === l.order.id)) {
+          combined.push({
+            id: l.order.id,
+            order_number: l.order.order_number || `DC-GUEST-${l.order.id.slice(0, 6)}`,
+            created_at: l.order.created_at || new Date().toISOString(),
+            customer_name: l.order.shipping_address?.firstName ? `${l.order.shipping_address.firstName} ${l.order.shipping_address.lastName || ''}` : 'Guest User',
+            customer_email: l.order.shipping_address?.email || 'N/A',
+            status: l.order.status || 'PENDING',
+            payment_status: l.order.payment_status || 'UNPAID',
+            total: Number(l.order.total || 0),
+            shipping_address: l.order.shipping_address ? `${l.order.shipping_address.address}, ${l.order.shipping_address.city}` : 'N/A',
+            payment_ref: `pf_${l.order.id.slice(0, 6)}`,
+            expanded: false,
+            items: l.items || []
           });
         }
+      });
 
-        setOrders(combined);
-      } catch (e) {
-        console.error("Error loading orders:", e);
-      } finally {
-        setLoading(false);
-      }
+      setOrders(combined);
+    } catch (e) {
+      console.error("Error loading orders from database:", e);
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadOrders();
   }, []);
 
@@ -113,229 +113,226 @@ export function AdminOrders() {
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus, payment_status: newStatus === 'PAID' ? 'PAID' : o.payment_status } : o));
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
 
     try {
-      await supabase.from('orders').update({ status: newStatus }).eq('id', id);
-    } catch (e) {}
+      await supabase.from('orders').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id);
+    } catch (e) {
+      console.warn("Update status error:", e);
+    }
   };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
       currency: storeConfig.STORE_CURRENCY,
-    }).format(price);
-  };
-
-  const formatDate = (iso: string) => {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    } catch (e) {
-      return iso;
-    }
+    }).format(price || 0);
   };
 
   const filteredOrders = orders.filter(o => {
-    if (statusFilter !== 'all statuses' && o.status.toLowerCase() !== statusFilter.toLowerCase()) {
+    if (statusFilter !== 'ALL' && o.status.toUpperCase() !== statusFilter.toUpperCase()) {
       return false;
     }
-    if (dateFilter && !o.created_at.startsWith(dateFilter)) {
-      return false;
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return (
+        o.order_number.toLowerCase().includes(term) ||
+        o.customer_name.toLowerCase().includes(term) ||
+        o.customer_email.toLowerCase().includes(term)
+      );
     }
     return true;
   });
 
+  const ORDER_STATUSES = [
+    'PENDING',
+    'PAID',
+    'PROCESSING',
+    'PACKED',
+    'SHIPPED',
+    'DELIVERED',
+    'CANCELLED'
+  ];
+
   return (
-    <div>
-      {/* Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#f3f4f6' }}>
-          Orders
-        </h1>
-
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          {/* Date Picker */}
-          <div style={{ position: 'relative' }}>
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={e => setDateFilter(e.target.value)}
-              style={{
-                padding: '0.45rem 0.75rem',
-                backgroundColor: '#222222',
-                border: '1px solid #333333',
-                borderRadius: '0.375rem',
-                color: '#ffffff',
-                fontSize: '0.8125rem'
-              }}
-            />
-          </div>
-
-          {/* Status Dropdown */}
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            style={{
-              padding: '0.45rem 0.85rem',
-              backgroundColor: '#222222',
-              border: '1px solid #333333',
-              borderRadius: '0.375rem',
-              color: '#ffffff',
-              fontSize: '0.8125rem',
-              textTransform: 'lowercase'
-            }}
-          >
-            <option value="all statuses">all statuses</option>
-            <option value="pending">pending</option>
-            <option value="paid">paid</option>
-            <option value="processing">processing</option>
-            <option value="shipped">shipped</option>
-            <option value="delivered">delivered</option>
-            <option value="cancelled">cancelled</option>
-          </select>
+    <div className="container" style={{ padding: '3rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Manage <span style={{ color: 'var(--accent)' }}>Orders</span>
+          </h1>
+          <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Customer orders, fulfillment statuses & transaction details.
+          </p>
         </div>
       </div>
 
-      {/* Orders List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {filteredOrders.map(order => {
-          const isPaid = order.status.toUpperCase() === 'PAID';
+      <AdminNav />
 
-          return (
-            <div
-              key={order.id}
-              style={{
-                backgroundColor: '#1f1f1f',
-                border: '1px solid #2e2e2e',
-                borderRadius: '0.5rem',
-                overflow: 'hidden'
-              }}
-            >
-              {/* Order Header */}
-              <div
-                onClick={() => toggleExpand(order.id)}
-                style={{
-                  padding: '1rem 1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff' }}>
-                    {order.order_number}
-                  </span>
-                  <span style={{ fontSize: '0.8125rem', color: '#9ca3af' }}>
-                    {formatDate(order.created_at)}
-                  </span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff' }}>
-                    {order.customer_name}
-                  </span>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    backgroundColor: isPaid ? 'rgba(34, 197, 94, 0.15)' : 'rgba(234, 179, 8, 0.15)',
-                    color: isPaid ? '#4ade80' : '#facc15',
-                    textTransform: 'lowercase'
-                  }}>
-                    {order.status.toLowerCase()}
-                  </span>
-                </div>
+      {/* Filter and Search Bar */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '16rem' }}>
+          <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+          <input
+            type="text"
+            placeholder="Search by order #, name, email..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="auth-input"
+            style={{ paddingLeft: '2.5rem' }}
+          />
+        </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <span style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff' }}>
-                    {formatPrice(order.total)}
-                  </span>
-                  {order.expanded ? <ChevronUp className="h-5 w-5" style={{ color: '#9ca3af' }} /> : <ChevronDown className="h-5 w-5" style={{ color: '#9ca3af' }} />}
-                </div>
-              </div>
-
-              {/* Expanded Order Details */}
-              {order.expanded && (
-                <div style={{ borderTop: '1px solid #2e2e2e', padding: '1.25rem', backgroundColor: '#181818' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '0.8125rem' }}>
-                    <div>
-                      <div style={{ color: '#9ca3af', fontWeight: 600, marginBottom: '0.25rem' }}>Customer</div>
-                      <div style={{ color: '#ffffff', fontWeight: 600 }}>{order.customer_name}</div>
-                      <div style={{ color: '#9ca3af' }}>{order.customer_email}</div>
-                    </div>
-                    <div>
-                      <div style={{ color: '#9ca3af', fontWeight: 600, marginBottom: '0.25rem' }}>Shipping Address</div>
-                      <div style={{ color: '#ffffff' }}>{order.shipping_address || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <div style={{ color: '#9ca3af', fontWeight: 600, marginBottom: '0.25rem' }}>Payment Info</div>
-                      <div style={{ color: '#ffffff' }}>Ref: {order.payment_ref}</div>
-                      <div style={{ color: '#9ca3af' }}>Status: {order.payment_status}</div>
-                    </div>
-                  </div>
-
-                  {/* Items Table */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#9ca3af', marginBottom: '0.5rem' }}>Items</div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8125rem' }}>
-                      <thead>
-                        <tr style={{ color: '#9ca3af', borderBottom: '1px solid #2e2e2e' }}>
-                          <th style={{ padding: '0.4rem 0' }}>Product</th>
-                          <th style={{ padding: '0.4rem 0' }}>Variant</th>
-                          <th style={{ padding: '0.4rem 0' }}>QTY</th>
-                          <th style={{ padding: '0.4rem 0' }}>Price</th>
-                          <th style={{ padding: '0.4rem 0', textAlign: 'right' }}>Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {order.items?.map((item, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid #262626' }}>
-                            <td style={{ padding: '0.5rem 0', color: '#ffffff', fontWeight: 600 }}>{item.product_name}</td>
-                            <td style={{ padding: '0.5rem 0', color: '#9ca3af' }}>{item.variant || 'Standard'}</td>
-                            <td style={{ padding: '0.5rem 0', color: '#ffffff' }}>{item.quantity}</td>
-                            <td style={{ padding: '0.5rem 0', color: '#ffffff' }}>{formatPrice(item.price)}</td>
-                            <td style={{ padding: '0.5rem 0', color: '#ffffff', textAlign: 'right', fontWeight: 600 }}>{formatPrice(item.price * item.quantity)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Status Update Dropdown */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #2e2e2e' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span style={{ fontSize: '0.8125rem', color: '#9ca3af' }}>Update Status:</span>
-                      <select
-                        value={order.status.toLowerCase()}
-                        onChange={e => handleStatusChange(order.id, e.target.value.toUpperCase())}
-                        style={{
-                          padding: '0.35rem 0.65rem',
-                          backgroundColor: '#141414',
-                          border: '1px solid #333333',
-                          borderRadius: '0.375rem',
-                          color: '#ffffff',
-                          fontSize: '0.8125rem'
-                        }}
-                      >
-                        <option value="pending">pending</option>
-                        <option value="paid">paid</option>
-                        <option value="processing">processing</option>
-                        <option value="shipped">shipped</option>
-                        <option value="delivered">delivered</option>
-                        <option value="cancelled">cancelled</option>
-                      </select>
-                    </div>
-
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff' }}>
-                      Total: {formatPrice(order.total)}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="auth-input"
+          style={{ width: 'auto', minWidth: '10rem' }}
+        >
+          <option value="ALL">All Statuses</option>
+          {ORDER_STATUSES.map(s => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
       </div>
+
+      {/* Orders List */}
+      {loading ? (
+        <div className="brand-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+          Loading orders...
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="brand-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+          No orders found in database.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {filteredOrders.map(order => {
+            const isPaid = order.status.toUpperCase() === 'PAID' || order.status.toUpperCase() === 'DELIVERED';
+
+            return (
+              <div key={order.id} className="brand-card" style={{ overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+                {/* Header Row */}
+                <div
+                  onClick={() => toggleExpand(order.id)}
+                  style={{
+                    padding: '1.25rem 1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent)' }}>
+                      {order.order_number}
+                    </span>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                      {new Date(order.created_at).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      {order.customer_name}
+                    </span>
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      backgroundColor: isPaid ? 'rgba(34, 197, 94, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                      color: isPaid ? '#4ade80' : '#facc15',
+                      border: '1px solid var(--border)'
+                    }}>
+                      {order.status}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <span style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                      {formatPrice(order.total)}
+                    </span>
+                    {order.expanded ? <ChevronUp className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />}
+                  </div>
+                </div>
+
+                {/* Expanded Details */}
+                {order.expanded && (
+                  <div style={{ borderTop: '1px solid var(--border)', padding: '1.5rem', backgroundColor: 'var(--bg)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+                      <div>
+                        <div style={{ color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Customer Info</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{order.customer_name}</div>
+                        <div style={{ color: 'var(--text-secondary)' }}>{order.customer_email}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Shipping Address</div>
+                        <div style={{ color: 'var(--text-primary)' }}>{order.shipping_address}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Payment Details</div>
+                        <div style={{ color: 'var(--text-primary)' }}>Ref: {order.payment_ref}</div>
+                        <div style={{ color: 'var(--text-secondary)' }}>Payment Status: {order.payment_status}</div>
+                      </div>
+                    </div>
+
+                    {/* Items */}
+                    {order.items && order.items.length > 0 && (
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Ordered Items</div>
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+                            <thead>
+                              <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}>
+                                <th style={{ padding: '0.5rem 0' }}>Product</th>
+                                <th style={{ padding: '0.5rem 0' }}>Variant</th>
+                                <th style={{ padding: '0.5rem 0' }}>QTY</th>
+                                <th style={{ padding: '0.5rem 0' }}>Price</th>
+                                <th style={{ padding: '0.5rem 0', textAlign: 'right' }}>Subtotal</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {order.items.map((item, idx) => (
+                                <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                  <td style={{ padding: '0.6rem 0', color: 'var(--text-primary)', fontWeight: 700 }}>{item.product_name}</td>
+                                  <td style={{ padding: '0.6rem 0', color: 'var(--text-secondary)' }}>{item.variant || 'Standard'}</td>
+                                  <td style={{ padding: '0.6rem 0', color: 'var(--text-primary)' }}>{item.quantity}</td>
+                                  <td style={{ padding: '0.6rem 0', color: 'var(--text-primary)' }}>{formatPrice(item.price)}</td>
+                                  <td style={{ padding: '0.6rem 0', color: 'var(--text-primary)', textAlign: 'right', fontWeight: 700 }}>{formatPrice(item.price * item.quantity)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Status Select */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Update Order Status:</span>
+                        <select
+                          value={order.status.toUpperCase()}
+                          onChange={e => handleStatusChange(order.id, e.target.value)}
+                          className="auth-input"
+                          style={{ width: 'auto', padding: '0.4rem 0.85rem' }}
+                        >
+                          {ORDER_STATUSES.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                        Total: {formatPrice(order.total)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

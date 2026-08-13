@@ -27,7 +27,6 @@ import { FAQ } from './pages/FAQ';
 import { Gallery } from './pages/Gallery';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 
-import { AdminLayout } from './components/AdminLayout';
 import { AdminInvoices } from './pages/admin/AdminInvoices';
 import { AdminPOS } from './pages/admin/AdminPOS';
 import { AdminAnnouncements } from './pages/admin/AdminAnnouncements';
@@ -73,22 +72,20 @@ export default function App() {
           
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-        </Route>
 
-        {/* Admin Section Layout */}
-        <Route element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/inventory" element={<AdminInventory />} />
-          <Route path="/admin/stock" element={<AdminInventory />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/invoices" element={<AdminInvoices />} />
-          <Route path="/admin/pos" element={<AdminPOS />} />
-          <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-          <Route path="/admin/messages" element={<AdminMessages />} />
-          <Route path="/admin/gallery" element={<AdminGallery />} />
-          <Route path="/admin/customers" element={<AdminCustomers />} />
-          <Route path="/admin/*" element={<AdminDashboard />} />
+          {/* Admin Protected Routes inside MainLayout */}
+          <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute requireAdmin><AdminProducts /></ProtectedRoute>} />
+          <Route path="/admin/inventory" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
+          <Route path="/admin/stock" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
+          <Route path="/admin/orders" element={<ProtectedRoute requireAdmin><AdminOrders /></ProtectedRoute>} />
+          <Route path="/admin/invoices" element={<ProtectedRoute requireAdmin><AdminInvoices /></ProtectedRoute>} />
+          <Route path="/admin/pos" element={<ProtectedRoute requireAdmin><AdminPOS /></ProtectedRoute>} />
+          <Route path="/admin/announcements" element={<ProtectedRoute requireAdmin><AdminAnnouncements /></ProtectedRoute>} />
+          <Route path="/admin/messages" element={<ProtectedRoute requireAdmin><AdminMessages /></ProtectedRoute>} />
+          <Route path="/admin/gallery" element={<ProtectedRoute requireAdmin><AdminGallery /></ProtectedRoute>} />
+          <Route path="/admin/customers" element={<ProtectedRoute requireAdmin><AdminCustomers /></ProtectedRoute>} />
+          <Route path="/admin/*" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

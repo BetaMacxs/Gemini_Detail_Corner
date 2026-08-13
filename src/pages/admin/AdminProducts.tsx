@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { storeConfig } from '../../config/store';
+import { Plus, Edit2, Trash2, X, Power, Search } from 'lucide-react';
+import { AdminNav } from '../../components/AdminNav';
 
 interface ProductItem {
   id: string;
@@ -8,73 +10,99 @@ interface ProductItem {
   slug: string;
   sku: string;
   price: number;
+  compare_at_price?: number | null;
   stock_quantity?: number;
+  low_stock_threshold?: number;
   active?: boolean;
   is_active?: boolean;
-  category_id?: string;
+  category_id?: string | null;
   categories?: { name: string } | null;
+  short_description?: string;
+  description?: string;
 }
 
 export function AdminProducts() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
-
+  const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [saving, setSaving] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
+    sku: '',
     price: '',
+    compare_at_price: '',
+    stock_quantity: '10',
     category_id: '',
+    short_description: '',
+    description: '',
     active: true
   });
 
-  const fetchProductsAndCategories = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
+      // 1. Fetch Categories
       const { data: catData } = await supabase.from('categories').select('*');
-      if (catData && catData.length > 0) {
-        setCategories(catData);
-      } else {
-        setCategories([
-          { id: 'cat-1', name: 'Accessories' },
-          { id: 'cat-2', name: 'Exterior' },
-          { id: 'cat-3', name: 'Wheels' },
-          { id: 'cat-4', name: 'Interior' },
-        ]);
-      }
+      if (catData) setCategories(catData);
 
+      // 2. Fetch Products
       const { data, error } = await supabase
         .from('products')
         .select('*, categories(name)')
-        .order('name');
+        .order('created_at', { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setProducts(data);
       } else {
-        // Fallback default list matching screenshot
-        setProducts([
-          { id: 'p1', name: 'Air Freshener', slug: 'air-freshener', sku: 'AF-1', price: 30, active: true, categories: { name: 'Accessories' } },
-          { id: 'p2', name: 'Air Freshener Hanger', slug: 'air-freshener-hanger', sku: 'AFH-1', price: 35, active: true, categories: { name: 'Accessories' } },
-          { id: 'p3', name: 'Ceramic Force', slug: 'ceramic-force', sku: 'CF-1', price: 80, active: false, categories: { name: 'Exterior' } },
-          { id: 'p4', name: 'Chemois', slug: 'chemois', sku: 'CH-1', price: 40, active: true, categories: { name: 'Accessories' } },
-          { id: 'p5', name: 'Clay Bar', slug: 'clay-bar', sku: 'CB-1', price: 100, active: true, categories: { name: 'Accessories' } },
-          { id: 'p6', name: 'Clear Tyre Shine', slug: 'clear-tyre-shine', sku: 'CTS-1', price: 85, active: true, categories: { name: 'Wheels' } },
-          { id: 'p7', name: 'Crystal Gloss', slug: 'crystal-gloss', sku: 'crystal-gloss', price: 150, active: true, categories: { name: 'Exterior' } },
-          { id: 'p8', name: 'Dash Flash', slug: 'dash-flash', sku: 'DF-1', price: 65, active: true, categories: { name: 'Interior' } },
-        ]);
+        setProducts([]);
       }
     } catch (err) {
       console.error('Error fetching admin products:', err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProductsAndCategories();
+    fetchData();
   }, []);
+
+  const handleOpenAdd = () => {
+    setEditingProduct(null);
+    setFormData({
+      name: '',
+      sku: `SKU-${Date.now().toString().slice(-6)}`,
+      price: '',
+      compare_at_price: '',
+      stock_quantity: '10',
+      category_id: categories[0]?.id || '',
+      short_description: '',
+      description: '',
+      active: true
+    });
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (p: ProductItem) => {
+    setEditingProduct(p);
+    setFormData({
+      name: p.name || '',
+      sku: p.sku || '',
+      price: p.price ? p.price.toString() : '',
+      compare_at_price: p.compare_at_price ? p.compare_at_price.toString() : '',
+      stock_quantity: p.stock_quantity !== undefined ? p.stock_quantity.toString() : '10',
+      category_id: p.category_id || (categories[0]?.id || ''),
+      short_description: p.short_description || '',
+      description: p.description || '',
+      active: typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true)
+    });
+    setShowModal(true);
+  };
 
   const handleToggleActive = async (p: ProductItem) => {
     const currentActive = typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true);
@@ -85,270 +113,276 @@ export function AdminProducts() {
     try {
       await supabase.from('products').update({ active: newActive }).eq('id', p.id);
     } catch (e) {
-      console.warn("Toggle active notice:", e);
+      console.warn("Update active error:", e);
     }
   };
 
-  const handlePriceChange = async (id: string, newPriceStr: string) => {
-    const newPrice = parseFloat(newPriceStr) || 0;
-    setProducts(prev => prev.map(item => item.id === id ? { ...item, price: newPrice } : item));
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
 
+    setProducts(prev => prev.filter(p => p.id !== id));
     try {
-      await supabase.from('products').update({ price: newPrice }).eq('id', id);
-    } catch (e) {}
+      await supabase.from('products').delete().eq('id', id);
+    } catch (e) {
+      console.warn("Delete product error:", e);
+    }
   };
 
-  const handleCategoryChange = async (id: string, catName: string) => {
-    setProducts(prev => prev.map(item => item.id === id ? { ...item, categories: { name: catName } } : item));
-
-    try {
-      const matched = categories.find(c => c.name === catName);
-      if (matched) {
-        await supabase.from('products').update({ category_id: matched.id }).eq('id', id);
-      }
-    } catch (e) {}
-  };
-
-  const handleAddProduct = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) return;
+    setSaving(true);
 
-    const newProd: ProductItem = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `p_${Date.now()}`,
+    const slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const priceNum = parseFloat(formData.price) || 0;
+    const compareNum = formData.compare_at_price ? parseFloat(formData.compare_at_price) : null;
+    const stockNum = parseInt(formData.stock_quantity) || 0;
+
+    const payload = {
       name: formData.name,
-      slug: formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      sku: `SKU-${Date.now().toString().slice(-4)}`,
-      price: parseFloat(formData.price) || 0,
-      active: formData.active,
-      categories: { name: 'Accessories' }
+      slug,
+      sku: formData.sku,
+      price: priceNum,
+      compare_at_price: compareNum,
+      stock_quantity: stockNum,
+      category_id: formData.category_id || null,
+      short_description: formData.short_description,
+      description: formData.description,
+      active: formData.active
     };
 
-    setProducts(prev => [newProd, ...prev]);
-    setShowModal(false);
+    if (editingProduct) {
+      try {
+        await supabase.from('products').update(payload).eq('id', editingProduct.id);
+      } catch (e) {
+        console.warn("Update product error:", e);
+      }
+    } else {
+      try {
+        await supabase.from('products').insert([payload]);
+      } catch (e) {
+        console.warn("Insert product error:", e);
+      }
+    }
 
-    try {
-      await supabase.from('products').insert({
-        name: newProd.name,
-        slug: newProd.slug,
-        sku: newProd.sku,
-        price: newProd.price,
-        active: newProd.active,
-        stock_quantity: 10
-      });
-    } catch (e) {}
+    setSaving(false);
+    setShowModal(false);
+    fetchData();
   };
 
-  const totalPages = Math.ceil(products.length / pageSize) || 1;
-  const paginatedProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-ZA', {
+      style: 'currency',
+      currency: storeConfig.STORE_CURRENCY,
+    }).format(price || 0);
+  };
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
-    <div>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#f3f4f6' }}>
-          Products
-        </h1>
-        <button
-          onClick={() => {
-            setFormData({ name: '', price: '', category_id: '', active: true });
-            setShowModal(true);
-          }}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.5rem 1.25rem',
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            borderRadius: '9999px',
-            border: '1px solid #333333',
-            backgroundColor: '#222222',
-            color: '#e5e5e5',
-            cursor: 'pointer'
-          }}
-        >
-          <Plus className="h-4 w-4" /> Add Product
+    <div className="container" style={{ padding: '3rem 1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Manage <span style={{ color: 'var(--accent)' }}>Products</span>
+          </h1>
+          <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Real-time product catalogue connected directly to database.
+          </p>
+        </div>
+
+        <button onClick={handleOpenAdd} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Plus className="h-4 w-4" />
+          <span>Add Product</span>
         </button>
       </div>
 
-      {/* Product Card Items List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-        {paginatedProducts.map((p) => {
-          const isActive = typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true);
-          const currentCat = p.categories?.name || 'Accessories';
+      <AdminNav />
 
-          return (
-            <div
-              key={p.id}
-              style={{
-                backgroundColor: '#1f1f1f',
-                border: '1px solid #2e2e2e',
-                borderRadius: '0.5rem',
-                padding: '0.85rem 1.25rem',
-                display: 'grid',
-                gridTemplateColumns: '2fr 1fr 1fr auto',
-                alignItems: 'center',
-                gap: '1.5rem'
-              }}
-            >
-              {/* Product Title */}
-              <div>
-                <a
-                  href={`/product/${p.slug}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: '#ffffff',
-                    textDecoration: 'underline',
-                    letterSpacing: '-0.01em'
-                  }}
-                >
-                  {p.name}
-                </a>
-              </div>
-
-              {/* Price Field */}
-              <div>
-                <input
-                  type="text"
-                  value={`${p.price.toFixed(2).replace('.', ',')}`}
-                  onChange={(e) => handlePriceChange(p.id, e.target.value.replace(',', '.'))}
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#141414',
-                    border: '1px solid #2e2e2e',
-                    borderRadius: '0.375rem',
-                    padding: '0.4rem 0.75rem',
-                    color: '#ffffff',
-                    fontSize: '0.875rem',
-                    fontWeight: 700,
-                    textAlign: 'center'
-                  }}
-                />
-              </div>
-
-              {/* Category Dropdown */}
-              <div>
-                <select
-                  value={currentCat}
-                  onChange={(e) => handleCategoryChange(p.id, e.target.value)}
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#141414',
-                    border: '1px solid #2e2e2e',
-                    borderRadius: '0.375rem',
-                    padding: '0.4rem 0.75rem',
-                    color: '#ffffff',
-                    fontSize: '0.875rem',
-                    fontWeight: 500
-                  }}
-                >
-                  <option value="Accessories">Accessories</option>
-                  <option value="Exterior">Exterior</option>
-                  <option value="Wheels">Wheels</option>
-                  <option value="Interior">Interior</option>
-                </select>
-              </div>
-
-              {/* Active / Hidden Pill Button */}
-              <div>
-                <button
-                  onClick={() => handleToggleActive(p)}
-                  style={{
-                    padding: '0.3rem 0.85rem',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    borderRadius: '9999px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: isActive ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                    color: isActive ? '#4ade80' : '#f87171',
-                    minWidth: '4.5rem',
-                    textAlign: 'center'
-                  }}
-                >
-                  {isActive ? 'active' : 'hidden'}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+      {/* Search Bar */}
+      <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
+        <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+        <input
+          type="text"
+          placeholder="Filter products..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="auth-input"
+          style={{ paddingLeft: '2.5rem' }}
+        />
       </div>
 
-      {/* Bottom Pagination */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '2.5rem' }}>
-        <button
-          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-          disabled={currentPage === 1}
-          style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '9999px',
-            border: '1px solid #333333',
-            backgroundColor: '#222222',
-            color: '#9ca3af',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-            opacity: currentPage === 1 ? 0.3 : 1
-          }}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
-          page {currentPage} of {totalPages} ({products.length} Products)
-        </span>
-
-        <button
-          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-          disabled={currentPage === totalPages}
-          style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '9999px',
-            border: '1px solid #333333',
-            backgroundColor: '#222222',
-            color: '#9ca3af',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-            opacity: currentPage === totalPages ? 0.3 : 1
-          }}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Add Product Modal */}
+      {/* Modal for Add / Edit */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ backgroundColor: '#222222', border: '1px solid #333333', borderRadius: '0.5rem', padding: '1.5rem', width: '100%', maxWidth: '28rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#ffffff' }}>Add Product</h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X className="h-5 w-5" /></button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="brand-card" style={{ width: '100%', maxWidth: '36rem', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>
+                {editingProduct ? 'Edit Product' : 'Add New Product'}
+              </h3>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem' }}>Product Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} style={{ width: '100%', padding: '0.5rem', backgroundColor: '#141414', border: '1px solid #333', borderRadius: '0.375rem', color: '#fff' }} />
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Product Name</label>
+                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="auth-input" placeholder="e.g. Ceramic Force Coating" />
               </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>SKU</label>
+                  <input type="text" required value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} className="auth-input" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Price (ZAR)</label>
+                  <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="auth-input" placeholder="0.00" />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Compare Price (ZAR)</label>
+                  <input type="number" step="0.01" value={formData.compare_at_price} onChange={e => setFormData({ ...formData, compare_at_price: e.target.value })} className="auth-input" placeholder="Optional" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Stock Quantity</label>
+                  <input type="number" required value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} className="auth-input" />
+                </div>
+              </div>
+
+              {categories.length > 0 && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category</label>
+                  <select value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} className="auth-input">
+                    <option value="">Select Category</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem' }}>Price (R)</label>
-                <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} style={{ width: '100%', padding: '0.5rem', backgroundColor: '#141414', border: '1px solid #333', borderRadius: '0.375rem', color: '#fff' }} />
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Short Summary</label>
+                <input type="text" value={formData.short_description} onChange={e => setFormData({ ...formData, short_description: e.target.value })} className="auth-input" placeholder="Brief 1-sentence product highlight" />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #333', backgroundColor: 'transparent', color: '#ccc', cursor: 'pointer' }}>Cancel</button>
-                <button type="submit" style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Save Product</button>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Full Description</label>
+                <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="auth-input" placeholder="Detailed product specifications..." />
+              </div>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontSize: '0.875rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={formData.active} onChange={e => setFormData({ ...formData, active: e.target.checked })} />
+                <span>Product is active and visible in store</span>
+              </label>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem' }}>Cancel</button>
+                <button type="submit" disabled={saving} className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.875rem' }}>
+                  {saving ? 'Saving...' : 'Save Product'}
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Main Table */}
+      <div className="brand-card" style={{ overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{ backgroundColor: 'var(--bg)' }}>
+              <tr>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Product</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>SKU</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Category</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Price</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Stock</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Status</th>
+                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    Loading products...
+                  </td>
+                </tr>
+              ) : filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    No products found in database. Click "Add Product" to create one.
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product) => {
+                  const isActive = typeof product.active === 'boolean' ? product.active : (typeof product.is_active === 'boolean' ? product.is_active : true);
+
+                  return (
+                    <tr key={product.id} style={{ borderTop: '1px solid var(--border)' }}>
+                      <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <a href={`/product/${product.slug}`} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                          {product.name}
+                        </a>
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        {product.sku || '-'}
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        {product.categories?.name || 'Uncategorized'}
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-primary)' }}>
+                        {formatPrice(product.price)}
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        {product.stock_quantity ?? 0}
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem' }}>
+                        <button
+                          onClick={() => handleToggleActive(product)}
+                          style={{
+                            padding: '0.25rem 0.6rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            borderRadius: '9999px',
+                            backgroundColor: isActive ? '#dcfce7' : '#fee2e2',
+                            color: isActive ? '#166534' : '#991b1b',
+                            border: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Power className="h-3 w-3" />
+                          <span>{isActive ? 'Active' : 'Inactive'}</span>
+                        </button>
+                      </td>
+                      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button onClick={() => handleOpenEdit(product)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Edit2 className="h-3 w-3" /> Edit
+                          </button>
+                          <button onClick={() => handleDelete(product.id)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

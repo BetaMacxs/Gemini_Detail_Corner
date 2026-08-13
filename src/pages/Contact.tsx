@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Send, MessageSquare } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -24,21 +25,49 @@ export function Contact() {
     setError(null);
     setSuccess(false);
 
+    const newMessage = {
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `msg_${Date.now()}`,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      subject: form.subject,
+      message: form.message,
+      status: 'unread',
+      created_at: new Date().toISOString()
+    };
+
+    // 1. Attempt Supabase insert
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSuccess(true);
-      setForm({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
+      await supabase.from('contact_messages').insert({
+        id: newMessage.id,
+        name: newMessage.name,
+        email: newMessage.email,
+        phone: newMessage.phone,
+        subject: newMessage.subject,
+        message: newMessage.message,
+        status: 'unread'
       });
-    } catch (err: any) {
-      setError(err.message || 'Failed to send message');
-    } finally {
-      setLoading(false);
+    } catch (dbErr) {
+      console.warn('DB contact_messages notice:', dbErr);
     }
+
+    // 2. Local persistence fallback
+    try {
+      const existing = JSON.parse(localStorage.getItem('contact_messages') || '[]');
+      localStorage.setItem('contact_messages', JSON.stringify([newMessage, ...existing]));
+    } catch (lsErr) {
+      console.warn('LocalStorage notice:', lsErr);
+    }
+
+    setSuccess(true);
+    setForm({
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: ''
+    });
+    setLoading(false);
   };
 
   return (

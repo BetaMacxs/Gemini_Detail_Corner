@@ -1,4 +1,48 @@
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+
 export function Gallery() {
+  const defaultImages = [
+    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1599256621730-535171e28e50?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1597404294360-feeeda04612e?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800"
+  ];
+
+  const [galleryItems, setGalleryItems] = useState<string[]>(defaultImages);
+
+  useEffect(() => {
+    async function loadGallery() {
+      let urls: string[] = [];
+      try {
+        const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          urls = data.map((item: any) => item.url).filter(Boolean);
+        }
+      } catch (e) {
+        console.warn("Gallery fetch notice:", e);
+      }
+
+      try {
+        const local = JSON.parse(localStorage.getItem('gallery') || '[]');
+        if (local && local.length > 0) {
+          const localUrls = local.map((item: any) => item.url).filter(Boolean);
+          urls = Array.from(new Set([...urls, ...localUrls]));
+        }
+      } catch (e) {
+        console.warn("Local gallery notice:", e);
+      }
+
+      if (urls.length > 0) {
+        setGalleryItems(urls);
+      }
+    }
+
+    loadGallery();
+  }, []);
+
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
       {/* Hero Section */}
@@ -16,14 +60,7 @@ export function Gallery() {
 
       <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-          {[
-            "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1599256621730-535171e28e50?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1597404294360-feeeda04612e?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800"
-          ].map((url, i) => (
+          {galleryItems.map((url, i) => (
             <div key={i} className="brand-card" style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
               <img 
                 src={url} 

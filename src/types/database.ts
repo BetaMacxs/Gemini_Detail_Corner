@@ -4,6 +4,7 @@ export interface Category {
   slug: string;
   description: string | null;
   image: string | null;
+  image_url?: string | null;
   active: boolean;
   sort_order: number;
   created_at: string;
@@ -45,8 +46,11 @@ export interface ProductImage {
   id: string;
   product_id: string;
   storage_path: string;
-  alt_text: string | null;
+  url?: string;
+  alt_text?: string | null;
   sort_order: number;
+  display_order?: number;
+  is_primary?: boolean;
   created_at: string;
 }
 
