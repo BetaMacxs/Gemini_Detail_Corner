@@ -272,11 +272,16 @@ create policy "Admins can manage coupons." on public.coupons using (public.is_ad
 
 -- Orders
 create policy "Users can view their own orders." on public.orders for select using (auth.uid() = customer_id or public.is_admin());
+create policy "Users can insert their own orders." on public.orders for insert with check (auth.uid() = customer_id or customer_id is null);
+create policy "Users can update their own orders." on public.orders for update using (auth.uid() = customer_id or customer_id is null or public.is_admin());
 create policy "Admins can manage orders." on public.orders using (public.is_admin());
 
 -- Order Items
 create policy "Users can view their own order items." on public.order_items for select using (
-  exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or public.is_admin()))
+  exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
+);
+create policy "Users can insert order items." on public.order_items for insert with check (
+  exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
 );
 create policy "Admins can manage order items." on public.order_items using (public.is_admin());
 

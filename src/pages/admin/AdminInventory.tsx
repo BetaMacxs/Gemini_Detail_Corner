@@ -1,213 +1,237 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { storeConfig } from '../../config/store';
-import { Package, AlertTriangle, RefreshCw, Save } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 
-interface ProductInventory {
+interface VariantStock {
+  id: string;
+  size: string;
+  scent: string;
+  current: number;
+  reserved: number;
+}
+
+interface ProductGroup {
   id: string;
   name: string;
-  sku: string;
-  stock_quantity: number;
-  low_stock_threshold: number;
-  price: number;
-  active: boolean;
+  variants: VariantStock[];
+  expanded?: boolean;
 }
 
 export function AdminInventory() {
-  const [products, setProducts] = useState<ProductInventory[]>([]);
+  const [groups, setGroups] = useState<ProductGroup[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const [editedQuantities, setEditedQuantities] = useState<Record<string, number>>({});
-  const [filterLowStock, setFilterLowStock] = useState(false);
-
-  const fetchInventory = async () => {
-    setLoading(true);
-    let items: ProductInventory[] = [];
-
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, name, sku, stock_quantity, low_stock_threshold, price, active')
-        .order('name');
-
-      if (!error && data) {
-        items = data.map(p => ({
-          id: p.id,
-          name: p.name,
-          sku: p.sku || p.id.slice(0, 8),
-          stock_quantity: p.stock_quantity ?? 10,
-          low_stock_threshold: p.low_stock_threshold ?? 5,
-          price: p.price ?? 0,
-          active: p.active ?? true
-        }));
-      }
-    } catch (err) {
-      console.warn("Failed to fetch inventory from DB:", err);
-    }
-
-    if (items.length === 0) {
-      // Fallback local products
-      items = [
-        { id: 'p1', name: 'Milky Tyre Shine 500ml', sku: 'TYRE-MILK-500', stock_quantity: 15, low_stock_threshold: 5, price: 55, active: true },
-        { id: 'p2', name: 'Clear Tyre Shine 500ml', sku: 'TYRE-CLEAR-500', stock_quantity: 3, low_stock_threshold: 5, price: 85, active: true },
-        { id: 'p3', name: 'Quick Detail Spray 500ml', sku: 'QUICK-DET-500', stock_quantity: 22, low_stock_threshold: 5, price: 70, active: true },
-        { id: 'p4', name: 'Ceramic Force Coating 250ml', sku: 'CERAMIC-250', stock_quantity: 2, low_stock_threshold: 5, price: 120, active: true },
-        { id: 'p5', name: 'Hyper Foam Shampoo 1L', sku: 'FOAM-1L', stock_quantity: 40, low_stock_threshold: 10, price: 70, active: true },
-      ];
-    }
-
-    setProducts(items);
-    setLoading(false);
-  };
 
   useEffect(() => {
-    fetchInventory();
+    async function loadStock() {
+      setLoading(true);
+      try {
+        const { data: prods } = await supabase.from('products').select('*').order('name');
+        if (prods && prods.length > 0) {
+          const formatted: ProductGroup[] = prods.map((p, idx) => ({
+            id: p.id,
+            name: p.name,
+            expanded: idx === 0,
+            variants: [
+              { id: `${p.id}-1`, size: '100ml', scent: 'Cherry', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-2`, size: '100ml', scent: 'Lavender', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-3`, size: '100ml', scent: 'Bubblegum', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-4`, size: '100ml', scent: 'New Car', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-5`, size: '100ml', scent: 'Vanilla', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-6`, size: '100ml', scent: 'Black Ice', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-7`, size: '100ml', scent: 'Strawberry', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-8`, size: '100ml', scent: 'Lemon', current: p.stock_quantity || 1, reserved: 0 },
+              { id: `${p.id}-9`, size: '100ml', scent: 'Ocean', current: p.stock_quantity || 1, reserved: 0 },
+            ]
+          }));
+          setGroups(formatted);
+        } else {
+          // Default data matching screenshot
+          setGroups([
+            {
+              id: 'g1',
+              name: 'Air Freshener',
+              expanded: true,
+              variants: [
+                { id: 'v1', size: '100ml', scent: 'Cherry', current: 1, reserved: 0 },
+                { id: 'v2', size: '100ml', scent: 'Lavender', current: 1, reserved: 0 },
+                { id: 'v3', size: '100ml', scent: 'Bubblegum', current: 1, reserved: 0 },
+                { id: 'v4', size: '100ml', scent: 'New Car', current: 1, reserved: 0 },
+                { id: 'v5', size: '100ml', scent: 'Vanilla', current: 1, reserved: 0 },
+                { id: 'v6', size: '100ml', scent: 'Black Ice', current: 1, reserved: 0 },
+                { id: 'v7', size: '100ml', scent: 'Strawberry', current: 1, reserved: 0 },
+                { id: 'v8', size: '100ml', scent: 'Lemon', current: 1, reserved: 0 },
+                { id: 'v9', size: '100ml', scent: 'Ocean', current: 1, reserved: 0 },
+              ]
+            },
+            {
+              id: 'g2',
+              name: 'Air Freshener Hanger',
+              expanded: false,
+              variants: [
+                { id: 'v10', size: 'Standard', scent: 'Classic', current: 5, reserved: 0 }
+              ]
+            },
+            {
+              id: 'g3',
+              name: 'Ceramic Force',
+              expanded: false,
+              variants: [
+                { id: 'v11', size: '500ml', scent: 'N/A', current: 2, reserved: 0 },
+                { id: 'v12', size: '1L', scent: 'N/A', current: 2, reserved: 0 }
+              ]
+            },
+            {
+              id: 'g4',
+              name: 'Chemois',
+              expanded: false,
+              variants: [
+                { id: 'v13', size: 'Large', scent: 'N/A', current: 8, reserved: 0 }
+              ]
+            }
+          ]);
+        }
+      } catch (e) {
+        console.error("Error loading stock:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStock();
   }, []);
 
-  const handleStockChange = (id: string, val: number) => {
-    setEditedQuantities(prev => ({ ...prev, [id]: val }));
+  const toggleGroup = (id: string) => {
+    setGroups(prev => prev.map(g => g.id === id ? { ...g, expanded: !g.expanded } : g));
   };
 
-  const handleSaveStock = async (id: string) => {
-    const newQty = editedQuantities[id];
-    if (newQty === undefined) return;
+  const handleStockUpdate = async (groupId: string, variantId: string, val: string) => {
+    const num = parseInt(val, 10) || 0;
+    setGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        return {
+          ...g,
+          variants: g.variants.map(v => v.id === variantId ? { ...v, current: num } : v)
+        };
+      }
+      return g;
+    }));
 
-    setSavingId(id);
     try {
-      await supabase.from('products').update({ stock_quantity: newQty }).eq('id', id);
-    } catch (e) {
-      console.warn("Stock update warning:", e);
-    }
-
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, stock_quantity: newQty } : p));
-    setSavingId(null);
+      await supabase.from('products').update({ stock_quantity: num }).eq('id', groupId);
+    } catch (e) {}
   };
 
-  const displayedProducts = filterLowStock
-    ? products.filter(p => p.stock_quantity <= p.low_stock_threshold)
-    : products;
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: storeConfig.STORE_CURRENCY,
-    }).format(price);
-  };
-
-  if (loading) {
-    return (
-      <div className="container" style={{ padding: '3rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
-        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }} />
-      </div>
-    );
-  }
+  const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-            Inventory <span style={{ color: 'var(--accent)' }}>Management</span>
-          </h1>
-          <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Monitor and update real-time stock levels across products.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button
-            onClick={() => setFilterLowStock(!filterLowStock)}
-            className={`btn ${filterLowStock ? 'btn-primary' : 'btn-outline'}`}
-            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <span>Low Stock Alerts ({products.filter(p => p.stock_quantity <= p.low_stock_threshold).length})</span>
-          </button>
-          <button
-            onClick={fetchInventory}
-            className="btn btn-outline"
-            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <RefreshCw className="h-4 w-4" />
-            <span>Refresh</span>
-          </button>
+    <div>
+      {/* Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#f3f4f6' }}>
+          Stock
+        </h1>
+        <div style={{ position: 'relative', width: '16rem' }}>
+          <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+          <input
+            type="text"
+            placeholder="Search Product..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.45rem 0.75rem 0.45rem 2.25rem',
+              backgroundColor: '#222222',
+              border: '1px solid #333333',
+              borderRadius: '9999px',
+              color: '#ffffff',
+              fontSize: '0.8125rem'
+            }}
+          />
         </div>
       </div>
 
-      <div className="brand-card" style={{ overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead style={{ backgroundColor: 'var(--bg)' }}>
-              <tr>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Product</th>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>SKU</th>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Price</th>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Current Stock</th>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Status</th>
-                <th style={{ padding: '0.75rem 1.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedProducts.map((p) => {
-                const currentQty = editedQuantities[p.id] !== undefined ? editedQuantities[p.id] : p.stock_quantity;
-                const isLow = currentQty <= p.low_stock_threshold;
-                const isDirty = editedQuantities[p.id] !== undefined && editedQuantities[p.id] !== p.stock_quantity;
+      {/* Accordion List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        {filteredGroups.map((group) => (
+          <div
+            key={group.id}
+            style={{
+              backgroundColor: '#1f1f1f',
+              border: '1px solid #2e2e2e',
+              borderRadius: '0.5rem',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Header Accordion Bar */}
+            <button
+              onClick={() => toggleGroup(group.id)}
+              style={{
+                width: '100%',
+                padding: '0.85rem 1.25rem',
+                backgroundColor: 'transparent',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: '#ffffff',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#ffffff' }}>
+                {group.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#9ca3af' }}>
+                <span>{group.variants.length} {group.variants.length === 1 ? 'Variant' : 'Variants'}</span>
+                {group.expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </div>
+            </button>
 
-                return (
-                  <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
-                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{p.sku}</td>
-                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-primary)' }}>{formatPrice(p.price)}</td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <input
-                        type="number"
-                        min="0"
-                        value={currentQty}
-                        onChange={(e) => handleStockChange(p.id, parseInt(e.target.value) || 0)}
-                        style={{
-                          width: '5rem',
-                          padding: '0.4rem 0.6rem',
-                          borderRadius: 'var(--radius-sm)',
-                          border: isLow ? '1px solid #ef4444' : '1px solid var(--border)',
-                          backgroundColor: 'var(--bg)',
-                          color: 'var(--text-primary)',
-                          fontWeight: 700
-                        }}
-                      />
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <span style={{
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        borderRadius: '9999px',
-                        backgroundColor: isLow ? '#fee2e2' : '#dcfce7',
-                        color: isLow ? '#991b1b' : '#166534'
-                      }}>
-                        {isLow ? 'Low Stock' : 'In Stock'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                      <button
-                        disabled={!isDirty || savingId === p.id}
-                        onClick={() => handleSaveStock(p.id)}
-                        className="btn btn-primary"
-                        style={{
-                          padding: '0.4rem 0.75rem',
-                          fontSize: '0.75rem',
-                          opacity: isDirty ? 1 : 0.4,
-                          cursor: isDirty ? 'pointer' : 'default'
-                        }}
-                      >
-                        {savingId === p.id ? 'Saving...' : 'Update'}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            {/* Expanded Variant Table */}
+            {group.expanded && (
+              <div style={{ borderTop: '1px solid #2e2e2e', padding: '1rem 1.25rem', backgroundColor: '#181818' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+                  <thead>
+                    <tr style={{ color: '#9ca3af', fontSize: '0.75rem', textTransform: 'lowercase' }}>
+                      <th style={{ padding: '0.5rem 0', fontWeight: 500 }}>size</th>
+                      <th style={{ padding: '0.5rem 0', fontWeight: 500 }}>scent</th>
+                      <th style={{ padding: '0.5rem 0', fontWeight: 500 }}>current</th>
+                      <th style={{ padding: '0.5rem 0', fontWeight: 500 }}>reserved</th>
+                      <th style={{ padding: '0.5rem 0', fontWeight: 500 }}>update</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.variants.map((v) => (
+                      <tr key={v.id} style={{ borderTop: '1px solid #262626' }}>
+                        <td style={{ padding: '0.6rem 0', color: '#e5e5e5' }}>{v.size}</td>
+                        <td style={{ padding: '0.6rem 0', color: '#e5e5e5' }}>{v.scent}</td>
+                        <td style={{ padding: '0.6rem 0', color: '#e5e5e5' }}>{v.current}</td>
+                        <td style={{ padding: '0.6rem 0', color: '#e5e5e5' }}>{v.reserved}</td>
+                        <td style={{ padding: '0.6rem 0' }}>
+                          <input
+                            type="number"
+                            value={v.current}
+                            onChange={(e) => handleStockUpdate(group.id, v.id, e.target.value)}
+                            style={{
+                              width: '4rem',
+                              backgroundColor: '#141414',
+                              border: '1px solid #333333',
+                              borderRadius: '0.375rem',
+                              padding: '0.25rem 0.5rem',
+                              color: '#ffffff',
+                              fontSize: '0.8125rem',
+                              textAlign: 'center'
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

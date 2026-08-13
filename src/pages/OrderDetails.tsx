@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { storeConfig } from '../config/store';
+import { useCartStore } from '../features/cart/store';
 
 export function OrderDetails() {
   const { id } = useParams<{ id: string }>();
@@ -57,6 +58,13 @@ export function OrderDetails() {
       if (isPaymentSuccess && fetchedOrder) {
         fetchedOrder.status = 'PAID';
         fetchedOrder.payment_status = 'PAID';
+
+        // Clear cart only on confirmed payment success!
+        try {
+          useCartStore.getState().clearCart();
+        } catch (cErr) {
+          console.warn('Clear cart error:', cErr);
+        }
 
         try {
           await supabase.from('orders').update({ status: 'PAID', payment_status: 'PAID' }).eq('id', fetchedOrder.id);

@@ -35,11 +35,26 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ session, user: session?.user || null });
 
       if (session?.user) {
-        const { data: profile } = await supabase
+        let { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
+
+        if (!profile && session.user.id) {
+          const newProfile = {
+            id: session.user.id,
+            email: session.user.email || '',
+            full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Customer',
+            is_admin: false
+          };
+          const { data: created } = await supabase
+            .from('profiles')
+            .upsert(newProfile)
+            .select()
+            .maybeSingle();
+          profile = created || newProfile;
+        }
         set({ profile });
       }
     } catch (error) {
@@ -52,11 +67,26 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ session: newSession, user: newSession?.user || null });
       if (newSession?.user) {
         try {
-          const { data: profile } = await supabase
+          let { data: profile } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', newSession.user.id)
-            .single();
+            .maybeSingle();
+
+          if (!profile && newSession.user.id) {
+            const newProfile = {
+              id: newSession.user.id,
+              email: newSession.user.email || '',
+              full_name: newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0] || 'Customer',
+              is_admin: false
+            };
+            const { data: created } = await supabase
+              .from('profiles')
+              .upsert(newProfile)
+              .select()
+              .maybeSingle();
+            profile = created || newProfile;
+          }
           set({ profile });
         } catch (error) {
            console.error("Error fetching profile on auth change:", error);

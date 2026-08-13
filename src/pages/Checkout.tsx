@@ -29,6 +29,7 @@ export function Checkout() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isCancelled = searchParams.get('cancelled') === 'true';
+  const isFailed = searchParams.get('failed') === 'true';
 
   const [formData, setFormData] = useState({
     firstName: profile?.full_name?.split(' ')[0] || '',
@@ -61,7 +62,7 @@ export function Checkout() {
   };
 
   const submitPayfastForm = (payfastData: Record<string, string>, payfastUrl: string) => {
-    clearCart();
+    // Note: Do NOT clear cart here. The cart must only be cleared upon confirmed payment success!
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = payfastUrl;
@@ -108,13 +109,34 @@ export function Checkout() {
 
     // 2. Direct order creation + PayFast gateway redirect
     try {
+      const isValidUUID = (str: string | null | undefined): boolean => {
+        if (!str) return false;
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+      };
+
+      const validUserId = isValidUUID(user?.id) ? user.id : null;
+
+      // Ensure profile exists in profiles table so foreign key constraint succeeds
+      if (validUserId) {
+        try {
+          await supabase.from('profiles').upsert({
+            id: validUserId,
+            email: formData.email,
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone
+          }, { onConflict: 'id' });
+        } catch (pErr) {
+          console.warn('Profile sync notice:', pErr);
+        }
+      }
+
       const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
       const orderNumber = `ORD-${Math.floor(Date.now() / 1000)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
       
       const newOrder = {
         id: orderId,
         order_number: orderNumber,
-        customer_id: user.id,
+        customer_id: validUserId,
         email: formData.email,
         customer_name: `${formData.firstName} ${formData.lastName}`,
         phone: formData.phone,
@@ -135,8 +157,8 @@ export function Checkout() {
         return {
           id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `item_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
           order_id: orderId,
-          product_id: item.product.id || null,
-          variant_id: item.variant?.id || null,
+          product_id: isValidUUID(item.product?.id) ? item.product.id : null,
+          variant_id: isValidUUID(item.variant?.id) ? item.variant.id : null,
           product_name_snapshot: item.product.name,
           sku_snapshot: item.variant ? item.variant.sku : item.product.sku,
           variant_snapshot: item.variant ? item.variant.name : null,
@@ -149,13 +171,13 @@ export function Checkout() {
 
       let finalOrderId = orderId;
 
-      // Try inserting into Supabase tables if reachable
+      // Inserting into Supabase orders & order_items & payments tables
       try {
         const { data: dbOrder, error: orderInsertError } = await supabase
           .from('orders')
           .insert({
             order_number: orderNumber,
-            customer_id: user.id,
+            customer_id: validUserId,
             email: formData.email,
             customer_name: `${formData.firstName} ${formData.lastName}`,
             phone: formData.phone,
@@ -171,7 +193,9 @@ export function Checkout() {
           .select()
           .single();
 
-        if (!orderInsertError && dbOrder) {
+        if (orderInsertError) {
+          console.error('Supabase orders insert error:', orderInsertError);
+        } else if (dbOrder) {
           finalOrderId = dbOrder.id;
           newOrder.id = dbOrder.id;
 
@@ -187,7 +211,19 @@ export function Checkout() {
             total: i.total
           }));
 
-          await supabase.from('order_items').insert(itemsToInsert);
+          const { error: itemsInsertErr } = await supabase.from('order_items').insert(itemsToInsert);
+          if (itemsInsertErr) {
+            console.error('Supabase order_items insert error:', itemsInsertErr);
+          }
+
+          // Create payment record in payments table
+          await supabase.from('payments').insert({
+            order_id: dbOrder.id,
+            provider: 'PayFast',
+            amount: total,
+            currency: storeConfig.STORE_CURRENCY || 'ZAR',
+            status: 'PENDING'
+          });
         }
       } catch (dbErr) {
         console.warn('Direct database insert notice:', dbErr);
@@ -261,7 +297,17 @@ export function Checkout() {
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <div>
               <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem' }}>PayFast Payment Cancelled</div>
-              <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Your payment session was cancelled. You can review your details and re-submit payment below.</div>
+              <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Your payment session was cancelled. Your cart items have been preserved below so you can try again.</div>
+            </div>
+          </div>
+        )}
+
+        {isFailed && (
+          <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div>
+              <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem' }}>PayFast Payment Failed</div>
+              <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Payment was not processed. All items in your cart have been preserved so you can re-submit or choose another method.</div>
             </div>
           </div>
         )}
