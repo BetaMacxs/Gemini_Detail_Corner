@@ -10,9 +10,9 @@
   --color-brand-text-dark: var(--text-dark);
   --color-brand-border: var(--border);
   --color-brand-gold: var(--gold);
-  --font-sans: var(--font);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
-
 
 *,
 *::before,
@@ -23,26 +23,32 @@
 }
 
 :root {
-  --bg: #1a1a1a;                /* deep charcoal – not pure black */
-  --surface: #f7f7f7;            /* soft off‑white – easier on the eyes than pure white */
-  --accent: #c41e3a;             /* rich crimson red */
-  --accent-hover: #a01830;       /* darker crimson for hover states */
+  --bg: #0f0f0f;                /* deeper, more premium charcoal */
+  --surface: #1a1a1a;           /* card/container background */
+  --accent: #c41e3a;            /* detail crimson */
+  --accent-hover: #a01830;
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-dark: #222222;
-  --border: #333333;
+  --text-secondary: #a3a3a3;
+  --text-dark: #0f0f0f;
+  --border: rgba(255, 255, 255, 0.08);
   --gold: #d4a853;
-  --radius: 8px;
-  --font: 'Inter', 'Segoe UI', sans-serif;
+  --radius: 12px;
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 body {
-  font-family: var(--font);
+  font-family: var(--font-body);
   background-color: var(--bg);
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  animation: fadeIn 0.6s ease-out;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 @keyframes fadeIn {

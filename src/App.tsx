@@ -25,6 +25,7 @@ import { useAuthStore } from './features/auth/store';
 
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
+import { FAQ } from './pages/FAQ';
 import { Gallery } from './pages/Gallery';
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
