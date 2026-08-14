@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../features/cart/store';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, Tag, X } from 'lucide-react';
 import { storeConfig } from '../config/store';
+import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 export function Cart() {
-  const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const { items, removeItem, updateQuantity, getSubtotal, applyCoupon, removeCoupon, couponCode, discountAmount } = useCartStore();
+  const [couponInput, setCouponInput] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -14,6 +19,63 @@ export function Cart() {
   };
 
   const subtotal = getSubtotal();
+  const finalTotal = Math.max(0, subtotal - discountAmount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setIsValidatingCoupon(true);
+    setCouponError('');
+
+    try {
+      const { data: coupon, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', couponInput.trim().toUpperCase())
+        .single();
+
+      if (error || !coupon) {
+        setCouponError('Invalid coupon code');
+        setIsValidatingCoupon(false);
+        return;
+      }
+
+      const now = new Date();
+      if (coupon.valid_from && new Date(coupon.valid_from) > now) {
+        setCouponError('Coupon is not active yet');
+        setIsValidatingCoupon(false);
+        return;
+      }
+      if (coupon.valid_until && new Date(coupon.valid_until) < now) {
+        setCouponError('Coupon has expired');
+        setIsValidatingCoupon(false);
+        return;
+      }
+      if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) {
+        setCouponError('Coupon usage limit reached');
+        setIsValidatingCoupon(false);
+        return;
+      }
+      if (coupon.minimum_order_value && subtotal < coupon.minimum_order_value) {
+        setCouponError(`Minimum order value of ${formatPrice(coupon.minimum_order_value)} required`);
+        setIsValidatingCoupon(false);
+        return;
+      }
+
+      let calculatedDiscount = 0;
+      if (coupon.discount_type === 'PERCENTAGE') {
+        calculatedDiscount = (subtotal * coupon.discount_value) / 100;
+      } else {
+        calculatedDiscount = coupon.discount_value;
+      }
+
+      applyCoupon(coupon.code, calculatedDiscount);
+      setCouponInput('');
+    } catch (err) {
+      setCouponError('Failed to validate coupon');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -46,7 +108,7 @@ export function Cart() {
             {items.map((item) => {
               const maxStock = item.variant ? item.variant.stock_quantity : item.product.stock_quantity;
               const price = item.variant ? item.variant.price : item.product.price;
-              const image = item.product.images?.[0]?.storage_path;
+              const image = item.product.images?.[0]?.url || item.product.images?.[0]?.storage_path;
 
               return (
                 <li key={item.id} className="cart-item">
@@ -138,6 +200,20 @@ export function Cart() {
                 <dt className="summary-label">Subtotal</dt>
                 <dd className="summary-value">{formatPrice(subtotal)}</dd>
               </div>
+
+              {couponCode && (
+                <div className="summary-row text-green-600 font-medium">
+                  <dt className="summary-label flex items-center gap-1">
+                    <Tag className="h-4 w-4" />
+                    {couponCode}
+                    <button onClick={removeCoupon} className="ml-2 hover:text-red-500 text-gray-400 transition-colors" title="Remove coupon">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </dt>
+                  <dd className="summary-value">-{formatPrice(discountAmount)}</dd>
+                </div>
+              )}
+
               <div className="summary-row summary-divider">
                 <dt className="summary-label">
                   Shipping estimate
@@ -146,9 +222,35 @@ export function Cart() {
               </div>
               <div className="summary-total-row">
                 <dt className="summary-total-label">Order total</dt>
-                <dd className="summary-total-value">{formatPrice(subtotal)}</dd>
+                <dd className="summary-total-value">{formatPrice(finalTotal)}</dd>
               </div>
             </dl>
+
+            {!couponCode && (
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#222]">
+                <label htmlFor="coupon" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Gift card or discount code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="coupon"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    className="input-field flex-1 text-sm py-2"
+                    placeholder="Enter code"
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={isValidatingCoupon || !couponInput.trim()}
+                    className="btn btn-secondary py-2 px-4 whitespace-nowrap disabled:opacity-50"
+                  >
+                    {isValidatingCoupon ? 'Applying...' : 'Apply'}
+                  </button>
+                </div>
+                {couponError && <p className="mt-2 text-sm text-red-500">{couponError}</p>}
+              </div>
+            )}
 
             <div className="mt-10">
               <Link

@@ -32,6 +32,7 @@ import { AdminPOS } from './pages/admin/AdminPOS';
 import { AdminAnnouncements } from './pages/admin/AdminAnnouncements';
 import { AdminMessages } from './pages/admin/AdminMessages';
 import { AdminGallery } from './pages/admin/AdminGallery';
+import { TrackOrder } from "./pages/TrackOrder";
 
 export default function App() {
   const initialize = useAuthStore(state => state.initialize);
@@ -46,6 +47,7 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/track" element={<TrackOrder />} />
           <Route path="/products" element={<Shop />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
@@ -67,7 +69,7 @@ export default function App() {
             } 
           />
           <Route path="/account/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-          <Route path="/account/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+          <Route path="/account/orders/:id" element={<OrderDetails />} />
           <Route path="/account/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
           
           <Route path="/cart" element={<Cart />} />

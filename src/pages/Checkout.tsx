@@ -24,7 +24,7 @@ function generatePayfastSignature(data: Record<string, string>, passphrase?: str
 }
 
 export function Checkout() {
-  const { items, getSubtotal, clearCart } = useCartStore();
+  const { items, getSubtotal, clearCart, discountAmount, couponCode } = useCartStore();
   const { user, profile } = useAuthStore();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -47,8 +47,9 @@ export function Checkout() {
   const [error, setError] = useState<string | null>(null);
 
   const subtotal = getSubtotal();
+  const finalSubtotal = Math.max(0, subtotal - discountAmount);
   const shipping = 100; // Flat rate
-  const total = subtotal + shipping;
+  const total = finalSubtotal + shipping;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -138,6 +139,7 @@ export function Checkout() {
         billing_information: formData,
         shipping_information: formData,
         subtotal,
+        discount_amount: discountAmount,
         shipping_amount: shipping,
         total,
         currency: storeConfig.STORE_CURRENCY || 'ZAR',
@@ -179,6 +181,7 @@ export function Checkout() {
             billing_information: formData,
             shipping_information: formData,
             subtotal,
+            discount_amount: discountAmount,
             shipping_amount: shipping,
             total,
             currency: storeConfig.STORE_CURRENCY || 'ZAR',
@@ -210,6 +213,14 @@ export function Checkout() {
           if (itemsInsertErr) {
             console.error('Supabase order_items insert error:', itemsInsertErr);
           }
+
+          // Initial status history
+          await supabase.from('order_status_history').insert({
+            order_id: dbOrder.id,
+            previous_status: null,
+            new_status: 'PENDING_PAYMENT',
+            reason: 'Order created'
+          });
 
           // Create payment record in payments table
           await supabase.from('payments').insert({
@@ -504,6 +515,12 @@ export function Checkout() {
                   <dt>Subtotal</dt>
                   <dd className="summary-value">{formatPrice(subtotal)}</dd>
                 </div>
+                {couponCode && (
+                  <div className="summary-cost-row text-green-600 font-medium">
+                    <dt>Discount ({couponCode})</dt>
+                    <dd className="summary-value">-{formatPrice(discountAmount)}</dd>
+                  </div>
+                )}
                 <div className="summary-cost-row">
                   <dt>Shipping</dt>
                   <dd className="summary-value">{formatPrice(shipping)}</dd>

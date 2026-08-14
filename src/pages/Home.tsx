@@ -149,7 +149,7 @@ export function Home() {
                   <Link to={`/product/${product.slug}`} className="block">
                     <div className="product-card-image-wrapper">
                       <img 
-                        src={product.images?.[0]?.storage_path || `/${product.slug.toLowerCase()}.png`} 
+                        src={product.images?.[0]?.url || product.images?.[0]?.storage_path || `/${product.slug.toLowerCase()}.png`} 
                         alt={product.name}
                         className="product-card-image"
                         onError={(e) => {

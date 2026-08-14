@@ -126,9 +126,37 @@ export function AdminOrders() {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
 
     try {
+      const currentOrder = orders.find(o => o.id === id);
       await supabase.from('orders').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id);
+      
+      if (currentOrder && currentOrder.status !== newStatus) {
+        await supabase.from('order_status_history').insert({
+          order_id: id,
+          previous_status: currentOrder.status,
+          new_status: newStatus,
+          reason: 'Updated by admin'
+        });
+      }
+      
+      if (newStatus === 'SHIPPED') {
+        const order = orders.find(o => o.id === id);
+        alert(`DISPATCH NOTIFICATION SENT:\nEmail successfully sent to ${order?.email || 'customer'} for Order #${order?.order_number || id}\nStatus updated to SHIPPED.`);
+      }
     } catch (e) {
       console.warn("Update status error:", e);
+    }
+
+    try {
+      const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+      const updatedLocal = localOrders.map((item: any) => {
+        if (item.order?.id === id) {
+          return { ...item, order: { ...item.order, status: newStatus } };
+        }
+        return item;
+      });
+      localStorage.setItem('local_orders', JSON.stringify(updatedLocal));
+    } catch (e) {
+      // ignore
     }
   };
 

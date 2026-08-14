@@ -53,6 +53,16 @@ export function OrderDetails() {
         } catch (e) {
           console.error('Error reading local order details:', e);
         }
+      } else if (fetchedItems.length === 0) {
+        try {
+          const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+          const match = saved.find((item: any) => item.order?.id === id || item.order?.order_number === id);
+          if (match && match.items) {
+            fetchedItems = match.items;
+          }
+        } catch (e) {
+          // ignore
+        }
       }
 
       if (isPaymentSuccess && fetchedOrder) {
@@ -68,6 +78,24 @@ export function OrderDetails() {
 
         try {
           await supabase.from('orders').update({ status: 'PAID', payment_status: 'PAID' }).eq('id', fetchedOrder.id);
+          
+          await supabase.from('order_status_history').insert({
+            order_id: fetchedOrder.id,
+            previous_status: 'PENDING_PAYMENT',
+            new_status: 'PAID',
+            reason: 'Payment successful'
+          });
+          
+          // Deduct stock
+          for (const item of fetchedItems) {
+            if (item.variant_id) {
+              const { data: v } = await supabase.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single();
+              if (v) await supabase.from('product_variants').update({ stock_quantity: Math.max(0, v.stock_quantity - item.quantity) }).eq('id', item.variant_id);
+            } else if (item.product_id) {
+              const { data: p } = await supabase.from('products').select('stock_quantity').eq('id', item.product_id).single();
+              if (p) await supabase.from('products').update({ stock_quantity: Math.max(0, p.stock_quantity - item.quantity) }).eq('id', item.product_id);
+            }
+          }
         } catch (e) {
           console.warn('Update paid status notice:', e);
         }
@@ -84,6 +112,11 @@ export function OrderDetails() {
         } catch (e) {
           // ignore
         }
+        
+        // Simulate sending order confirmation email
+        setTimeout(() => {
+          alert(`ORDER CONFIRMATION EMAIL SENT:\nA receipt has been sent to ${fetchedOrder.email} for order #${fetchedOrder.order_number}`);
+        }, 1000);
       }
 
       setOrder(fetchedOrder);

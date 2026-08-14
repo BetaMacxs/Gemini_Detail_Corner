@@ -271,7 +271,7 @@ create policy "Admins can manage shipping methods." on public.shipping_methods u
 create policy "Admins can manage coupons." on public.coupons using (public.is_admin());
 
 -- Orders
-create policy "Users can view their own orders." on public.orders for select using (auth.uid() = customer_id or public.is_admin());
+create policy "Users can view their own orders." on public.orders for select using (auth.uid() = customer_id or customer_id is null or public.is_admin());
 create policy "Users can insert their own orders." on public.orders for insert with check (auth.uid() = customer_id or customer_id is null);
 create policy "Users can update their own orders." on public.orders for update using (auth.uid() = customer_id or customer_id is null or public.is_admin());
 create policy "Admins can manage orders." on public.orders using (public.is_admin());
@@ -287,6 +287,9 @@ create policy "Admins can manage order items." on public.order_items using (publ
 
 -- Payments, Payment Events, Order Status History, Admin Audit Log
 create policy "Admins can view and manage payments." on public.payments using (public.is_admin());
+create policy "Users can insert payments for their orders." on public.payments for insert with check (
+  exists (select 1 from public.orders where orders.id = payments.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
+);
 create policy "Admins can view payment events." on public.payment_events for select using (public.is_admin());
 create policy "Users can view own order history." on public.order_status_history for select using (
   exists (select 1 from public.orders where orders.id = order_status_history.order_id and (orders.customer_id = auth.uid() or public.is_admin()))
@@ -347,3 +350,81 @@ create policy "Reviews are viewable by everyone." on public.product_reviews for 
 create policy "Authenticated users can insert reviews." on public.product_reviews for insert to authenticated with check (true);
 create policy "Users can update their own reviews." on public.product_reviews for update using (auth.uid() = profile_id);
 create policy "Users can delete their own reviews." on public.product_reviews for delete using (auth.uid() = profile_id);
+
+-- Public Order Tracking RPC Function
+-- This function securely allows tracking orders using order_number and email without authentication
+create or replace function public.track_order(p_order_number text, p_email text)
+returns json
+language plpgsql
+security definer
+as $$
+declare
+  v_order record;
+  v_history json;
+begin
+  select * into v_order from public.orders 
+  where order_number = p_order_number and lower(email) = lower(p_email);
+  
+  if not found then
+    return null;
+  end if;
+
+  select json_agg(h order by created_at desc) into v_history 
+  from public.order_status_history h 
+  where h.order_id = v_order.id;
+
+  return json_build_object(
+    'order', row_to_json(v_order),
+    'history', coalesce(v_history, '[]'::json)
+  );
+end;
+$$;
+create or replace function public.track_order(p_order_number text, p_email text)
+returns json
+language plpgsql
+security definer
+as $$
+declare
+  v_order json;
+  v_history json;
+begin
+  select row_to_json(o) into v_order from (
+    select orders.*, 
+      (select json_agg(row_to_json(oi)) from public.order_items oi where oi.order_id = orders.id) as order_items
+    from public.orders 
+    where order_number = p_order_number and lower(email) = lower(p_email)
+  ) o;
+  
+  if v_order is null then
+    return null;
+  end if;
+
+  select json_agg(h order by created_at desc) into v_history 
+  from public.order_status_history h 
+  where h.order_id = (v_order->>'id')::uuid;
+
+  return json_build_object(
+    'order', v_order,
+    'history', coalesce(v_history, '[]'::json)
+  );
+end;
+$$;
+
+-- Trigger to automatically track order status history
+create or replace function public.handle_order_status_change()
+returns trigger as $$
+begin
+  if (tg_op = 'INSERT') then
+    insert into public.order_status_history (order_id, previous_status, new_status, reason)
+    values (new.id, null, new.status, 'Order created');
+  elsif (tg_op = 'UPDATE' and old.status is distinct from new.status) then
+    insert into public.order_status_history (order_id, previous_status, new_status, reason)
+    values (new.id, old.status, new.status, 'Status updated');
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_order_status_changed
+  after insert or update on public.orders
+  for each row execute procedure public.handle_order_status_change();

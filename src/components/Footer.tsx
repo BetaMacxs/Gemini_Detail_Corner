@@ -44,6 +44,7 @@ export function Footer() {
             <ul className="footer-list">
               <li><Link to="/about" className="footer-list-link">About Us</Link></li>
               <li><Link to="/contact" className="footer-list-link">Contact</Link></li>
+              <li><Link to="/track" className="footer-list-link">Track Order</Link></li>
               <li><Link to="/faq" className="footer-list-link">FAQ</Link></li>
               <li><Link to="/privacy" className="footer-list-link">Privacy Policy</Link></li>
             </ul>

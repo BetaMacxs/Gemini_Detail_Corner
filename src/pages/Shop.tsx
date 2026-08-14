@@ -162,7 +162,7 @@ export function Shop() {
                             <div className="product-card-image-wrapper">
                               {product.images && product.images.length > 0 ? (
                                 <img
-                                  src={product.images[0].storage_path}
+                                  src={product.images[0].url || product.images[0].storage_path}
                                   alt={product.images[0].alt_text || product.name}
                                   className="product-card-image"
                                 />

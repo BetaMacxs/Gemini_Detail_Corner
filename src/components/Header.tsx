@@ -28,7 +28,8 @@ export function Header() {
               { to: "/gallery", label: "Gallery" },
               { to: "/about", label: "About" },
               { to: "/contact", label: "Contact" },
-              { to: "/faq", label: "FAQ" }
+              { to: "/faq", label: "FAQ" },
+              { to: "/track", label: "Track Order" }
             ].map((link) => (
               <Link 
                 key={link.to} 
@@ -95,7 +96,8 @@ export function Header() {
                 { to: "/gallery", label: "Gallery" },
                 { to: "/about", label: "About" },
                 { to: "/contact", label: "Contact" },
-                { to: "/faq", label: "FAQ" }
+                { to: "/faq", label: "FAQ" },
+              { to: "/track", label: "Track Order" }
               ].map((link) => (
                 <Link 
                   key={link.to} 
