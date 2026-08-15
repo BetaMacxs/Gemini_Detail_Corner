@@ -79,7 +79,7 @@ export function Orders() {
 
       {orders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '6rem 1rem', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-          <Package className="mx-auto h-12 w-12 text-brand-text-secondary" style={{ margin: '0 auto', display: 'block' }} />
+          <Package style={{ margin: '0 auto', display: 'block', height: '3rem', width: '3rem', color: 'var(--text-secondary)' }} />
           <h3 style={{ marginTop: '1rem', fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-primary)' }}>No orders found</h3>
           <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>You haven't placed any orders yet.</p>
           <div style={{ marginTop: '1.5rem' }}>
@@ -121,7 +121,7 @@ export function Orders() {
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{formatPrice(order.total)}</p>
-                        <ChevronRight className="h-5 w-5 text-brand-text-secondary" />
+                        <ChevronRight size={20} className="text-brand-text-secondary" />
                       </div>
                     </div>
                   </div>

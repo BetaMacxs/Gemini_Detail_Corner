@@ -315,7 +315,7 @@ export function Checkout() {
 
         {isFailed && (
           <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <AlertCircle style={{ flexShrink: 0, height: '1.25rem', width: '1.25rem' }} />
             <div>
               <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem' }}>PayFast Payment Failed</div>
               <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Payment was not processed. All items in your cart have been preserved so you can re-submit or choose another method.</div>
@@ -325,7 +325,7 @@ export function Checkout() {
 
         {error && (
           <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <AlertCircle style={{ flexShrink: 0, height: '1.25rem', width: '1.25rem' }} />
             <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{error}</div>
           </div>
         )}
@@ -521,7 +521,7 @@ export function Checkout() {
                   <dd className="summary-value">{formatPrice(subtotal)}</dd>
                 </div>
                 {couponCode && (
-                  <div className="summary-cost-row text-green-600 font-medium">
+                  <div className="summary-cost-row" style={{ color: '#16a34a', fontWeight: 500 }}>
                     <dt>Discount ({couponCode})</dt>
                     <dd className="summary-value">-{formatPrice(discountAmount)}</dd>
                   </div>

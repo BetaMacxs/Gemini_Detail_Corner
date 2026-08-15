@@ -23,20 +23,20 @@ export function TrackOrder() {
     switch (status) {
       case 'PENDING':
       case 'PENDING_PAYMENT':
-        return <Clock className="h-6 w-6 text-yellow-500" />;
+        return <Clock style={{ height: '1.5rem', width: '1.5rem', color: '#eab308' }} />;
       case 'PAID':
       case 'PROCESSING':
-        return <Package className="h-6 w-6 text-blue-500" />;
+        return <Package style={{ height: '1.5rem', width: '1.5rem', color: '#3b82f6' }} />;
       case 'PACKED':
       case 'SHIPPED':
-        return <Truck className="h-6 w-6 text-indigo-500" />;
+        return <Truck style={{ height: '1.5rem', width: '1.5rem', color: '#6366f1' }} />;
       case 'DELIVERED':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle style={{ height: '1.5rem', width: '1.5rem', color: '#22c55e' }} />;
       case 'CANCELLED':
       case 'FAILED':
-        return <XCircle className="h-6 w-6 text-red-500" />;
+        return <XCircle style={{ height: '1.5rem', width: '1.5rem', color: '#ef4444' }} />;
       default:
-        return <Clock className="h-6 w-6 text-gray-500" />;
+        return <Clock style={{ height: '1.5rem', width: '1.5rem', color: '#6b7280' }} />;
     }
   };
 
@@ -97,7 +97,7 @@ export function TrackOrder() {
   return (
     <div className="container" style={{ padding: '4rem 1rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <PackageSearch className="h-12 w-12 text-brand-accent mx-auto mb-4" />
+        <PackageSearch style={{ height: '3rem', width: '3rem', color: 'var(--accent)', margin: '0 auto 1rem auto' }} />
         <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>Track Your Order</h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem' }}>
           Enter your order number and email address to see your order status.
@@ -136,7 +136,7 @@ export function TrackOrder() {
 
           {error && (
             <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '1rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle style={{ flexShrink: 0, height: '1.25rem', width: '1.25rem' }} />
               <p style={{ margin: 0, fontWeight: 500 }}>{error}</p>
             </div>
           )}
@@ -218,7 +218,7 @@ export function TrackOrder() {
               </div>
             ) : (
               <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--surface)', borderRadius: 'var(--radius-md)' }}>
-                <Clock className="h-8 w-8 text-brand-text-secondary mx-auto mb-3" />
+                <Clock style={{ height: '2rem', width: '2rem', color: 'var(--text-secondary)', margin: '0 auto 0.75rem auto' }} />
                 <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>No tracking history available yet.</p>
               </div>
             )}

@@ -8,6 +8,8 @@
 @import "./pages/checkout.css";
 @import "./pages/auth.css";
 @import "./pages/account.css";
+@import "./pages/success.css";
+@import "./pages/cancel.css";
 
 *,
 *::before,
@@ -165,3 +167,5 @@ img {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+.text-white { color: #ffffff; }
+.flex-shrink-0 { flex-shrink: 0; }

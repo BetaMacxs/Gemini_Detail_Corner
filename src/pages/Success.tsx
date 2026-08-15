@@ -116,27 +116,27 @@ export function Success() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="success-loading">
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full mb-4"
+          className="success-loading-spinner"
         />
-        <h2 className="text-xl font-bold text-text-primary">Verifying Payment...</h2>
-        <p className="text-text-secondary mt-2">Please wait while we confirm your order.</p>
+        <h2 className="success-loading-title">Verifying Payment...</h2>
+        <p className="success-loading-text">Please wait while we confirm your order.</p>
       </div>
     );
   }
 
   if (error && !order) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center">
-        <div className="bg-red-500/10 border border-red-500 rounded-lg p-6 mb-8">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Something went wrong</h2>
-          <p className="text-text-secondary">{error}</p>
+      <div className="success-error">
+        <div className="success-error-box">
+          <AlertTriangle className="success-error-icon" />
+          <h2 className="success-error-title">Something went wrong</h2>
+          <p className="success-loading-text">{error}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="success-error-actions">
           <Link to="/products" className="btn btn-primary">Return to Shop</Link>
           <Link to="/contact" className="btn btn-outline">Contact Support</Link>
         </div>
@@ -145,63 +145,63 @@ export function Success() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="success-page">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12"
+        className="success-header"
       >
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 mb-6">
-          <CheckCircle2 className="h-12 w-12 text-green-500" />
+        <div className="success-icon-wrapper">
+          <CheckCircle2 className="success-icon" />
         </div>
-        <h1 className="text-3xl font-extrabold text-text-primary sm:text-4xl">
+        <h1 className="success-title">
           Thank you for your order!
         </h1>
-        <p className="mt-4 text-lg text-text-secondary">
-          Your payment was successful and your order <span className="font-bold text-accent">#{order?.order_number}</span> is now confirmed.
+        <p className="success-subtitle">
+          Your payment was successful and your order <span className="success-order-number">#{order?.order_number}</span> is now confirmed.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="success-grid">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="success-main-content">
           {/* Order Details */}
-          <div className="bg-card-bg border border-white/5 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-6 py-4 border-bottom border-white/5 bg-white/5">
-              <h2 className="text-lg font-bold text-text-primary">Order Summary</h2>
+          <div className="success-card">
+            <div className="success-card-header">
+              <h2 className="success-card-title">Order Summary</h2>
             </div>
-            <div className="p-6">
-              <ul className="divide-y divide-white/5">
+            <div className="success-card-body">
+              <ul className="success-order-items">
                 {items.map((item) => (
-                  <li key={item.id} className="py-4 flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-text-primary font-medium">{item.product_name_snapshot}</span>
+                  <li key={item.id} className="success-order-item">
+                    <div className="success-item-details">
+                      <span className="success-item-name">{item.product_name_snapshot}</span>
                       {item.variant_snapshot && (
-                        <span className="text-xs text-text-secondary mt-0.5">{item.variant_snapshot}</span>
+                        <span className="success-item-variant">{item.variant_snapshot}</span>
                       )}
-                      <span className="text-sm text-text-secondary mt-1">Qty: {item.quantity}</span>
+                      <span className="success-item-qty">Qty: {item.quantity}</span>
                     </div>
-                    <span className="font-bold text-text-primary">{formatPrice(item.total)}</span>
+                    <span className="success-item-price">{formatPrice(item.total)}</span>
                   </li>
                 ))}
               </ul>
               
-              <div className="mt-6 pt-6 border-t border-white/5 space-y-3">
-                <div className="flex justify-between text-sm text-text-secondary">
+              <div className="success-order-summary">
+                <div className="success-summary-row">
                   <span>Subtotal</span>
                   <span>{formatPrice(order?.subtotal)}</span>
                 </div>
                 {order?.discount_amount > 0 && (
-                  <div className="flex justify-between text-sm text-green-500">
+                  <div className="success-summary-row discount">
                     <span>Discount</span>
                     <span>-{formatPrice(order?.discount_amount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm text-text-secondary">
+                <div className="success-summary-row">
                   <span>Shipping</span>
                   <span>{formatPrice(order?.shipping_amount)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-extrabold text-text-primary pt-3 border-t border-white/5">
+                <div className="success-summary-total">
                   <span>Total Paid</span>
                   <span>{formatPrice(order?.total)}</span>
                 </div>
@@ -210,57 +210,59 @@ export function Success() {
           </div>
 
           {/* Next Steps */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-5 bg-white/5 rounded-xl border border-white/5">
-              <Package className="h-6 w-6 text-accent mb-3" />
-              <h3 className="font-bold text-text-primary mb-2">Processing</h3>
-              <p className="text-sm text-text-secondary">We're getting your items ready. You'll receive an email as soon as your order is packed.</p>
+          <div className="success-steps">
+            <div className="success-step-card">
+              <Package className="success-step-icon" />
+              <h3 className="success-step-title">Processing</h3>
+              <p className="success-step-text">We're getting your items ready. You'll receive an email as soon as your order is packed.</p>
             </div>
-            <div className="p-5 bg-white/5 rounded-xl border border-white/5">
-              <Truck className="h-6 w-6 text-accent mb-3" />
-              <h3 className="font-bold text-text-primary mb-2">Shipping</h3>
-              <p className="text-sm text-text-secondary">Once shipped, we'll send you a tracking number so you can follow your parcel's journey.</p>
+            <div className="success-step-card">
+              <Truck className="success-step-icon" />
+              <h3 className="success-step-title">Shipping</h3>
+              <p className="success-step-text">Once shipped, we'll send you a tracking number so you can follow your parcel's journey.</p>
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          <div className="bg-card-bg border border-white/5 rounded-2xl p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-text-primary mb-4">What's Next?</h3>
-            <div className="space-y-4">
-              <Link to="/products" className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <ShoppingBag className="h-5 w-5 text-accent" />
-                  <span className="text-sm font-medium text-text-primary">Continue Shopping</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-text-secondary group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <Link to="/contact" className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="h-5 w-5 text-accent" />
-                  <span className="text-sm font-medium text-text-primary">Need Help?</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-text-secondary group-hover:translate-x-1 transition-transform" />
-              </Link>
+        <div className="success-sidebar">
+          <div className="success-card">
+            <div className="success-card-body">
+              <h3 className="success-card-title" style={{marginBottom: '1rem'}}>What's Next?</h3>
+              <div className="success-actions">
+                <Link to="/products" className="success-action-link">
+                  <div className="success-action-content">
+                    <ShoppingBag className="success-action-icon" />
+                    <span className="success-action-text">Continue Shopping</span>
+                  </div>
+                  <ChevronRight className="success-action-chevron" />
+                </Link>
+                
+                <Link to="/contact" className="success-action-link">
+                  <div className="success-action-content">
+                    <MessageSquare className="success-action-icon" />
+                    <span className="success-action-text">Need Help?</span>
+                  </div>
+                  <ChevronRight className="success-action-chevron" />
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="bg-accent/10 border border-accent/20 rounded-2xl p-6">
-            <h3 className="text-sm font-black uppercase tracking-tighter text-accent mb-2">Order Info</h3>
-            <div className="space-y-3">
+          <div className="success-info-card">
+            <h3 className="success-info-title">Order Info</h3>
+            <div className="success-info-list">
               <div>
-                <p className="text-xs text-text-secondary uppercase font-bold tracking-widest">Date</p>
-                <p className="text-sm font-medium text-text-primary">{new Date(order?.created_at).toLocaleDateString()}</p>
+                <p className="success-info-item-label">Date</p>
+                <p className="success-info-item-value">{new Date(order?.created_at).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-xs text-text-secondary uppercase font-bold tracking-widest">Email</p>
-                <p className="text-sm font-medium text-text-primary truncate">{order?.email}</p>
+                <p className="success-info-item-label">Email</p>
+                <p className="success-info-item-value truncate">{order?.email}</p>
               </div>
               <div>
-                <p className="text-xs text-text-secondary uppercase font-bold tracking-widest">Shipping To</p>
-                <p className="text-sm font-medium text-text-primary">
+                <p className="success-info-item-label">Shipping To</p>
+                <p className="success-info-item-value">
                   {order?.shipping_information?.city}, {order?.shipping_information?.province}
                 </p>
               </div>

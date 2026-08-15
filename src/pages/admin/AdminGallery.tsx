@@ -122,7 +122,7 @@ export function AdminGallery() {
         </div>
 
         <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Plus className="h-4 w-4" />
+          <Plus size={16} />
           <span>Add Media Item</span>
         </button>
       </div>
@@ -136,7 +136,7 @@ export function AdminGallery() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>Add Media Item</h3>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                <X className="h-5 w-5" />
+                <X size={20} />
               </button>
             </div>
 
@@ -192,7 +192,7 @@ export function AdminGallery() {
                 <div style={{ position: 'relative', height: '12rem', backgroundColor: 'var(--bg)', overflow: 'hidden' }}>
                   <img src={item.url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).src = 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=800'; }} />
                   <span style={{ position: 'absolute', top: '0.5rem', left: '0.5rem', padding: '0.25rem 0.5rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(0,0,0,0.7)', color: '#ffffff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {item.type === 'VIDEO' ? <Video className="h-3 w-3" /> : <ImageIcon className="h-3 w-3" />}
+                    {item.type === 'VIDEO' ? <Video size={12} /> : <ImageIcon size={12} />}
                     {item.type}
                   </span>
                 </div>
@@ -204,7 +204,7 @@ export function AdminGallery() {
 
               <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
                 <button onClick={() => handleDelete(item.id)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Trash2 className="h-3.5 w-3.5" /> Remove
+                  <Trash2 size={14} /> Remove
                 </button>
               </div>
             </div>

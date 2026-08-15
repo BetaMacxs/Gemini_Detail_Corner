@@ -80,7 +80,7 @@ export function Cart() {
   if (items.length === 0) {
     return (
       <div className="cart-page" style={{ textAlign: 'center', paddingTop: '6rem', paddingBottom: '6rem' }}>
-        <ShoppingBag className="mx-auto h-16 w-16 text-brand-text-secondary" />
+        <ShoppingBag style={{ margin: '0 auto', height: '4rem', width: '4rem', color: 'var(--text-secondary)' }} />
         <h2 className="cart-title" style={{ marginTop: '2rem', marginBottom: '1rem' }}>Your cart is empty</h2>
         <p className="text-brand-text-secondary" style={{ maxWidth: '24rem', margin: '0 auto' }}>Looks like you haven't added any products to your arsenal yet.</p>
         <div style={{ marginTop: '3rem' }}>
@@ -121,8 +121,8 @@ export function Cart() {
                           className="cart-item-image"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-brand-text-secondary p-6">
-                           <ShoppingBag className="h-8 w-8 opacity-20" />
+                        <div className="cart-item-image-empty" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', color: 'var(--text-secondary)' }}>
+                           <ShoppingBag size={32} className="opacity-20" />
                         </div>
                       )}
                     </div>
@@ -131,7 +131,7 @@ export function Cart() {
                   <div className="cart-item-details">
                     <div className="cart-item-header">
                       <div>
-                        <div className="flex justify-between">
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <h3 className="text-sm">
                             <Link to={`/product/${item.product.slug}`} className="cart-item-name">
                               {item.product.name}
@@ -178,7 +178,7 @@ export function Cart() {
                             onClick={() => removeItem(item.id)}
                             className="remove-item-btn"
                           >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 size={20} />
                           </button>
                         </div>
                       </div>
@@ -202,12 +202,12 @@ export function Cart() {
               </div>
 
               {couponCode && (
-                <div className="summary-row text-green-600 font-medium">
-                  <dt className="summary-label flex items-center gap-1">
-                    <Tag className="h-4 w-4" />
+                <div className="summary-row" style={{ color: '#16a34a', fontWeight: 500 }}>
+                  <dt className="summary-label" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <Tag size={16} />
                     {couponCode}
-                    <button onClick={removeCoupon} className="ml-2 hover:text-red-500 text-gray-400 transition-colors" title="Remove coupon">
-                      <X className="h-4 w-4" />
+                    <button onClick={removeCoupon} className="coupon-remove-btn" style={{ marginLeft: '0.5rem', color: '#9ca3af', transition: 'color 0.2s' }} title="Remove coupon">
+                      <X size={16} />
                     </button>
                   </dt>
                   <dd className="summary-value">-{formatPrice(discountAmount)}</dd>
@@ -229,13 +229,14 @@ export function Cart() {
             {!couponCode && (
               <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#222]">
                 <label htmlFor="coupon" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Gift card or discount code</label>
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
                     type="text"
                     id="coupon"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    className="input-field flex-1 text-sm py-2"
+                    className="input-field"
+                    style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem 0.75rem' }}
                     placeholder="Enter code"
                     onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
                   />
@@ -243,12 +244,13 @@ export function Cart() {
                     type="button"
                     onClick={handleApplyCoupon}
                     disabled={isValidatingCoupon || !couponInput.trim()}
-                    className="btn btn-secondary py-2 px-4 whitespace-nowrap disabled:opacity-50"
+                    className="btn btn-secondary"
+                    style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
                   >
                     {isValidatingCoupon ? 'Applying...' : 'Apply'}
                   </button>
                 </div>
-                {couponError && <p className="mt-2 text-sm text-red-500">{couponError}</p>}
+                {couponError && <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#ef4444' }}>{couponError}</p>}
               </div>
             )}
 
@@ -257,10 +259,10 @@ export function Cart() {
                 to="/checkout"
                 className="btn btn-primary checkout-link-btn"
               >
-                Checkout <ArrowRight className="h-5 w-5" />
+                Checkout <ArrowRight size={20} />
               </Link>
             </div>
-            <div className="mt-6 text-center">
+            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               <Link to="/products" className="continue-shopping-link">
                 Continue Shopping
               </Link>
