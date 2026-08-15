@@ -1,0 +1,17 @@
+--- src/pages/Checkout.tsx
++++ src/pages/Checkout.tsx
+@@ -127,8 +127,12 @@
+       }
+ 
+       const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+-      const orderNumber = `ORD-${Math.floor(Date.now() / 1000)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+       
++      const { data: generatedOrderNumber, error: generateError } = await supabase.rpc('generate_order_number');
++      if (generateError || !generatedOrderNumber) {
++        throw new Error('Failed to generate secure order number. Please try again.');
++      }
++      const orderNumber = generatedOrderNumber;
++
+       const newOrder = {
+         id: orderId,
+         order_number: orderNumber,

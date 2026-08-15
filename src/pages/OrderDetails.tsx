@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { storeConfig } from '../config/store';
 import { useCartStore } from '../features/cart/store';
 
 export function OrderDetails() {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const isPaymentSuccess = searchParams.get('payment') === 'success';
 
   const [order, setOrder] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
@@ -65,66 +63,12 @@ export function OrderDetails() {
         }
       }
 
-      if (isPaymentSuccess && fetchedOrder) {
-        fetchedOrder.status = 'PAID';
-        fetchedOrder.payment_status = 'PAID';
-
-        // Clear cart only on confirmed payment success!
-        try {
-          useCartStore.getState().clearCart();
-        } catch (cErr) {
-          console.warn('Clear cart error:', cErr);
-        }
-
-        try {
-          await supabase.from('orders').update({ status: 'PAID', payment_status: 'PAID' }).eq('id', fetchedOrder.id);
-          
-          await supabase.from('order_status_history').insert({
-            order_id: fetchedOrder.id,
-            previous_status: 'PENDING_PAYMENT',
-            new_status: 'PAID',
-            reason: 'Payment successful'
-          });
-          
-          // Deduct stock
-          for (const item of fetchedItems) {
-            if (item.variant_id) {
-              const { data: v } = await supabase.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single();
-              if (v) await supabase.from('product_variants').update({ stock_quantity: Math.max(0, v.stock_quantity - item.quantity) }).eq('id', item.variant_id);
-            } else if (item.product_id) {
-              const { data: p } = await supabase.from('products').select('stock_quantity').eq('id', item.product_id).single();
-              if (p) await supabase.from('products').update({ stock_quantity: Math.max(0, p.stock_quantity - item.quantity) }).eq('id', item.product_id);
-            }
-          }
-        } catch (e) {
-          console.warn('Update paid status notice:', e);
-        }
-
-        try {
-          const localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
-          const updated = localOrders.map((item: any) => {
-            if (item.order?.id === fetchedOrder.id) {
-              return { ...item, order: { ...item.order, status: 'PAID', payment_status: 'PAID' } };
-            }
-            return item;
-          });
-          localStorage.setItem('local_orders', JSON.stringify(updated));
-        } catch (e) {
-          // ignore
-        }
-        
-        // Simulate sending order confirmation email
-        setTimeout(() => {
-          alert(`ORDER CONFIRMATION EMAIL SENT:\nA receipt has been sent to ${fetchedOrder.email} for order #${fetchedOrder.order_number}`);
-        }, 1000);
-      }
-
       setOrder(fetchedOrder);
       setItems(fetchedItems);
       setLoading(false);
     }
     fetchOrderDetails();
-  }, [id, isPaymentSuccess]);
+  }, [id]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -161,16 +105,6 @@ export function OrderDetails() {
       <Link to="/account/orders" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Orders
       </Link>
-
-      {isPaymentSuccess && (
-        <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(34, 197, 94, 0.15)', border: '1px solid #22c55e', color: '#4ade80', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <CheckCircle2 className="h-5 w-5" style={{ flexShrink: 0 }} />
-          <div>
-            <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.05em' }}>Payment Received via PayFast Gateway</div>
-            <div style={{ fontSize: '0.8125rem', opacity: 0.9, marginTop: '0.125rem' }}>Your order #{order.order_number} has been confirmed and is now being processed for delivery.</div>
-          </div>
-        </div>
-      )}
       
       <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
         <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>

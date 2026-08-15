@@ -33,6 +33,8 @@ import { AdminAnnouncements } from './pages/admin/AdminAnnouncements';
 import { AdminMessages } from './pages/admin/AdminMessages';
 import { AdminGallery } from './pages/admin/AdminGallery';
 import { TrackOrder } from "./pages/TrackOrder";
+import { Success } from './pages/Success';
+import { Cancel } from './pages/Cancel';
 
 export default function App() {
   const initialize = useAuthStore(state => state.initialize);
@@ -74,6 +76,8 @@ export default function App() {
           
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/success/:id" element={<Success />} />
+          <Route path="/checkout/cancel" element={<Cancel />} />
 
           {/* Admin Protected Routes inside MainLayout */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />

@@ -28,7 +28,6 @@ export function Checkout() {
   const { user, profile } = useAuthStore();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const isCancelled = searchParams.get('cancelled') === 'true';
   const isFailed = searchParams.get('failed') === 'true';
 
   const [formData, setFormData] = useState({
@@ -127,7 +126,23 @@ export function Checkout() {
       }
 
       const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      const orderNumber = `ORD-${Math.floor(Date.now() / 1000)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+      
+      let orderNumber;
+      try {
+        const { data: generatedOrderNumber, error: generateError } = await supabase.rpc('generate_order_number');
+        if (generateError || !generatedOrderNumber) {
+          throw generateError || new Error('No order number returned');
+        }
+        orderNumber = generatedOrderNumber;
+      } catch (err) {
+        console.warn('Failed to generate secure order number from database, falling back to client-side generation:', err);
+        const today = new Date();
+        const dateStr = today.getFullYear().toString() + 
+                        (today.getMonth() + 1).toString().padStart(2, '0') + 
+                        today.getDate().toString().padStart(2, '0');
+        const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        orderNumber = `DC-${dateStr}-${randomSuffix}`;
+      }
       
       const newOrder = {
         id: orderId,
@@ -256,15 +271,15 @@ export function Checkout() {
       const payfastData: Record<string, string> = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
-        return_url: `${window.location.origin}/account/orders/${finalOrderId}?payment=success`,
-        cancel_url: `${window.location.origin}/checkout?cancelled=true`,
+        return_url: `${window.location.origin}/checkout/success/${finalOrderId}`,
+        cancel_url: `${window.location.origin}/checkout/cancel`,
         notify_url: `${window.location.origin}/api/payfast-itn`,
         name_first: formData.firstName || 'Customer',
         name_last: formData.lastName || 'User',
         email_address: formData.email,
         m_payment_id: finalOrderId,
         amount: total.toFixed(2),
-        item_name: `Detail Corner Order ${orderNumber}`,
+        item_name: items.map(item => `${item.product.name} x${item.quantity}`).join(', ').substring(0, 100),
       };
 
       const signature = generatePayfastSignature(payfastData, passphrase);
@@ -297,16 +312,6 @@ export function Checkout() {
     <div className="checkout-page">
       <div className="checkout-container">
         <h1 className="checkout-title">Checkout</h1>
-
-        {isCancelled && (
-          <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
-            <div>
-              <div style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.875rem' }}>PayFast Payment Cancelled</div>
-              <div style={{ fontSize: '0.8125rem', opacity: 0.9 }}>Your payment session was cancelled. Your cart items have been preserved below so you can try again.</div>
-            </div>
-          </div>
-        )}
 
         {isFailed && (
           <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

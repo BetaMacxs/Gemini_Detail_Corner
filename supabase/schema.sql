@@ -239,62 +239,109 @@ $$ language plpgsql security definer;
 -- RLS Policies
 
 -- Profiles
+drop policy if exists "Public profiles are viewable by everyone." on public.profiles;
 create policy "Public profiles are viewable by everyone." on public.profiles for select using (true);
+
+drop policy if exists "Users can insert their own profile." on public.profiles;
 create policy "Users can insert their own profile." on public.profiles for insert with check (auth.uid() = id);
+
+drop policy if exists "Users can update own profile." on public.profiles;
 create policy "Users can update own profile." on public.profiles for update using (auth.uid() = id);
 
 -- Categories
+drop policy if exists "Categories are viewable by everyone." on public.categories;
 create policy "Categories are viewable by everyone." on public.categories for select using (true);
+
+drop policy if exists "Admins can manage categories." on public.categories;
 create policy "Admins can manage categories." on public.categories using (public.is_admin());
 
 -- Products
+drop policy if exists "Active products are viewable by everyone." on public.products;
 create policy "Active products are viewable by everyone." on public.products for select using (active = true or public.is_admin());
+
+drop policy if exists "Admins can manage products." on public.products;
 create policy "Admins can manage products." on public.products using (public.is_admin());
 
 -- Product Variants
+drop policy if exists "Active variants are viewable by everyone." on public.product_variants;
 create policy "Active variants are viewable by everyone." on public.product_variants for select using (active = true or public.is_admin());
+
+drop policy if exists "Admins can manage product variants." on public.product_variants;
 create policy "Admins can manage product variants." on public.product_variants using (public.is_admin());
 
 -- Product Images
+drop policy if exists "Product images are viewable by everyone." on public.product_images;
 create policy "Product images are viewable by everyone." on public.product_images for select using (true);
+
+drop policy if exists "Admins can manage product images." on public.product_images;
 create policy "Admins can manage product images." on public.product_images using (public.is_admin());
 
 -- Addresses
+drop policy if exists "Users can view their own addresses." on public.addresses;
 create policy "Users can view their own addresses." on public.addresses for select using (auth.uid() = profile_id);
+
+drop policy if exists "Users can manage their own addresses." on public.addresses;
 create policy "Users can manage their own addresses." on public.addresses for all using (auth.uid() = profile_id);
 
 -- Shipping Methods
+drop policy if exists "Active shipping methods are viewable by everyone." on public.shipping_methods;
 create policy "Active shipping methods are viewable by everyone." on public.shipping_methods for select using (active = true or public.is_admin());
+
+drop policy if exists "Admins can manage shipping methods." on public.shipping_methods;
 create policy "Admins can manage shipping methods." on public.shipping_methods using (public.is_admin());
 
 -- Coupons
+drop policy if exists "Admins can manage coupons." on public.coupons;
 create policy "Admins can manage coupons." on public.coupons using (public.is_admin());
 
 -- Orders
+drop policy if exists "Users can view their own orders." on public.orders;
 create policy "Users can view their own orders." on public.orders for select using (auth.uid() = customer_id or customer_id is null or public.is_admin());
+
+drop policy if exists "Users can insert their own orders." on public.orders;
 create policy "Users can insert their own orders." on public.orders for insert with check (auth.uid() = customer_id or customer_id is null);
+
+drop policy if exists "Users can update their own orders." on public.orders;
 create policy "Users can update their own orders." on public.orders for update using (auth.uid() = customer_id or customer_id is null or public.is_admin());
+
+drop policy if exists "Admins can manage orders." on public.orders;
 create policy "Admins can manage orders." on public.orders using (public.is_admin());
 
 -- Order Items
+drop policy if exists "Users can view their own order items." on public.order_items;
 create policy "Users can view their own order items." on public.order_items for select using (
   exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
 );
+
+drop policy if exists "Users can insert order items." on public.order_items;
 create policy "Users can insert order items." on public.order_items for insert with check (
   exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
 );
+
+drop policy if exists "Admins can manage order items." on public.order_items;
 create policy "Admins can manage order items." on public.order_items using (public.is_admin());
 
 -- Payments, Payment Events, Order Status History, Admin Audit Log
+drop policy if exists "Admins can view and manage payments." on public.payments;
 create policy "Admins can view and manage payments." on public.payments using (public.is_admin());
+
+drop policy if exists "Users can insert payments for their orders." on public.payments;
 create policy "Users can insert payments for their orders." on public.payments for insert with check (
   exists (select 1 from public.orders where orders.id = payments.order_id and (orders.customer_id = auth.uid() or orders.customer_id is null or public.is_admin()))
 );
+
+drop policy if exists "Admins can view payment events." on public.payment_events;
 create policy "Admins can view payment events." on public.payment_events for select using (public.is_admin());
+
+drop policy if exists "Users can view own order history." on public.order_status_history;
 create policy "Users can view own order history." on public.order_status_history for select using (
   exists (select 1 from public.orders where orders.id = order_status_history.order_id and (orders.customer_id = auth.uid() or public.is_admin()))
 );
+
+drop policy if exists "Admins can manage order history." on public.order_status_history;
 create policy "Admins can manage order history." on public.order_status_history using (public.is_admin());
+
+drop policy if exists "Admins can view audit logs." on public.admin_audit_log;
 create policy "Admins can view audit logs." on public.admin_audit_log for select using (public.is_admin());
 
 
@@ -307,14 +354,31 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists handle_profiles_updated_at on public.profiles;
 create trigger handle_profiles_updated_at before update on public.profiles for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_categories_updated_at on public.categories;
 create trigger handle_categories_updated_at before update on public.categories for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_products_updated_at on public.products;
 create trigger handle_products_updated_at before update on public.products for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_product_variants_updated_at on public.product_variants;
 create trigger handle_product_variants_updated_at before update on public.product_variants for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_addresses_updated_at on public.addresses;
 create trigger handle_addresses_updated_at before update on public.addresses for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_shipping_methods_updated_at on public.shipping_methods;
 create trigger handle_shipping_methods_updated_at before update on public.shipping_methods for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_coupons_updated_at on public.coupons;
 create trigger handle_coupons_updated_at before update on public.coupons for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_orders_updated_at on public.orders;
 create trigger handle_orders_updated_at before update on public.orders for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_payments_updated_at on public.payments;
 create trigger handle_payments_updated_at before update on public.payments for each row execute procedure public.handle_updated_at();
 
 -- Trigger for new user signup
@@ -327,6 +391,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -346,39 +411,20 @@ create table if not exists public.product_reviews (
 
 alter table public.product_reviews enable row level security;
 
+drop policy if exists "Reviews are viewable by everyone." on public.product_reviews;
 create policy "Reviews are viewable by everyone." on public.product_reviews for select using (true);
+
+drop policy if exists "Authenticated users can insert reviews." on public.product_reviews;
 create policy "Authenticated users can insert reviews." on public.product_reviews for insert to authenticated with check (true);
+
+drop policy if exists "Users can update their own reviews." on public.product_reviews;
 create policy "Users can update their own reviews." on public.product_reviews for update using (auth.uid() = profile_id);
+
+drop policy if exists "Users can delete their own reviews." on public.product_reviews;
 create policy "Users can delete their own reviews." on public.product_reviews for delete using (auth.uid() = profile_id);
 
 -- Public Order Tracking RPC Function
 -- This function securely allows tracking orders using order_number and email without authentication
-create or replace function public.track_order(p_order_number text, p_email text)
-returns json
-language plpgsql
-security definer
-as $$
-declare
-  v_order record;
-  v_history json;
-begin
-  select * into v_order from public.orders 
-  where order_number = p_order_number and lower(email) = lower(p_email);
-  
-  if not found then
-    return null;
-  end if;
-
-  select json_agg(h order by created_at desc) into v_history 
-  from public.order_status_history h 
-  where h.order_id = v_order.id;
-
-  return json_build_object(
-    'order', row_to_json(v_order),
-    'history', coalesce(v_history, '[]'::json)
-  );
-end;
-$$;
 create or replace function public.track_order(p_order_number text, p_email text)
 returns json
 language plpgsql
@@ -425,6 +471,67 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists on_order_status_changed on public.orders;
 create trigger on_order_status_changed
   after insert or update on public.orders
   for each row execute procedure public.handle_order_status_change();
+create table if not exists public.order_sequences (
+  sequence_date date primary key,
+  next_value integer not null default 1
+);
+
+create or replace function public.generate_order_number()
+returns text
+language plpgsql
+security definer
+as $$
+declare
+  v_today date;
+  v_next_val integer;
+  v_order_number text;
+begin
+  v_today := current_date;
+
+  insert into public.order_sequences (sequence_date, next_value)
+  values (v_today, 2)
+  on conflict (sequence_date) do update
+  set next_value = order_sequences.next_value + 1
+  returning (next_value - 1) into v_next_val;
+  
+  v_order_number := 'DC-' || to_char(v_today, 'YYYYMMDD') || '-' || v_next_val::text;
+  return v_order_number;
+end;
+$$;
+
+grant execute on function public.generate_order_number() to anon, authenticated;
+grant select, insert, update on public.order_sequences to anon, authenticated;
+create table if not exists public.pos_order_sequences (
+  sequence_date date primary key,
+  next_value integer not null default 1
+);
+
+create or replace function public.generate_pos_order_number()
+returns text
+language plpgsql
+security definer
+as $$
+declare
+  v_today date;
+  v_next_val integer;
+  v_order_number text;
+begin
+  v_today := current_date;
+
+  insert into public.pos_order_sequences (sequence_date, next_value)
+  values (v_today, 2)
+  on conflict (sequence_date) do update
+  set next_value = pos_order_sequences.next_value + 1
+  returning (next_value - 1) into v_next_val;
+  
+  v_order_number := 'POS-' || to_char(v_today, 'YYYYMMDD') || '-' || v_next_val::text;
+  return v_order_number;
+end;
+$$;
+
+grant execute on function public.generate_pos_order_number() to anon, authenticated;
+grant select, insert, update on public.pos_order_sequences to anon, authenticated;
