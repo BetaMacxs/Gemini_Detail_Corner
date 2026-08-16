@@ -121,7 +121,7 @@ export function Orders() {
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{formatPrice(order.total)}</p>
-                        <ChevronRight size={20} className="text-brand-text-secondary" />
+                        <ChevronRight size={20} style={{ color: 'var(--text-secondary)' }} />
                       </div>
                     </div>
                   </div>

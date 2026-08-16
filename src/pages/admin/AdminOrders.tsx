@@ -210,13 +210,13 @@ export function AdminOrders() {
       {/* Filter and Search Bar */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: '16rem' }}>
-          <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+          <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
           <input
             type="text"
             placeholder="Search by order #, name, email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="auth-input"
+            
             style={{ paddingLeft: '2.5rem' }}
           />
         </div>
@@ -224,7 +224,7 @@ export function AdminOrders() {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="auth-input"
+          
           style={{ width: 'auto', minWidth: '10rem' }}
         >
           <option value="ALL">All Statuses</option>
@@ -289,7 +289,7 @@ export function AdminOrders() {
                     <span style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>
                       {formatPrice(order.total)}
                     </span>
-                    {order.expanded ? <ChevronUp className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />}
+                    {order.expanded ? <ChevronUp size={20} style={{ color: 'var(--text-secondary)' }} /> : <ChevronDown size={20} style={{ color: 'var(--text-secondary)' }} />}
                   </div>
                 </div>
 
@@ -351,7 +351,7 @@ export function AdminOrders() {
                         <select
                           value={order.status.toUpperCase()}
                           onChange={e => handleStatusChange(order.id, e.target.value)}
-                          className="auth-input"
+                          
                           style={{ width: 'auto', padding: '0.4rem 0.85rem' }}
                         >
                           {ORDER_STATUSES.map(s => (

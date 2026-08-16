@@ -103,7 +103,7 @@ export function OrderDetails() {
   return (
     <div className="account-page" style={{ maxWidth: '48rem' }}>
       <Link to="/account/orders" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', textDecoration: 'none' }}>
-        <ChevronLeft className="h-4 w-4 mr-1" /> Back to Orders
+        <ChevronLeft size={16} style={{ marginRight: "0.25rem" }} /> Back to Orders
       </Link>
       
       <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>

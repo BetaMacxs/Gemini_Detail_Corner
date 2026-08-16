@@ -101,7 +101,7 @@ export function Contact() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <Phone className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                    <Phone size={24} style={{ color: 'var(--accent)' }} />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Phone Support</div>
@@ -110,7 +110,7 @@ export function Contact() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <Mail className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                    <Mail size={24} style={{ color: 'var(--accent)' }} />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Email Inquiries</div>
@@ -119,7 +119,7 @@ export function Contact() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <MapPin className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                    <MapPin size={24} style={{ color: 'var(--accent)' }} />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Our Location</div>
@@ -142,7 +142,7 @@ export function Contact() {
           {/* Contact Form */}
           <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '2rem' }}>
-              <MessageSquare className="h-5 w-5" />
+              <MessageSquare size={20} />
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Send Message</span>
             </div>
             
@@ -152,14 +152,14 @@ export function Contact() {
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Full Name</label>
                   <input 
                     type="text" name="name" placeholder="John Wick" required value={form.name} onChange={handleChange} 
-                    className="auth-input"
+                    className="input-field"
                   />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Email Address</label>
                   <input 
                     type="email" name="email" placeholder="john@example.com" required value={form.email} onChange={handleChange} 
-                    className="auth-input"
+                    className="input-field"
                   />
                 </div>
               </div>
@@ -168,13 +168,15 @@ export function Contact() {
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Subject</label>
                 <select 
                   name="subject" required value={form.subject} onChange={handleChange}
-                  className="auth-input form-select"
+                  className="input-field form-select"
                 >
                   <option value="" disabled hidden>Select a subject</option>
                   <option value="general">General Inquiry</option>
                   <option value="product">Product Question</option>
                   <option value="order">Order Status</option>
+                  <option value="shipping">Shipping Information</option>
                   <option value="technical">Technical Support</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
@@ -182,7 +184,7 @@ export function Contact() {
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Your Message</label>
                 <textarea 
                   name="message" rows={5} placeholder="How can we help with your vehicle?" required value={form.message} onChange={handleChange}
-                  className="auth-input"
+                  className="input-field"
                   style={{ resize: 'none' }}
                 />
               </div>
@@ -200,7 +202,7 @@ export function Contact() {
                   <span>Processing...</span>
                 ) : (
                   <>
-                    <Send className="h-5 w-5" />
+                    <Send size={20} />
                     <span>Engage Transmission</span>
                   </>
                 )}

@@ -132,9 +132,11 @@ create table if not exists public.orders (
   discount_amount numeric(10,2) default 0 check (discount_amount >= 0),
   shipping_amount numeric(10,2) default 0 check (shipping_amount >= 0),
   total numeric(10,2) not null check (total >= 0),
+  tax_amount numeric(10,2) default 0,
   currency text default 'ZAR' not null,
   status text not null default 'PENDING_PAYMENT' check (status in ('PENDING_PAYMENT', 'PAYMENT_FAILED', 'PAID', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED')),
   payment_status text not null default 'PENDING' check (payment_status in ('PENDING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED')),
+  is_pos boolean default false,
   tracking_number text,
   notes text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -200,6 +202,97 @@ create table if not exists public.admin_audit_log (
   timestamp timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- 15. Announcements
+create table if not exists public.announcements (
+  id uuid default uuid_generate_v4() primary key,
+  title text not null,
+  content text,
+  category text default 'PROMOTION',
+  type text default 'PROMOTION' check (type in ('PROMOTION', 'NEWS', 'COMPETITION', 'ALERT')),
+  image_url text,
+  visible boolean default true,
+  start_date timestamp with time zone default now(),
+  end_date timestamp with time zone,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- Ensure columns exist and remove old ones
+do $$ 
+begin
+  -- Add new ones
+  if not exists (select 1 from information_schema.columns where table_name='announcements' and column_name='content') then
+    alter table public.announcements add column content text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_name='announcements' and column_name='start_date') then
+    alter table public.announcements add column start_date timestamp with time zone default now();
+  end if;
+  if not exists (select 1 from information_schema.columns where table_name='announcements' and column_name='end_date') then
+    alter table public.announcements add column end_date timestamp with time zone;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_name='announcements' and column_name='type') then
+    alter table public.announcements add column type text default 'PROMOTION' check (type in ('PROMOTION', 'NEWS', 'COMPETITION', 'ALERT'));
+  end if;
+  
+  -- Remove redundant/conflicting ones
+  if exists (select 1 from information_schema.columns where table_name='announcements' and column_name='date_range') then
+    alter table public.announcements drop column date_range;
+  end if;
+end $$;
+
+-- 16. Contact Messages
+create table if not exists public.contact_messages (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  email text not null,
+  subject text,
+  message text not null,
+  status text default 'UNREAD' check (status in ('UNREAD', 'READ', 'ARCHIVED')),
+  created_at timestamp with time zone default now()
+);
+
+-- 17. Gallery
+create table if not exists public.gallery (
+  id uuid default uuid_generate_v4() primary key,
+  title text not null,
+  url text not null,
+  tags text,
+  type text default 'IMAGE' check (type in ('IMAGE', 'VIDEO')),
+  sort_order integer default 0,
+  created_at timestamp with time zone default now()
+);
+
+-- 18. Store Settings
+create table if not exists public.store_settings (
+  id uuid default uuid_generate_v4() primary key,
+  key text unique not null,
+  value text,
+  description text,
+  updated_at timestamp with time zone default now()
+);
+
+-- 19. Inventory Logs
+create table if not exists public.inventory_logs (
+  id uuid default uuid_generate_v4() primary key,
+  product_id uuid references public.products on delete cascade,
+  variant_id uuid references public.product_variants on delete cascade,
+  change_amount integer not null,
+  reason text,
+  reference_id text,
+  created_at timestamp with time zone default now()
+);
+
+-- View for reserved stock (Pending Payment orders)
+create or replace view public.reserved_stock as
+select 
+  oi.product_id, 
+  oi.variant_id, 
+  sum(oi.quantity) as quantity
+from public.order_items oi
+join public.orders o on o.id = oi.order_id
+where o.status = 'PENDING_PAYMENT'
+group by oi.product_id, oi.variant_id;
+
 -- Indexes for performance
 create index if not exists products_category_id_idx on public.products(category_id);
 create index if not exists products_active_idx on public.products(active);
@@ -224,6 +317,11 @@ alter table public.payments enable row level security;
 alter table public.payment_events enable row level security;
 alter table public.order_status_history enable row level security;
 alter table public.admin_audit_log enable row level security;
+alter table public.announcements enable row level security;
+alter table public.contact_messages enable row level security;
+alter table public.gallery enable row level security;
+alter table public.store_settings enable row level security;
+alter table public.inventory_logs enable row level security;
 
 -- Function to check if user is admin
 create or replace function public.is_admin()
@@ -344,6 +442,34 @@ create policy "Admins can manage order history." on public.order_status_history 
 drop policy if exists "Admins can view audit logs." on public.admin_audit_log;
 create policy "Admins can view audit logs." on public.admin_audit_log for select using (public.is_admin());
 
+-- Announcements
+drop policy if exists "Announcements are viewable by everyone" on public.announcements;
+create policy "Announcements are viewable by everyone" on public.announcements for select using (true);
+drop policy if exists "Admins can manage announcements" on public.announcements;
+create policy "Admins can manage announcements" on public.announcements using (public.is_admin());
+
+-- Contact Messages
+drop policy if exists "Anyone can insert contact messages" on public.contact_messages;
+create policy "Anyone can insert contact messages" on public.contact_messages for insert with check (true);
+drop policy if exists "Admins can manage contact messages" on public.contact_messages;
+create policy "Admins can manage contact messages" on public.contact_messages using (public.is_admin());
+
+-- Gallery
+drop policy if exists "Gallery is viewable by everyone" on public.gallery;
+create policy "Gallery is viewable by everyone" on public.gallery for select using (true);
+drop policy if exists "Admins can manage gallery" on public.gallery;
+create policy "Admins can manage gallery" on public.gallery using (public.is_admin());
+
+-- Store Settings
+drop policy if exists "Settings are viewable by everyone" on public.store_settings;
+create policy "Settings are viewable by everyone" on public.store_settings for select using (true);
+drop policy if exists "Admins can manage settings" on public.store_settings;
+create policy "Admins can manage settings" on public.store_settings using (public.is_admin());
+
+-- Inventory Logs
+drop policy if exists "Admins can view inventory logs" on public.inventory_logs;
+create policy "Admins can view inventory logs" on public.inventory_logs for select using (public.is_admin());
+
 
 -- Triggers for updated_at
 create or replace function public.handle_updated_at()
@@ -374,6 +500,12 @@ create trigger handle_shipping_methods_updated_at before update on public.shippi
 
 drop trigger if exists handle_coupons_updated_at on public.coupons;
 create trigger handle_coupons_updated_at before update on public.coupons for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_announcements_updated_at on public.announcements;
+create trigger handle_announcements_updated_at before update on public.announcements for each row execute procedure public.handle_updated_at();
+
+drop trigger if exists handle_store_settings_updated_at on public.store_settings;
+create trigger handle_store_settings_updated_at before update on public.store_settings for each row execute procedure public.handle_updated_at();
 
 drop trigger if exists handle_orders_updated_at on public.orders;
 create trigger handle_orders_updated_at before update on public.orders for each row execute procedure public.handle_updated_at();
@@ -423,39 +555,6 @@ create policy "Users can update their own reviews." on public.product_reviews fo
 drop policy if exists "Users can delete their own reviews." on public.product_reviews;
 create policy "Users can delete their own reviews." on public.product_reviews for delete using (auth.uid() = profile_id);
 
--- Public Order Tracking RPC Function
--- This function securely allows tracking orders using order_number and email without authentication
-create or replace function public.track_order(p_order_number text, p_email text)
-returns json
-language plpgsql
-security definer
-as $$
-declare
-  v_order json;
-  v_history json;
-begin
-  select row_to_json(o) into v_order from (
-    select orders.*, 
-      (select json_agg(row_to_json(oi)) from public.order_items oi where oi.order_id = orders.id) as order_items
-    from public.orders 
-    where order_number = p_order_number and lower(email) = lower(p_email)
-  ) o;
-  
-  if v_order is null then
-    return null;
-  end if;
-
-  select json_agg(h order by created_at desc) into v_history 
-  from public.order_status_history h 
-  where h.order_id = (v_order->>'id')::uuid;
-
-  return json_build_object(
-    'order', v_order,
-    'history', coalesce(v_history, '[]'::json)
-  );
-end;
-$$;
-
 -- Trigger to automatically track order status history
 create or replace function public.handle_order_status_change()
 returns trigger as $$
@@ -475,6 +574,52 @@ drop trigger if exists on_order_status_changed on public.orders;
 create trigger on_order_status_changed
   after insert or update on public.orders
   for each row execute procedure public.handle_order_status_change();
+
+-- Automatic stock deduction
+create or replace function public.deduct_stock_on_payment()
+returns trigger as $$
+declare
+  v_should_deduct boolean := false;
+begin
+  -- Logic: Deduct if status moves to PAID or PROCESSING for the first time
+  if (TG_OP = 'INSERT') then
+    if (new.status = 'PAID' or new.status = 'PROCESSING') then
+      v_should_deduct := true;
+    end if;
+  elsif (TG_OP = 'UPDATE') then
+    if (old.status = 'PENDING_PAYMENT' and (new.status = 'PAID' or new.status = 'PROCESSING')) then
+      v_should_deduct := true;
+    end if;
+  end if;
+
+  if (v_should_deduct) then
+    -- Deduct for Products (if no variant)
+    update public.products p
+    set stock_quantity = p.stock_quantity - oi.quantity
+    from public.order_items oi
+    where oi.order_id = new.id and oi.product_id = p.id and oi.variant_id is null;
+
+    -- Deduct for Product Variants
+    update public.product_variants pv
+    set stock_quantity = pv.stock_quantity - oi.quantity
+    from public.order_items oi
+    where oi.order_id = new.id and oi.variant_id = pv.id;
+    
+    -- Log the changes
+    insert into public.inventory_logs (product_id, variant_id, change_amount, reason, reference_id)
+    select product_id, variant_id, -quantity, 'Order ' || TG_OP || ': ' || new.order_number, new.id::text
+    from public.order_items
+    where order_id = new.id;
+  end if;
+  
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_order_paid_deduct_stock on public.orders;
+create trigger on_order_paid_deduct_stock
+  after insert or update on public.orders
+  for each row execute procedure public.deduct_stock_on_payment();
 create table if not exists public.order_sequences (
   sequence_date date primary key,
   next_value integer not null default 1
@@ -535,3 +680,62 @@ $$;
 
 grant execute on function public.generate_pos_order_number() to anon, authenticated;
 grant select, insert, update on public.pos_order_sequences to anon, authenticated;
+
+-- Function for secure public order tracking
+create or replace function public.track_order(p_order_number text, p_email text)
+returns json as $$
+declare
+  v_order_id uuid;
+  v_order_data json;
+  v_history_data json;
+begin
+  -- Find the order matching both number and email (case insensitive email)
+  select id into v_order_id
+  from public.orders
+  where (order_number = p_order_number or id::text = p_order_number)
+    and lower(email) = lower(p_email)
+  limit 1;
+
+  if v_order_id is null then
+    return null;
+  end if;
+
+  -- Get order details with items
+  select json_build_object(
+    'id', o.id,
+    'order_number', o.order_number,
+    'status', o.status,
+    'created_at', o.created_at,
+    'total', o.total,
+    'tracking_number', o.tracking_number,
+    'order_items', (
+      select json_agg(json_build_object(
+        'product_name_snapshot', oi.product_name_snapshot,
+        'variant_snapshot', oi.variant_snapshot,
+        'quantity', oi.quantity,
+        'total', oi.total
+      ))
+      from public.order_items oi
+      where oi.order_id = o.id
+    )
+  ) into v_order_data
+  from public.orders o
+  where o.id = v_order_id;
+
+  -- Get status history
+  select json_agg(h) into v_history_data
+  from (
+    select id, new_status, reason, created_at
+    from public.order_status_history
+    where order_id = v_order_id
+    order by created_at desc
+  ) h;
+
+  return json_build_object(
+    'order', v_order_data,
+    'history', coalesce(v_history_data, '[]'::json)
+  );
+end;
+$$ language plpgsql security definer;
+
+grant execute on function public.track_order(text, text) to anon, authenticated;

@@ -26,6 +26,8 @@ import { Contact } from './pages/Contact';
 import { FAQ } from './pages/FAQ';
 import { Gallery } from './pages/Gallery';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { Terms } from './pages/Terms';
+import { Returns } from './pages/Returns';
 
 import { AdminInvoices } from './pages/admin/AdminInvoices';
 import { AdminPOS } from './pages/admin/AdminPOS';
@@ -58,6 +60,8 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/returns" element={<Returns />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           

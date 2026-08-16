@@ -41,7 +41,7 @@ export function Register() {
     <div className="auth-page">
       <div className="auth-header">
         <h2 className="auth-title">
-          Join the <br /> <span className="text-brand-accent">Inner Circle</span>
+          Join the <br /> <span style={{ color: 'var(--accent)' }}>Inner Circle</span>
         </h2>
         <p className="auth-subtitle">
           Already verified?{' '}

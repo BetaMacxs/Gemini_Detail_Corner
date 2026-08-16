@@ -51,7 +51,7 @@ export function AdminNav() {
                 transition: 'all 0.15s ease'
               }}
             >
-              <Icon className="h-4 w-4 flex-shrink-0" />
+              <Icon size={16} style={{ flexShrink: 0 }} />
               <span>{item.label}</span>
             </Link>
           );

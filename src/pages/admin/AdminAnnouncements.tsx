@@ -6,9 +6,13 @@ import { AdminNav } from '../../components/AdminNav';
 interface Announcement {
   id: string;
   title: string;
+  content: string;
   category: string;
   date_range: string;
+  type: 'PROMOTION' | 'NEWS' | 'COMPETITION' | 'ALERT';
   visible: boolean;
+  start_date: string;
+  end_date: string | null;
   created_at: string;
 }
 
@@ -20,15 +24,17 @@ export function AdminAnnouncements() {
 
   const [formData, setFormData] = useState({
     title: '',
-    category: 'SALE',
+    content: '',
+    category: 'PROMOTION',
     date_range: '',
-    visible: true
+    type: 'PROMOTION' as any,
+    visible: true,
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: ''
   });
 
   const fetchAnnouncements = async () => {
     setLoading(true);
-    let list: Announcement[] = [];
-
     try {
       const { data, error } = await supabase
         .from('announcements')
@@ -36,26 +42,11 @@ export function AdminAnnouncements() {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        list = data as Announcement[];
+        setAnnouncements(data as Announcement[]);
       }
     } catch (e) {
       console.warn("Error fetching DB announcements:", e);
     }
-
-    try {
-      const local = JSON.parse(localStorage.getItem('announcements') || '[]');
-      const combined = [...list];
-      local.forEach((a: any) => {
-        if (!combined.some(c => c.id === a.id)) {
-          combined.push(a);
-        }
-      });
-      list = combined;
-    } catch (e) {
-      console.warn("Local announcements read notice:", e);
-    }
-
-    setAnnouncements(list);
     setLoading(false);
   };
 
@@ -67,9 +58,12 @@ export function AdminAnnouncements() {
     setEditingItem(null);
     setFormData({
       title: '',
+      content: '',
       category: 'PROMOTION',
-      date_range: 'Limited Time',
-      visible: true
+      type: 'PROMOTION',
+      visible: true,
+      start_date: new Date().toISOString().split('T')[0],
+      end_date: ''
     });
     setShowModal(true);
   };
@@ -78,9 +72,12 @@ export function AdminAnnouncements() {
     setEditingItem(item);
     setFormData({
       title: item.title,
+      content: item.content || '',
       category: item.category,
-      date_range: item.date_range,
-      visible: item.visible
+      type: item.type || 'PROMOTION',
+      visible: item.visible,
+      start_date: item.start_date ? item.start_date.split('T')[0] : new Date().toISOString().split('T')[0],
+      end_date: item.end_date ? item.end_date.split('T')[0] : ''
     });
     setShowModal(true);
   };
@@ -110,15 +107,25 @@ export function AdminAnnouncements() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const payload = {
+      title: formData.title,
+      content: formData.content,
+      category: formData.category,
+      type: formData.type,
+      visible: formData.visible,
+      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : new Date().toISOString(),
+      end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null
+    };
+
     if (editingItem) {
       try {
-        await supabase.from('announcements').update(formData).eq('id', editingItem.id);
+        await supabase.from('announcements').update(payload).eq('id', editingItem.id);
       } catch (e) {
         console.warn("Update announcement warning:", e);
       }
     } else {
       try {
-        await supabase.from('announcements').insert([formData]);
+        await supabase.from('announcements').insert([payload]);
       } catch (e) {
         console.warn("Insert announcement warning:", e);
       }
@@ -141,7 +148,7 @@ export function AdminAnnouncements() {
         </div>
 
         <button onClick={handleOpenAdd} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Plus className="h-4 w-4" />
+          <Plus size={16} />
           <span>New Announcement</span>
         </button>
       </div>
@@ -157,30 +164,46 @@ export function AdminAnnouncements() {
                 {editingItem ? 'Edit Announcement' : 'New Announcement'}
               </h3>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                <X className="h-5 w-5" />
+                <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Banner Text</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="auth-input" placeholder="e.g. Free Shipping on orders over R1000!" />
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Banner Title / Text</label>
+                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}  placeholder="e.g. Free Shipping on orders over R1000!" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Details / Content</label>
+                <input type="text" value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })}  placeholder="Optional longer description..." />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category Tag</label>
-                  <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="auth-input">
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Type</label>
+                  <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })} >
                     <option value="PROMOTION">PROMOTION</option>
-                    <option value="NEW ARRIVAL">NEW ARRIVAL</option>
-                    <option value="NOTICE">NOTICE</option>
-                    <option value="DISCOUNT">DISCOUNT</option>
+                    <option value="NEWS">NEWS</option>
+                    <option value="COMPETITION">COMPETITION</option>
+                    <option value="ALERT">ALERT</option>
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Date Range / Label</label>
-                  <input type="text" value={formData.date_range} onChange={e => setFormData({ ...formData, date_range: e.target.value })} className="auth-input" placeholder="e.g. Valid until Sunday" />
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category Tag</label>
+                  <input type="text" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}  placeholder="e.g. SALE" />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Start Date</label>
+                  <input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>End Date (Optional)</label>
+                  <input type="date" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
                 </div>
               </div>
 
@@ -214,13 +237,13 @@ export function AdminAnnouncements() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                     Loading announcements...
                   </td>
                 </tr>
               ) : announcements.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                     No store announcements found in database.
                   </td>
                 </tr>
@@ -228,15 +251,27 @@ export function AdminAnnouncements() {
                 announcements.map((item) => (
                   <tr key={item.id} style={{ borderTop: '1px solid var(--border)' }}>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      {item.title}
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span>{item.title}</span>
+                        {item.content && <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-secondary)' }}>{item.content}</span>}
+                      </div>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                      <span style={{ padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg)', border: '1px solid var(--border)', fontSize: '0.75rem', fontWeight: 700 }}>
-                        {item.category}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <span style={{ padding: '0.1rem 0.4rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--accent-glow)', color: 'var(--accent)', fontSize: '0.65rem', fontWeight: 800, alignSelf: 'start' }}>
+                          {item.type || 'PROMOTION'}
+                        </span>
+                        <span style={{ fontSize: '0.75rem' }}>{item.category}</span>
+                      </div>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                      {item.date_range || 'Ongoing'}
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Active Period</span>
+                        <span style={{ fontSize: '0.7rem' }}>
+                          {item.start_date ? new Date(item.start_date).toLocaleDateString() : 'Now'} 
+                          {item.end_date ? ` to ${new Date(item.end_date).toLocaleDateString()}` : ' (No expiry)'}
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: '1rem 1.5rem' }}>
                       <button
@@ -255,17 +290,17 @@ export function AdminAnnouncements() {
                           cursor: 'pointer'
                         }}
                       >
-                        {item.visible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                        {item.visible ? <Eye size={12} /> : <EyeOff size={12} />}
                         <span>{item.visible ? 'Visible' : 'Hidden'}</span>
                       </button>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                         <button onClick={() => handleOpenEdit(item)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <Edit2 className="h-3 w-3" /> Edit
+                          <Edit2 size={12} /> Edit
                         </button>
                         <button onClick={() => handleDelete(item.id)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     </td>

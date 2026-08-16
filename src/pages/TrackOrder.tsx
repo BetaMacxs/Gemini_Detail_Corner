@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { PackageSearch, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, ShoppingBag } from 'lucide-react';
+import { PackageSearch, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, ShoppingBag, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function TrackOrder() {
@@ -114,8 +114,9 @@ export function TrackOrder() {
                 id="orderNumber"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
-                placeholder="e.g. ORD-123456"
+                placeholder="e.g. DC-20260815-1"
                 className="input-field"
+                style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem 0.75rem', marginLeft: '0.5rem' }}
                 required
               />
             </div>
@@ -127,8 +128,9 @@ export function TrackOrder() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email used for order"
+                placeholder="example@gmail.com"
                 className="input-field"
+                style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem 0.75rem', marginLeft: '0.5rem' }}
                 required
               />
             </div>
@@ -178,7 +180,43 @@ export function TrackOrder() {
             </div>
           </div>
 
-          <div style={{ padding: '2rem' }}>
+          <div style={{ padding: '2rem', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '1rem', left: '0', right: '0', height: '2px', backgroundColor: 'var(--border)', zIndex: 0 }}></div>
+              {[
+                { label: 'Placed', icon: ShoppingBag, statuses: ['PENDING', 'PENDING_PAYMENT', 'PAID', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED'] },
+                { label: 'Paid', icon: CreditCard, statuses: ['PAID', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED'] },
+                { label: 'Processing', icon: Package, statuses: ['PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED'] },
+                { label: 'Shipped', icon: Truck, statuses: ['SHIPPED', 'DELIVERED'] },
+                { label: 'Delivered', icon: CheckCircle, statuses: ['DELIVERED'] }
+              ].map((step, i) => {
+                const isActive = step.statuses.includes(order.status);
+                const isCompleted = order.status === 'DELIVERED' || (i < 4 && step.statuses.includes(order.status) && !['PENDING', 'PENDING_PAYMENT'].includes(order.status));
+                
+                return (
+                  <div key={i} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '20%' }}>
+                    <div style={{ 
+                      width: '2rem', 
+                      height: '2rem', 
+                      borderRadius: '50%', 
+                      backgroundColor: isActive ? 'var(--accent)' : 'var(--bg)', 
+                      border: `2px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive ? 'white' : 'var(--text-secondary)',
+                      boxShadow: isActive ? '0 0 15px var(--accent-glow)' : 'none'
+                    }}>
+                      <step.icon size={14} />
+                    </div>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)', textAlign: 'center' }}>
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Tracking History</h3>
             
             {history.length > 0 ? (
@@ -254,7 +292,7 @@ export function TrackOrder() {
             )}
             
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <Link to="/contact" className="text-brand-accent hover:underline text-sm font-medium">
+              <Link to="/contact" style={{ color: "var(--accent)", fontSize: "0.875rem", fontWeight: 500, textDecoration: "underline" }}>
                 Need help with this order? Contact Support
               </Link>
             </div>

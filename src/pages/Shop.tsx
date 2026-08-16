@@ -81,7 +81,7 @@ export function Shop() {
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`filter-toggle ${isFilterOpen ? 'active' : ''}`}
               >
-                <SlidersHorizontal className="h-5 w-5" />
+                <SlidersHorizontal size={20} />
               </button>
             </div>
           </div>
@@ -125,7 +125,7 @@ export function Shop() {
             {error ? (
               <div className="error-state">
                 <div className="error-text">Error loading products</div>
-                <p className="text-brand-text-secondary">{error}</p>
+                <p style={{ color: 'var(--text-secondary)' }}>{error}</p>
               </div>
             ) : (
               <>
@@ -139,7 +139,7 @@ export function Shop() {
                       <div className="empty-state">
                         <ShoppingBag className="empty-state-icon" />
                         <h3 className="empty-state-title">No Products Found</h3>
-                        <p className="text-brand-text-secondary mt-2">Try adjusting your filters or search query.</p>
+                        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Try adjusting your filters or search query.</p>
                         <button 
                           onClick={() => {handleCategoryChange(''); setSearchTerm('');}}
                           className="clear-filters-btn"
@@ -174,7 +174,11 @@ export function Shop() {
                                   style={{ opacity: 0.8 }}
                                   onError={(e) => {
                                     e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
-                                    e.currentTarget.className = "h-full w-full object-contain p-12 opacity-50";
+                                    e.currentTarget.style.height = '100%';
+                                    e.currentTarget.style.width = '100%';
+                                    e.currentTarget.style.objectFit = 'contain';
+                                    e.currentTarget.style.padding = '3rem';
+                                    e.currentTarget.style.opacity = '0.5';
                                   }}
                                 />
                               )}
@@ -198,7 +202,7 @@ export function Shop() {
                                   {formatPrice(product.price)}
                                 </div>
                                 <div className="add-to-cart-quick-btn">
-                                  <ShoppingBag className="h-5 w-5 text-white" />
+                                  <ShoppingBag size={20} style={{ color: '#ffffff' }} />
                                 </div>
                               </div>
                             </div>
@@ -217,7 +221,7 @@ export function Shop() {
                       className="btn btn-outline"
                       style={{ padding: '0.5rem 0.75rem', opacity: currentPage === 1 ? 0.4 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <ChevronLeft size={16} />
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                       <button
@@ -235,7 +239,7 @@ export function Shop() {
                       className="btn btn-outline"
                       style={{ padding: '0.5rem 0.75rem', opacity: currentPage === totalPages ? 0.4 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight size={16} />
                     </button>
                   </div>
                 )}

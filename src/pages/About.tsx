@@ -55,12 +55,39 @@ export function About() {
                 { icon: Award, title: "Quality", desc: "Tested in the harshest conditions." }
               ].map((item, i) => (
                 <div key={i} className="brand-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-                  <item.icon className="h-8 w-8 text-brand-accent mb-6" style={{ height: '2rem', width: '2rem', color: 'var(--accent)', marginBottom: '1.5rem' }} />
+                  <item.icon size={32} style={{ height: '2rem', width: '2rem', color: 'var(--accent)', marginBottom: '1.5rem' }} />
                   <h3 style={{ fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-primary)', marginBottom: '0.5rem', fontStyle: 'italic' }}>{item.title}</h3>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.desc}</p>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Team Section */}
+      <section style={{ paddingBottom: '6rem' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: '2.25rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>
+              The <span style={{ color: 'var(--accent)' }}>Core Team</span>
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Automotive specialists dedicated to surface perfection.</p>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
+            {[
+              { name: "Ashley Andrews", role: "Master Detailer & Founder", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200" },
+              { name: "Sarah Meyer", role: "Technical Specialist", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=200" },
+              { name: "David Kriel", role: "Product Development", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" }
+            ].map((member, i) => (
+              <div key={i} className="brand-card" style={{ padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
+                <div style={{ width: '6rem', height: '6rem', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 1.5rem auto', border: '2px solid var(--accent)' }}>
+                  <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '0.25rem', fontStyle: 'italic', textTransform: 'uppercase' }}>{member.name}</h3>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{member.role}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

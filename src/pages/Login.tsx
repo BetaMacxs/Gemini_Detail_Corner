@@ -37,7 +37,7 @@ export function Login() {
     <div className="auth-page">
       <div className="auth-header">
         <h2 className="auth-title">
-          Sign In to <br /> <span className="text-brand-accent">Account</span>
+          Sign In to <br /> <span style={{ color: "var(--accent)" }}>Account</span>
         </h2>
         <p className="auth-subtitle">
           Or{' '}

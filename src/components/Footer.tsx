@@ -15,13 +15,13 @@ export function Footer() {
             </p>
             <div className="social-links">
               <a href="#" className="social-link">
-                <Instagram className="h-5 w-5" />
+                <Instagram size={20} />
               </a>
               <a href="#" className="social-link">
-                <Facebook className="h-5 w-5" />
+                <Facebook size={20} />
               </a>
               <a href="#" className="social-link">
-                <Youtube className="h-5 w-5" />
+                <Youtube size={20} />
               </a>
             </div>
           </div>
@@ -29,7 +29,7 @@ export function Footer() {
           <div>
             <h3 className="footer-heading">Quick Links</h3>
             <ul className="footer-list">
-              {['Shop All', 'New Arrivals', 'Featured Items', 'Gift Cards'].map((link) => (
+              {['Shop All', 'New Arrivals', 'Featured Items'].map((link) => (
                 <li key={link}>
                   <Link to="/products" className="footer-list-link">
                     {link}
@@ -56,7 +56,7 @@ export function Footer() {
               <li className="footer-contact-item">
                 <MapPin className="footer-contact-icon" />
                 <span className="footer-contact-text">
-                  Pacific Business Park,<br />Mitchell's Plain, CP 7785
+                  Pacific Business Park,<br />Mitchell's Plain, Cape Town 7785
                 </span>
               </li>
               <li className="footer-contact-item center">
@@ -76,9 +76,9 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Detail Corner. All Rights Reserved.
           </p>
           <div className="footer-legal-links">
-            <Link to="/privacy" className="footer-legal-link">Terms</Link>
+            <Link to="/terms" className="footer-legal-link">Terms</Link>
             <Link to="/privacy" className="footer-legal-link">Privacy</Link>
-            <Link to="/privacy" className="footer-legal-link">Cookies</Link>
+            <Link to="/returns" className="footer-legal-link">Returns</Link>
           </div>
         </div>
       </div>

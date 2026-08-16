@@ -217,7 +217,7 @@ export function Addresses() {
             className="btn btn-primary"
             style={{ padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
           >
-            <Plus className="h-4 w-4" />
+            <Plus size={16} />
             <span>Add New Address</span>
           </button>
         </div>
@@ -229,7 +229,7 @@ export function Addresses() {
                 {editingAddress ? 'Edit Address' : 'New Delivery Address'}
               </h3>
               <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                <X className="h-5 w-5" />
+                <X size={20} />
               </button>
             </div>
 
@@ -237,32 +237,32 @@ export function Addresses() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>First Name</label>
-                  <input type="text" required value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="input-field" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Last Name</label>
-                  <input type="text" required value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="input-field" />
                 </div>
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Street Address</label>
-                <input type="text" required placeholder="Line 1" value={formData.address_line_1} onChange={e => setFormData({ ...formData, address_line_1: e.target.value })} className="auth-input" style={{ marginBottom: '0.5rem' }} />
-                <input type="text" placeholder="Line 2 (Optional, e.g. Suite/Unit)" value={formData.address_line_2} onChange={e => setFormData({ ...formData, address_line_2: e.target.value })} className="auth-input" />
+                <input type="text" required placeholder="Line 1" value={formData.address_line_1} onChange={e => setFormData({ ...formData, address_line_1: e.target.value })} className="input-field" style={{ marginBottom: '0.5rem' }} />
+                <input type="text" placeholder="Line 2 (Optional, e.g. Suite/Unit)" value={formData.address_line_2} onChange={e => setFormData({ ...formData, address_line_2: e.target.value })} className="input-field" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>City</label>
-                  <input type="text" required value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })} className="input-field" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Province</label>
-                  <input type="text" required value={formData.province} onChange={e => setFormData({ ...formData, province: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.province} onChange={e => setFormData({ ...formData, province: e.target.value })} className="input-field" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Postal Code</label>
-                  <input type="text" required value={formData.postal_code} onChange={e => setFormData({ ...formData, postal_code: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.postal_code} onChange={e => setFormData({ ...formData, postal_code: e.target.value })} className="input-field" />
                 </div>
               </div>
 
@@ -285,7 +285,7 @@ export function Addresses() {
 
         {addresses.length === 0 ? (
           <div className="brand-card" style={{ padding: '4rem 2rem', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
-            <MapPin className="h-12 w-12" style={{ margin: '0 auto', color: 'var(--text-secondary)', marginBottom: '1rem', opacity: 0.5 }} />
+            <MapPin size={48} style={{ margin: '0 auto', color: 'var(--text-secondary)', marginBottom: '1rem', opacity: 0.5 }} />
             <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', fontStyle: 'italic' }}>No Addresses Saved</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
               Save your address for a faster checkout experience.
@@ -320,10 +320,10 @@ export function Addresses() {
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
                   <button onClick={() => handleOpenEdit(addr)} className="btn btn-outline" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1, justifyContent: 'center' }}>
-                    <Edit2 className="h-3 w-3" /> Edit
+                    <Edit2 size={12} /> Edit
                   </button>
                   <button onClick={() => handleDelete(addr.id)} className="btn btn-outline" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)', flex: 1, justifyContent: 'center' }}>
-                    <Trash2 className="h-3 w-3" /> Delete
+                    <Trash2 size={12} /> Delete
                   </button>
                 </div>
               </div>

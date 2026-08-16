@@ -27,6 +27,8 @@ export function ProductDetails() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
 
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+
   useEffect(() => {
     async function loadProduct() {
       if (!slug) return;
@@ -36,6 +38,9 @@ export function ProductDetails() {
         setProduct(data);
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
+        }
+        if (data.images && data.images.length > 0) {
+          setActiveImage(data.images[0].url || data.images[0].storage_path);
         }
       } else {
         setError("Product not found");
@@ -179,7 +184,7 @@ export function ProductDetails() {
         <h2 style={{ fontSize: '1.875rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>Product not found</h2>
         <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>The product you're looking for doesn't exist or is unavailable.</p>
         <Link to="/products" style={{ marginTop: '2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem', textDecoration: 'none' }}>
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft size={16} />
           <span>Return to shop</span>
         </Link>
       </div>
@@ -201,9 +206,9 @@ export function ProductDetails() {
         <div className="container">
           <nav className="breadcrumb">
             <Link to="/" className="breadcrumb-link">Home</Link>
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight size={12} />
             <Link to="/products" className="breadcrumb-link">Shop</Link>
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight size={12} />
             <span className="breadcrumb-current">{product.name}</span>
           </nav>
 
@@ -215,10 +220,10 @@ export function ProductDetails() {
               className="product-gallery"
             >
               <div className="product-image-container">
-                {product.images && product.images.length > 0 ? (
+                {activeImage ? (
                   <img
-                    src={product.images[0].url || product.images[0].storage_path}
-                    alt={product.images[0].alt_text || product.name}
+                    src={activeImage}
+                    alt={product.name}
                     className="product-image"
                   />
                 ) : (
@@ -227,6 +232,33 @@ export function ProductDetails() {
                   </div>
                 )}
               </div>
+              
+              {product.images && product.images.length > 1 && (
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                  {product.images.map((img: any, idx: number) => {
+                    const url = img.url || img.storage_path;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveImage(url)}
+                        style={{
+                          width: '4rem',
+                          height: '4rem',
+                          borderRadius: 'var(--radius-sm)',
+                          border: activeImage === url ? '2px solid var(--accent)' : '1px solid var(--border)',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          cursor: 'pointer',
+                          padding: 0,
+                          backgroundColor: 'var(--surface)'
+                        }}
+                      >
+                        <img src={url} alt={`Gallery ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               
               {/* Product Badge */}
               <div className="product-badge-corner">
@@ -240,7 +272,7 @@ export function ProductDetails() {
                 <div className="product-rating-summary">
                   <div className="product-rating-stars">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4" style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
+                      <Star key={i} size={16} style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
                     ))}
                   </div>
                   <a href="#reviews" className="review-count-link">
@@ -262,7 +294,7 @@ export function ProductDetails() {
               <div className="product-specs-grid">
                 <div className="brand-card product-spec-card">
                   <div className="spec-icon-wrapper">
-                    <ShieldCheck className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+                    <ShieldCheck size={20} style={{ color: 'var(--accent)' }} />
                   </div>
                   <div className="spec-text">
                     Premium <br /> Protection
@@ -270,7 +302,7 @@ export function ProductDetails() {
                 </div>
                 <div className="brand-card product-spec-card">
                   <div className="spec-icon-wrapper">
-                    <Sparkles className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+                    <Sparkles size={20} style={{ color: 'var(--accent)' }} />
                   </div>
                   <div className="spec-text">
                     Showroom <br /> Finish
@@ -315,7 +347,7 @@ export function ProductDetails() {
                       className="quantity-btn"
                       disabled={!inStock}
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus size={16} />
                     </button>
                     <span className="quantity-value">{quantity}</span>
                     <button 
@@ -323,7 +355,7 @@ export function ProductDetails() {
                       className="quantity-btn"
                       disabled={!inStock}
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus size={16} />
                     </button>
                   </div>
                   
@@ -334,12 +366,12 @@ export function ProductDetails() {
                   >
                     {added ? (
                       <>
-                        <Check className="h-5 w-5" />
+                        <Check size={20} />
                         <span>Added to Cart</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="h-5 w-5" />
+                        <ShoppingBag size={20} />
                         <span>Add to Cart</span>
                       </>
                     )}
@@ -404,7 +436,7 @@ export function ProductDetails() {
             <div className="reviews-summary">
               <div className="reviews-summary-sticky">
                 <div className="reviews-eyebrow">
-                  <MessageSquare className="h-6 w-6" />
+                  <MessageSquare size={24} />
                   <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Feedback</span>
                 </div>
                 <h2 className="reviews-title">
@@ -415,7 +447,7 @@ export function ProductDetails() {
                   <div className="rating-big-score">{averageRating.toFixed(1)}</div>
                   <div className="product-rating-stars" style={{ marginBottom: '1rem' }}>
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5" style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
+                      <Star key={i} size={20} style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
                     ))}
                   </div>
                   <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
@@ -474,7 +506,7 @@ export function ProductDetails() {
                               className="rating-star-btn"
                             >
                               <Star
-                                className="h-8 w-8"
+                                size={32}
                                 style={{ fill: newReviewRating >= rating ? 'var(--gold)' : 'none', color: newReviewRating >= rating ? 'var(--gold)' : 'var(--text-secondary)' }}
                               />
                             </button>
@@ -537,7 +569,7 @@ export function ProductDetails() {
                       <div className="review-card-header">
                         <div className="review-user-info">
                           <div className="user-avatar-placeholder">
-                            <User className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                            <User size={24} style={{ color: 'var(--accent)' }} />
                           </div>
                           <div>
                             <div className="user-name">
@@ -545,7 +577,7 @@ export function ProductDetails() {
                             </div>
                             <div className="product-rating-stars">
                               {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="h-3 w-3" style={{ fill: i < review.rating ? 'var(--gold)' : 'none', color: i < review.rating ? 'var(--gold)' : 'var(--text-secondary)' }} />
+                                <Star key={i} size={12} style={{ fill: i < review.rating ? 'var(--gold)' : 'none', color: i < review.rating ? 'var(--gold)' : 'var(--text-secondary)' }} />
                               ))}
                             </div>
                           </div>

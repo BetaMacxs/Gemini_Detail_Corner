@@ -10,7 +10,7 @@ interface ContactMessage {
   phone?: string;
   subject?: string;
   message: string;
-  read?: boolean;
+  status: 'UNREAD' | 'READ' | 'ARCHIVED';
   created_at: string;
 }
 
@@ -37,19 +37,6 @@ export function AdminMessages() {
       console.warn("Error fetching DB messages:", e);
     }
 
-    try {
-      const local = JSON.parse(localStorage.getItem('contact_messages') || '[]');
-      const combined = [...list];
-      local.forEach((m: any) => {
-        if (!combined.some(c => c.id === m.id)) {
-          combined.push(m);
-        }
-      });
-      list = combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    } catch (e) {
-      console.warn("Local messages read error:", e);
-    }
-
     setMessages(list);
     if (list.length > 0 && !selectedMessage) {
       setSelectedMessage(list[0]);
@@ -62,14 +49,14 @@ export function AdminMessages() {
   }, []);
 
   const handleToggleRead = async (msg: ContactMessage) => {
-    const updated = !msg.read;
-    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, read: updated } : m));
+    const newStatus = msg.status === 'READ' ? 'UNREAD' : 'READ';
+    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, status: newStatus as any } : m));
     if (selectedMessage?.id === msg.id) {
-      setSelectedMessage({ ...selectedMessage, read: updated });
+      setSelectedMessage({ ...selectedMessage, status: newStatus as any });
     }
 
     try {
-      await supabase.from('contact_messages').update({ read: updated }).eq('id', msg.id);
+      await supabase.from('contact_messages').update({ status: newStatus }).eq('id', msg.id);
     } catch (e) {
       console.warn("Toggle read message warning:", e);
     }
@@ -126,13 +113,13 @@ export function AdminMessages() {
           {/* Left List */}
           <div className="brand-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
             <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 placeholder="Search messages..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="auth-input"
+                
                 style={{ paddingLeft: '2.25rem', fontSize: '0.8125rem' }}
               />
             </div>
@@ -149,12 +136,12 @@ export function AdminMessages() {
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
                       border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',
-                      backgroundColor: isSelected ? 'var(--accent-glow)' : (msg.read ? 'var(--bg)' : 'rgba(255, 255, 255, 0.05)'),
+                      backgroundColor: isSelected ? 'var(--accent-glow)' : (msg.status === 'READ' ? 'var(--bg)' : 'rgba(255, 255, 255, 0.05)'),
                       transition: 'all 0.15s ease'
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.875rem', fontWeight: msg.read ? 600 : 800, color: 'var(--text-primary)' }}>{msg.name}</span>
+                      <span style={{ fontSize: '0.875rem', fontWeight: msg.status === 'READ' ? 600 : 800, color: 'var(--text-primary)' }}>{msg.name}</span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(msg.created_at).toLocaleDateString('en-ZA')}</span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -187,10 +174,10 @@ export function AdminMessages() {
 
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button onClick={() => handleToggleRead(selectedMessage)} className="btn btn-outline" style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem' }}>
-                    {selectedMessage.read ? 'Mark Unread' : 'Mark Read'}
+                    {selectedMessage.status === 'READ' ? 'Mark Unread' : 'Mark Read'}
                   </button>
                   <button onClick={() => handleDelete(selectedMessage.id)} className="btn btn-outline" style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -202,7 +189,7 @@ export function AdminMessages() {
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                 <a href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject || 'Inquiry')}`} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.8125rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Mail className="h-4 w-4" /> Reply via Email
+                  <Mail size={16} /> Reply via Email
                 </a>
               </div>
             </div>

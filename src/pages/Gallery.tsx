@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { motion, AnimatePresence } from 'motion/react';
+import { X } from 'lucide-react';
 
 export function Gallery() {
   const defaultImages = [
@@ -12,6 +14,7 @@ export function Gallery() {
   ];
 
   const [galleryItems, setGalleryItems] = useState<string[]>(defaultImages);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadGallery() {
@@ -45,6 +48,43 @@ export function Gallery() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
+      {/* Lightbox */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            style={{ 
+              position: 'fixed', 
+              inset: 0, 
+              zIndex: 1000, 
+              backgroundColor: 'rgba(0,0,0,0.9)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              cursor: 'zoom-out'
+            }}
+          >
+            <motion.img 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              src={selectedImage} 
+              alt="Detailing result full screen" 
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 'var(--radius-md)', boxShadow: '0 0 50px rgba(0,0,0,0.5)' }}
+            />
+            <button 
+              style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+              onClick={() => setSelectedImage(null)}
+            >
+              <X size={32} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
       <section style={{ position: 'relative', paddingTop: '6rem', paddingBottom: '6rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%)', opacity: 0.2 }} />
@@ -61,11 +101,18 @@ export function Gallery() {
       <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {galleryItems.map((url, i) => (
-            <div key={i} className="brand-card" style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
+            <div 
+              key={i} 
+              className="brand-card" 
+              style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: 'var(--radius-lg)', cursor: 'zoom-in' }}
+              onClick={() => setSelectedImage(url)}
+            >
               <img 
                 src={url} 
                 alt={`Detailing result ${i + 1}`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               />
             </div>
           ))}

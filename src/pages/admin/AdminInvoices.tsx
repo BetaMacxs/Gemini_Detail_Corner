@@ -161,13 +161,13 @@ export function AdminInvoices() {
           {/* Left Column: Order Selector */}
           <div className="brand-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
             <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 placeholder="Search invoices..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="auth-input"
+                
                 style={{ paddingLeft: '2.25rem', fontSize: '0.8125rem' }}
               />
             </div>
@@ -207,7 +207,7 @@ export function AdminInvoices() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Tax Invoice Preview</span>
                 <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Printer className="h-4 w-4" /> Print / PDF Invoice
+                  <Printer size={16} /> Print / PDF Invoice
                 </button>
               </div>
 

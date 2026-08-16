@@ -27,7 +27,7 @@ export function AdminPOS() {
   const [searchTerm, setSearchTerm] = useState('');
   const [cart, setCart] = useState<POSCartItem[]>([]);
   const [customerName, setCustomerName] = useState('Walk-in Customer');
-  const [customerEmail, setCustomerEmail] = useState('pos@counter.local');
+  const [customerEmail, setCustomerEmail] = useState('pos@detailcorner.co.za');
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'CARD' | 'EFT'>('CARD');
   const [processing, setProcessing] = useState(false);
   const [completedOrderNum, setCompletedOrderNum] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export function AdminPOS() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 6;
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -178,21 +178,21 @@ export function AdminPOS() {
       customer_id: null,
       email: customerEmail,
       customer_name: customerName,
-      phone: '0000000000',
+      phone: storeConfig.CONTACT_PHONE || '0000000000',
       billing_information: {
         firstName: customerName,
         lastName: '(POS Walk-in)',
-        address: 'Over-the-Counter Store Pick',
-        city: 'Johannesburg',
-        postalCode: '2000',
+        address: storeConfig.STORE_ADDR || 'In store sale',
+        city: storeConfig.STORE_CITY || 'Cape Town',
+        postalCode: storeConfig.STORE_POSTAL || '8001',
         email: customerEmail
       },
       shipping_information: {
         firstName: customerName,
         lastName: '(POS Walk-in)',
-        address: 'Over-the-Counter Store Pick',
-        city: 'Johannesburg',
-        postalCode: '2000',
+        address: storeConfig.STORE_ADDR || 'In store sale',
+        city: storeConfig.STORE_CITY || 'Cape Town',
+        postalCode: storeConfig.STORE_POSTAL || '8001',
         email: customerEmail
       },
       subtotal,
@@ -241,16 +241,6 @@ export function AdminPOS() {
           new_status: 'PAID',
           reason: 'POS Sale Completed'
         });
-      }
-
-      // Decrement stock in database
-      for (const item of cart) {
-        const newStock = Math.max(0, item.product.stock_quantity - item.quantity);
-        if (item.product.variant_id) {
-          await supabase.from('product_variants').update({ stock_quantity: newStock }).eq('id', item.product.variant_id);
-        } else {
-          await supabase.from('products').update({ stock_quantity: newStock }).eq('id', item.product.product_id);
-        }
       }
     } catch (e) {
       console.warn("POS checkout error:", e);
@@ -339,7 +329,7 @@ export function AdminPOS() {
             
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button onClick={() => window.print()} className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                <Printer className="h-4 w-4" /> Print Receipt
+                <Printer size={16} /> Print Receipt
               </button>
               <button onClick={() => setLastOrder(null)} className="btn btn-outline" style={{ flex: 1 }}>Close</button>
             </div>
@@ -364,7 +354,7 @@ export function AdminPOS() {
         {completedOrderNum && !lastOrder && (
           <div className="brand-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', borderLeft: '4px solid #22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <CheckCircle2 className="h-5 w-5" style={{ color: '#22c55e' }} />
+              <CheckCircle2 size={20} style={{ color: '#22c55e' }} />
               <div>
                 <div style={{ fontWeight: 800, color: '#22c55e', fontSize: '0.9375rem' }}>Sale Completed Successfully!</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Order reference: {completedOrderNum}</div>
@@ -378,13 +368,13 @@ export function AdminPOS() {
           {/* Left Column: Product Selection Grid */}
           <div>
             <div style={{ marginBottom: '1.25rem', position: 'relative' }}>
-              <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 placeholder="Search POS catalogue by name or SKU..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="auth-input"
+                
                 style={{ paddingLeft: '2.5rem' }}
               />
             </div>
@@ -434,7 +424,7 @@ export function AdminPOS() {
                             className="btn btn-primary"
                             style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                           >
-                            <Plus className="h-3 w-3" /> Add
+                            <Plus size={12} /> Add
                           </button>
                         </div>
                       </div>
@@ -450,7 +440,7 @@ export function AdminPOS() {
                       className="btn btn-outline"
                       style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                     >
-                      <ChevronLeft className="h-4 w-4" /> Prev
+                      <ChevronLeft size={16} /> Prev
                     </button>
                     <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Page {currentPage} of {totalPages}</span>
                     <button 
@@ -459,7 +449,7 @@ export function AdminPOS() {
                       className="btn btn-outline"
                       style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                     >
-                      Next <ChevronRight className="h-4 w-4" />
+                      Next <ChevronRight size={16} />
                     </button>
                   </div>
                 )}
@@ -498,7 +488,7 @@ export function AdminPOS() {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <button onClick={() => updateQuantity(item.product.id, -1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', cursor: 'pointer', padding: '0.25rem' }}>
-                          <Minus className="h-3 w-3" />
+                          <Minus size={12} />
                         </button>
                         <span style={{ fontSize: '0.875rem', fontWeight: 800, width: '1.5rem', textAlign: 'center' }}>{item.quantity}</span>
                         <button 
@@ -506,10 +496,10 @@ export function AdminPOS() {
                           disabled={item.quantity >= item.product.stock_quantity}
                           style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: item.quantity >= item.product.stock_quantity ? 'var(--border)' : 'var(--text-primary)', cursor: item.quantity >= item.product.stock_quantity ? 'not-allowed' : 'pointer', padding: '0.25rem' }}
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus size={12} />
                         </button>
                         <button onClick={() => removeFromCart(item.product.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', marginLeft: '0.25rem' }}>
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
@@ -520,7 +510,7 @@ export function AdminPOS() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>Customer Name</label>
-                    <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className="auth-input" style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }} />
+                    <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)}  style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }} />
                   </div>
 
                   <div>

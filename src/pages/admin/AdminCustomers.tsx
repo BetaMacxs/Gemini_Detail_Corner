@@ -67,13 +67,13 @@ export function AdminCustomers() {
 
       {/* Search Input */}
       <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
-        <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
         <input
           type="text"
           placeholder="Filter customers by name or email..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="auth-input"
+          
           style={{ paddingLeft: '2.5rem' }}
         />
       </div>

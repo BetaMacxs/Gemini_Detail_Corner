@@ -82,7 +82,7 @@ export function Cart() {
       <div className="cart-page" style={{ textAlign: 'center', paddingTop: '6rem', paddingBottom: '6rem' }}>
         <ShoppingBag style={{ margin: '0 auto', height: '4rem', width: '4rem', color: 'var(--text-secondary)' }} />
         <h2 className="cart-title" style={{ marginTop: '2rem', marginBottom: '1rem' }}>Your cart is empty</h2>
-        <p className="text-brand-text-secondary" style={{ maxWidth: '24rem', margin: '0 auto' }}>Looks like you haven't added any products to your arsenal yet.</p>
+        <p style={{ color: 'var(--text-secondary)', maxWidth: '24rem', margin: '0 auto' }}>Looks like you haven't added any products to your arsenal yet.</p>
         <div style={{ marginTop: '3rem' }}>
           <Link
             to="/products"
@@ -99,7 +99,7 @@ export function Cart() {
   return (
     <div className="cart-page">
       <h1 className="cart-title">
-        Shopping <span className="text-brand-accent">Cart</span>
+        Shopping <span style={{ color: 'var(--accent)' }}>Cart</span>
       </h1>
 
       <div className="cart-layout">
@@ -132,7 +132,7 @@ export function Cart() {
                     <div className="cart-item-header">
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <h3 className="text-sm">
+                          <h3 style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                             <Link to={`/product/${item.product.slug}`} className="cart-item-name">
                               {item.product.name}
                             </Link>
@@ -227,8 +227,8 @@ export function Cart() {
             </dl>
 
             {!couponCode && (
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#222]">
-                <label htmlFor="coupon" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Gift card or discount code</label>
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color, #e5e7eb)' }}>
+                <label htmlFor="coupon" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Gift card or discount code</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
                     type="text"
@@ -254,7 +254,7 @@ export function Cart() {
               </div>
             )}
 
-            <div className="mt-10">
+            <div style={{ marginTop: '2.5rem' }}>
               <Link
                 to="/checkout"
                 className="btn btn-primary checkout-link-btn"

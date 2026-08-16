@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { uploadImage } from '../../lib/storage';
 import { Plus, Trash2, X, Image as ImageIcon, Video } from 'lucide-react';
 import { AdminNav } from '../../components/AdminNav';
 
@@ -23,10 +24,11 @@ export function AdminGallery() {
     url: '',
     tags: 'Ceramic Coating'
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const fetchGallery = async () => {
     setLoading(true);
-    let list: GalleryItem[] = [];
 
     try {
       const { data, error } = await supabase
@@ -35,26 +37,12 @@ export function AdminGallery() {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        list = data as GalleryItem[];
+        setItems(data as GalleryItem[]);
       }
     } catch (e) {
       console.warn("Error fetching DB gallery:", e);
     }
 
-    try {
-      const local = JSON.parse(localStorage.getItem('gallery') || '[]');
-      const combined = [...list];
-      local.forEach((g: any) => {
-        if (!combined.some(c => c.id === g.id)) {
-          combined.push(g);
-        }
-      });
-      list = combined;
-    } catch (e) {
-      console.warn("Local gallery notice:", e);
-    }
-
-    setItems(list);
     setLoading(false);
   };
 
@@ -64,17 +52,10 @@ export function AdminGallery() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Remove this item from gallery?")) return;
-    setItems(prev => prev.filter(item => item.id !== id));
-
-    try {
-      const local = JSON.parse(localStorage.getItem('gallery') || '[]');
-      localStorage.setItem('gallery', JSON.stringify(local.filter((item: any) => item.id !== id)));
-    } catch (e) {
-      console.warn("Local storage delete warning:", e);
-    }
-
+    
     try {
       await supabase.from('gallery').delete().eq('id', id);
+      setItems(prev => prev.filter(item => item.id !== id));
     } catch (e) {
       console.warn("Delete gallery error:", e);
     }
@@ -83,30 +64,31 @@ export function AdminGallery() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let finalUrl = formData.url;
+    if (formData.type === 'IMAGE' && imageFile) {
+      const uploadedUrl = await uploadImage(imageFile, 'gallery');
+      if (uploadedUrl) {
+        finalUrl = uploadedUrl;
+      }
+    }
+
     const newItem = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `gal_${Date.now()}`,
       title: formData.title,
       type: formData.type,
-      url: formData.url,
-      tags: formData.tags,
-      created_at: new Date().toISOString()
+      url: finalUrl,
+      tags: formData.tags
     };
 
     try {
-      await supabase.from('gallery').insert([newItem]);
+      const { error } = await supabase.from('gallery').insert([newItem]);
+      if (error) throw error;
+      
+      setShowModal(false);
+      fetchGallery();
     } catch (e) {
       console.warn("Insert gallery error:", e);
+      alert("Failed to add gallery item. Please check database permissions.");
     }
-
-    try {
-      const local = JSON.parse(localStorage.getItem('gallery') || '[]');
-      localStorage.setItem('gallery', JSON.stringify([newItem, ...local]));
-    } catch (e) {
-      console.warn("LocalStorage notice:", e);
-    }
-
-    setShowModal(false);
-    fetchGallery();
   };
 
   return (
@@ -141,15 +123,38 @@ export function AdminGallery() {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {formData.type === 'IMAGE' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Upload Image</label>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {imagePreview && (
+                      <img src={imagePreview} alt="Preview" style={{ width: '4rem', height: '4rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
+                    )}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                        }
+                      }} 
+                      style={{ fontSize: '0.75rem' }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media Title</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="auth-input" placeholder="e.g. BMW M3 Ceramic Gloss Transformation" />
+                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}  placeholder="e.g. BMW M3 Ceramic Gloss Transformation" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media Type</label>
-                  <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })} className="auth-input">
+                  <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })} >
                     <option value="IMAGE">IMAGE</option>
                     <option value="VIDEO">VIDEO (TikTok/MP4)</option>
                   </select>
@@ -157,13 +162,13 @@ export function AdminGallery() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Tag / Category</label>
-                  <input type="text" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })} className="auth-input" placeholder="e.g. Paint Correction" />
+                  <input type="text" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })}  placeholder="e.g. Paint Correction" />
                 </div>
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media URL / Image Link</label>
-                <input type="text" required value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })} className="auth-input" placeholder="https://..." />
+                <input type="text" required value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })}  placeholder="https://..." />
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>

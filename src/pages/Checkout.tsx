@@ -47,7 +47,8 @@ export function Checkout() {
 
   const subtotal = getSubtotal();
   const finalSubtotal = Math.max(0, subtotal - discountAmount);
-  const shipping = 100; // Flat rate
+  const FREE_SHIPPING_THRESHOLD = 1000;
+  const shipping = finalSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 100;
   const total = finalSubtotal + shipping;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -486,12 +487,12 @@ export function Checkout() {
                     <li key={item.id} className="summary-item">
                       <div className="summary-item-image-wrapper">
                         {item.product.images?.[0] ? (
-                          <img src={item.product.images[0].url || item.product.images[0].storage_path} alt={item.product.name} className="w-full h-full object-cover" />
+                          <img src={item.product.images[0].url || item.product.images[0].storage_path} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <img 
                             src={`/${item.product.slug.toLowerCase()}.png`}
                             alt={item.product.name}
-                            className="w-full h-full object-cover"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
@@ -528,8 +529,19 @@ export function Checkout() {
                 )}
                 <div className="summary-cost-row">
                   <dt>Shipping</dt>
-                  <dd className="summary-value">{formatPrice(shipping)}</dd>
+                  <dd className="summary-value">
+                    {shipping === 0 ? (
+                      <span style={{ color: '#16a34a', fontWeight: 600 }}>FREE</span>
+                    ) : (
+                      formatPrice(shipping)
+                    )}
+                  </dd>
                 </div>
+                {shipping > 0 && (
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '-0.5rem', marginBottom: '0.5rem', textAlign: 'right' }}>
+                    Free shipping on orders over {formatPrice(1000)}
+                  </p>
+                )}
                 <div className="summary-cost-row total">
                   <dt>Total</dt>
                   <dd className="total-value">{formatPrice(total)}</dd>

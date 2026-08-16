@@ -20,7 +20,7 @@ export function Account() {
           <div className="account-profile-header">
             <div className="account-user-info">
               <div className="account-avatar-wrapper">
-                <User className="h-8 w-8" />
+                <User size={32} />
               </div>
               <div className="account-user-details">
                 <h2 className="account-user-name">{profile?.full_name || 'Customer'}</h2>
@@ -36,16 +36,16 @@ export function Account() {
 
           <div className="account-links-grid">
             <Link to="/account/orders" className="account-link-item">
-              <Package className="h-6 w-6 text-brand-text-secondary mt-0.5" />
-              <div className="ml-4">
+              <Package size={24} style={{ color: 'var(--text-secondary)', marginTop: '0.125rem' }} />
+              <div style={{ marginLeft: '1rem' }}>
                 <h3 className="account-link-title">Order History</h3>
                 <p className="account-link-desc">View and track your past orders.</p>
               </div>
             </Link>
             
             <Link to="/account/addresses" className="account-link-item">
-              <MapPin className="h-6 w-6 text-brand-text-secondary mt-0.5" />
-              <div className="ml-4">
+              <MapPin size={24} style={{ color: 'var(--text-secondary)', marginTop: '0.125rem' }} />
+              <div style={{ marginLeft: '1rem' }}>
                 <h3 className="account-link-title">Addresses</h3>
                 <p className="account-link-desc">Manage your shipping and billing addresses.</p>
               </div>
@@ -53,8 +53,8 @@ export function Account() {
 
             {profile?.is_admin && (
               <Link to="/admin" className="account-link-item">
-                <Settings className="h-6 w-6 text-brand-text-secondary mt-0.5" />
-                <div className="ml-4">
+                <Settings size={24} style={{ color: 'var(--text-secondary)', marginTop: '0.125rem' }} />
+                <div style={{ marginLeft: '1rem' }}>
                   <h3 className="account-link-title">Admin Dashboard</h3>
                   <p className="account-link-desc">Manage products, orders, and store settings.</p>
                 </div>
@@ -67,7 +67,7 @@ export function Account() {
               onClick={handleSignOut}
               className="signout-btn"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut size={16} style={{ marginRight: '0.5rem' }} />
               Sign out
             </button>
           </div>

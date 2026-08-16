@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { uploadImage } from '../../lib/storage';
 import { storeConfig } from '../../config/store';
 import { Plus, Edit2, Trash2, X, Power, Search } from 'lucide-react';
 import { AdminNav } from '../../components/AdminNav';
@@ -19,6 +20,7 @@ interface ProductItem {
   categories?: { name: string } | null;
   short_description?: string;
   description?: string;
+  product_images?: { id: string; storage_path: string; url?: string }[];
 }
 
 export function AdminProducts() {
@@ -39,8 +41,11 @@ export function AdminProducts() {
     category_id: '',
     short_description: '',
     description: '',
-    active: true
+    active: true,
+    image_url: ''
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -52,7 +57,7 @@ export function AdminProducts() {
       // 2. Fetch Products
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(name)')
+        .select('*, categories(name), product_images(id, storage_path)')
         .order('created_at', { ascending: false });
 
       if (!error && data) {
@@ -83,13 +88,17 @@ export function AdminProducts() {
       category_id: categories[0]?.id || '',
       short_description: '',
       description: '',
-      active: true
+      active: true,
+      image_url: ''
     });
+    setImageFile(null);
+    setImagePreview(null);
     setShowModal(true);
   };
 
   const handleOpenEdit = (p: ProductItem) => {
     setEditingProduct(p);
+    const mainImage = p.product_images && p.product_images.length > 0 ? p.product_images[0].storage_path : '';
     setFormData({
       name: p.name || '',
       sku: p.sku || '',
@@ -99,8 +108,11 @@ export function AdminProducts() {
       category_id: p.category_id || (categories[0]?.id || ''),
       short_description: p.short_description || '',
       description: p.description || '',
-      active: typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true)
+      active: typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true),
+      image_url: mainImage
     });
+    setImageFile(null);
+    setImagePreview(mainImage);
     setShowModal(true);
   };
 
@@ -137,6 +149,14 @@ export function AdminProducts() {
     const compareNum = formData.compare_at_price ? parseFloat(formData.compare_at_price) : null;
     const stockNum = parseInt(formData.stock_quantity) || 0;
 
+    let finalImageUrl = formData.image_url;
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile, 'products');
+      if (uploadedUrl) {
+        finalImageUrl = uploadedUrl;
+      }
+    }
+
     const payload = {
       name: formData.name,
       slug,
@@ -150,6 +170,8 @@ export function AdminProducts() {
       active: formData.active
     };
 
+    let productId = editingProduct?.id;
+
     if (editingProduct) {
       try {
         await supabase.from('products').update(payload).eq('id', editingProduct.id);
@@ -158,9 +180,29 @@ export function AdminProducts() {
       }
     } else {
       try {
-        await supabase.from('products').insert([payload]);
+        const { data: newP, error: pErr } = await supabase.from('products').insert([payload]).select();
+        if (newP && newP[0]) {
+          productId = newP[0].id;
+        }
       } catch (e) {
         console.warn("Insert product error:", e);
+      }
+    }
+
+    if (productId && finalImageUrl) {
+      try {
+        // Simple strategy: delete existing and insert new for main image
+        if (editingProduct) {
+          await supabase.from('product_images').delete().eq('product_id', productId);
+        }
+        await supabase.from('product_images').insert([{
+          product_id: productId,
+          storage_path: finalImageUrl,
+          alt_text: formData.name,
+          sort_order: 0
+        }]);
+      } catch (e) {
+        console.warn("Update images error:", e);
       }
     }
 
@@ -194,7 +236,7 @@ export function AdminProducts() {
         </div>
 
         <button onClick={handleOpenAdd} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Plus className="h-4 w-4" />
+          <Plus size={16} />
           <span>Add Product</span>
         </button>
       </div>
@@ -203,13 +245,13 @@ export function AdminProducts() {
 
       {/* Search Bar */}
       <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
-        <Search className="h-4 w-4" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
         <input
           type="text"
           placeholder="Filter products..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="auth-input"
+          
           style={{ paddingLeft: '2.5rem' }}
         />
       </div>
@@ -223,42 +265,70 @@ export function AdminProducts() {
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h3>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                <X className="h-5 w-5" />
+                <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Product Image</label>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Preview" style={{ width: '4rem', height: '4rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }} 
+                    style={{ fontSize: '0.75rem' }}
+                  />
+                </div>
+                <input 
+                  type="text" 
+                  value={formData.image_url} 
+                  onChange={e => setFormData({ ...formData, image_url: e.target.value })} 
+                  placeholder="Or enter image URL manually..."
+                  style={{ marginTop: '0.5rem' }}
+                />
+              </div>
+
+              <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Product Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="auth-input" placeholder="e.g. Ceramic Force Coating" />
+                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}  placeholder="e.g. Ceramic Force Coating" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>SKU</label>
-                  <input type="text" required value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} className="auth-input" />
+                  <input type="text" required value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })}  />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Price (ZAR)</label>
-                  <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="auth-input" placeholder="0.00" />
+                  <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}  placeholder="0.00" />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Compare Price (ZAR)</label>
-                  <input type="number" step="0.01" value={formData.compare_at_price} onChange={e => setFormData({ ...formData, compare_at_price: e.target.value })} className="auth-input" placeholder="Optional" />
+                  <input type="number" step="0.01" value={formData.compare_at_price} onChange={e => setFormData({ ...formData, compare_at_price: e.target.value })}  placeholder="Optional" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Stock Quantity</label>
-                  <input type="number" required value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} className="auth-input" />
+                  <input type="number" required value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}  />
                 </div>
               </div>
 
               {categories.length > 0 && (
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category</label>
-                  <select value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} className="auth-input">
+                  <select value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} >
                     <option value="">Select Category</option>
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -269,12 +339,12 @@ export function AdminProducts() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Short Summary</label>
-                <input type="text" value={formData.short_description} onChange={e => setFormData({ ...formData, short_description: e.target.value })} className="auth-input" placeholder="Brief 1-sentence product highlight" />
+                <input type="text" value={formData.short_description} onChange={e => setFormData({ ...formData, short_description: e.target.value })}  placeholder="Brief 1-sentence product highlight" />
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Full Description</label>
-                <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="auth-input" placeholder="Detailed product specifications..." />
+                <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}  placeholder="Detailed product specifications..." />
               </div>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontSize: '0.875rem', cursor: 'pointer' }}>
@@ -361,17 +431,17 @@ export function AdminProducts() {
                             cursor: 'pointer'
                           }}
                         >
-                          <Power className="h-3 w-3" />
+                          <Power size={12} />
                           <span>{isActive ? 'Active' : 'Inactive'}</span>
                         </button>
                       </td>
                       <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                           <button onClick={() => handleOpenEdit(product)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <Edit2 className="h-3 w-3" /> Edit
+                            <Edit2 size={12} /> Edit
                           </button>
                           <button onClick={() => handleDelete(product.id)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 size={12} />
                           </button>
                         </div>
                       </td>

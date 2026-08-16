@@ -48,11 +48,11 @@ export function Home() {
             </div>
             <h1 className="hero-title">
               Premium <br />
-              <span style={{ color: 'var(--accent)' }}>Detailing</span> <br />
-              Supplies
+              <span style={{ color: 'var(--accent)' }}>Car Care</span> <br />
+              Products
             </h1>
             <p className="hero-description">
-              Elevate your car care routine with professional-grade products designed for those who demand nothing but perfection.
+              Elevate your car care routine with professional grade products designed for those who demand nothing but perfection.
             </p>
             <div className="hero-buttons">
               <Link 
@@ -61,7 +61,7 @@ export function Home() {
                 style={{ padding: '1.25rem 2.5rem', borderRadius: '1rem' }}
               >
                 <span>Explore Shop</span>
-                <ArrowRight className="h-5 w-5" style={{ marginLeft: '0.75rem' }} />
+                <ArrowRight size={20} style={{ marginLeft: '0.75rem' }} />
               </Link>
               <Link 
                 to="/gallery" 
@@ -70,24 +70,6 @@ export function Home() {
               >
                 Our Gallery
               </Link>
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="hero-badge-floating">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-            className="hero-badge"
-          >
-            <div className="hero-badge-icon-wrapper">
-              <Trophy className="h-6 w-6" style={{ color: 'var(--accent)' }} />
-            </div>
-            <div>
-              <div className="hero-badge-text-primary">#1 Rated</div>
-              <div className="hero-badge-text-secondary">In Car Care 2024</div>
             </div>
           </motion.div>
         </div>
@@ -115,6 +97,59 @@ export function Home() {
         </div>
       </section>
 
+      {/* Categories Section */}
+      <section style={{ padding: '6rem 0', backgroundColor: 'var(--bg)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-eyebrow" style={{ justifyContent: 'center' }}>
+              <div className="eyebrow-line"></div>
+              <span className="eyebrow-text">Department</span>
+            </div>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>
+              Browse by <span style={{ color: 'var(--accent)' }}>Category</span>
+            </h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem' }}>
+            {[
+              { name: 'Exterior', image: 'https://images.unsplash.com/photo-1599256621730-535171e28e50?auto=format&fit=crop&q=80&w=600', icon: Car },
+              { name: 'Interior', image: 'https://images.unsplash.com/photo-1507136566466-4d333f06041e?auto=format&fit=crop&q=80&w=600', icon: Droplets },
+              { name: 'Wheels', image: 'https://images.unsplash.com/photo-1549927681-0b673b8243ab?auto=format&fit=crop&q=80&w=600', icon: Zap },
+              { name: 'Accessories', image: 'https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=600', icon: Sparkles }
+            ].map((cat, i) => (
+              <Link 
+                key={i} 
+                to={`/products?category=${cat.name.toUpperCase()}`}
+                className="brand-card"
+                style={{ 
+                  position: 'relative', 
+                  height: '18rem', 
+                  overflow: 'hidden', 
+                  borderRadius: 'var(--radius-lg)',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  padding: '2rem'
+                }}
+              >
+                <img 
+                  src={cat.image} 
+                  alt={cat.name} 
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, transition: 'transform 0.5s ease' }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)' }}></div>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <cat.icon size={32} style={{ color: 'var(--accent)', marginBottom: '1rem' }} />
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', textTransform: 'uppercase', fontStyle: 'italic', margin: 0 }}>{cat.name}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Featured Products */}
       <section className="featured-products-section">
         <div className="container">
@@ -130,7 +165,7 @@ export function Home() {
             </div>
             <Link to="/products" className="view-all-link">
               <span>View All Products</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight size={16} />
             </Link>
           </div>
 
@@ -154,7 +189,11 @@ export function Home() {
                         className="product-card-image"
                         onError={(e) => {
                           e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
-                          e.currentTarget.className = "h-full w-full object-contain p-12 opacity-50";
+                          e.currentTarget.style.height = '100%';
+                          e.currentTarget.style.width = '100%';
+                          e.currentTarget.style.objectFit = 'contain';
+                          e.currentTarget.style.padding = '3rem';
+                          e.currentTarget.style.opacity = '0.5';
                         }}
                       />
                       <div className="product-card-overlay"></div>
@@ -185,7 +224,7 @@ export function Home() {
         <div className="cta-background-glow"></div>
         <div className="cta-content">
           <div className="section-eyebrow" style={{ justifyContent: 'center' }}>
-            <Sparkles className="h-5 w-5" />
+            <Sparkles size={20} />
             <span className="eyebrow-text">Join the Community</span>
           </div>
           <h2 className="cta-title">
