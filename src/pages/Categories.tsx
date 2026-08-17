@@ -12,14 +12,14 @@ export function Categories() {
 
   if (isLoading) {
     return (
-      <div className="container" style={{ padding: '3rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
+      <div className="container page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '16rem' }}>
         <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>Product Categories</h1>
         <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Browse our selection of premium detailing supplies by category.</p>
@@ -30,7 +30,7 @@ export function Categories() {
           <p>{error}</p>
         </div>
       ) : categories.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '6rem 1rem', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+        <div style={{ textAlign: 'center', padding: 'var(--spacing-page-y) var(--spacing-container-px)', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
           <Layers style={{ margin: '0 auto', height: '3rem', width: '3rem', color: 'var(--text-secondary)' }} />
           <h3 style={{ marginTop: '1rem', fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-primary)' }}>No categories found</h3>
         </div>

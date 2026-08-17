@@ -134,7 +134,7 @@ export function AdminInvoices() {
   });
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -180,7 +180,7 @@ export function AdminInvoices() {
                     key={inv.id}
                     onClick={() => setSelectedInvoice(inv)}
                     style={{
-                      padding: '0.85rem 1rem',
+                      padding: '0.85rem var(--spacing-container-px)',
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
                       border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',
@@ -206,7 +206,7 @@ export function AdminInvoices() {
             <div className="brand-card" style={{ padding: '2rem', borderRadius: 'var(--radius-md)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Tax Invoice Preview</span>
-                <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '0.5rem var(--spacing-container-px)', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Printer size={16} /> Print / PDF Invoice
                 </button>
               </div>
@@ -218,7 +218,7 @@ export function AdminInvoices() {
                   <div>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#111827', margin: 0 }}>{storeConfig.STORE_NAME}</h2>
                     <p style={{ fontSize: '0.8125rem', color: '#4b5563', margin: '0.25rem 0 0 0' }}>{storeConfig.STORE_DESCRIPTION}</p>
-                    <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>VAT Reg #: ZA4820193847</p>
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>VAT Reg #: {storeConfig.STORE_VAT_NO}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ef4444', margin: 0 }}>TAX INVOICE</h1>
@@ -243,9 +243,9 @@ export function AdminInvoices() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <h4 style={{ fontWeight: 800, textTransform: 'uppercase', color: '#6b7280', fontSize: '0.75rem', margin: '0 0 0.5rem 0' }}>Merchant Info:</h4>
-                    <p style={{ fontWeight: 700, margin: 0 }}>Detailing Store RSA</p>
-                    <p style={{ margin: '0.2rem 0', color: '#4b5563' }}>Johannesburg, South Africa</p>
-                    <p style={{ margin: 0, color: '#4b5563' }}>support@detailing.co.za</p>
+                    <p style={{ fontWeight: 700, margin: 0 }}>{storeConfig.MERCHANT_STORE}</p>
+                    <p style={{ margin: '0.2rem 0', color: '#4b5563' }}>{storeConfig.MERCHANT_LOCATION}</p>
+                    <p style={{ margin: 0, color: '#4b5563' }}>{storeConfig.MERCHANT_SUPPORT}</p>
                   </div>
                 </div>
 

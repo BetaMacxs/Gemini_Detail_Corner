@@ -88,7 +88,7 @@ export function AdminMessages() {
   });
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
           Customer <span style={{ color: 'var(--accent)' }}>Messages</span>
@@ -132,7 +132,7 @@ export function AdminMessages() {
                     key={msg.id}
                     onClick={() => setSelectedMessage(msg)}
                     style={{
-                      padding: '0.85rem 1rem',
+                      padding: '0.85rem var(--spacing-container-px)',
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
                       border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',

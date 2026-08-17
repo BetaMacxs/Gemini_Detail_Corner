@@ -2,22 +2,12 @@
   max-width: 56rem; /* max-w-4xl */
   margin-left: auto;
   margin-right: auto;
-  padding: 3rem 1rem;
+  padding: var(--spacing-page-y) var(--spacing-container-px);
 }
 
-@media (min-width: 640px) {
-  .success-page {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
 
-@media (min-width: 1024px) {
-  .success-page {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
+
+
 
 .success-loading,
 .success-error {
@@ -33,7 +23,7 @@
 .success-error {
   max-width: 42rem; /* max-w-2xl */
   margin: 0 auto;
-  padding: 4rem 1rem;
+  padding: var(--spacing-page-y) var(--spacing-container-px);
   min-height: auto;
 }
 

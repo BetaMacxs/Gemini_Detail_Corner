@@ -180,7 +180,7 @@ export function ProductDetails() {
 
   if (error || !product) {
     return (
-      <div className="container" style={{ padding: '6rem 1rem', textAlign: 'center' }}>
+      <div className="container page-container" style={{ textAlign: 'center' }}>
         <h2 style={{ fontSize: '1.875rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>Product not found</h2>
         <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>The product you're looking for doesn't exist or is unavailable.</p>
         <Link to="/products" style={{ marginTop: '2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem', textDecoration: 'none' }}>

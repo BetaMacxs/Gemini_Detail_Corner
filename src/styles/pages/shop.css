@@ -6,30 +6,16 @@
 .shop-header {
   background-color: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding-top: 3rem; /* py-12 */
-  padding-bottom: 3rem;
+  padding-top: var(--spacing-page-y);
+  padding-bottom: var(--spacing-page-y);
 }
 
 .shop-header-container {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-@media (min-width: 640px) {
-  .shop-header-container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .shop-header-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  padding-left: var(--spacing-container-px);
+  padding-right: var(--spacing-container-px);
 }
 
 .shop-header-content {
@@ -47,7 +33,7 @@
 }
 
 .shop-title {
-  font-size: 2.25rem; /* text-4xl */
+  font-size: 1.875rem; /* text-3xl */
   font-weight: 900;
   text-transform: uppercase;
   font-style: italic;
@@ -136,24 +122,10 @@
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 3rem; /* py-12 */
-  padding-bottom: 3rem;
-}
-
-@media (min-width: 640px) {
-  .shop-main-container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .shop-main-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  padding-left: var(--spacing-container-px);
+  padding-right: var(--spacing-container-px);
+  padding-top: var(--spacing-page-y);
+  padding-bottom: var(--spacing-page-y);
 }
 
 .shop-layout {
@@ -269,7 +241,7 @@
 
 .empty-state, .error-state {
   text-align: center;
-  padding: 6rem 1rem; /* py-24 */
+  padding: var(--spacing-page-y) var(--spacing-container-px); /* py-24 */
   background-color: var(--surface);
   border-radius: 1.5rem; /* rounded-3xl */
   border: 1px dashed var(--border);
@@ -291,7 +263,7 @@
 }
 
 .empty-state-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 900;
   text-transform: uppercase;
   font-style: italic;
@@ -332,7 +304,7 @@
 }
 
 .product-card-footer-price {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: var(--text-primary);
   font-style: italic;

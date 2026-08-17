@@ -92,7 +92,7 @@ export function AdminGallery() {
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -207,7 +207,7 @@ export function AdminGallery() {
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ padding: '0.75rem var(--spacing-container-px)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
                 <button onClick={() => handleDelete(item.id)} className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <Trash2 size={14} /> Remove
                 </button>

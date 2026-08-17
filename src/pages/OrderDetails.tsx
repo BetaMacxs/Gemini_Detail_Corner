@@ -93,7 +93,7 @@ export function OrderDetails() {
 
   if (!order) {
     return (
-      <div style={{ textAlign: 'center', padding: '6rem 1rem' }}>
+      <div style={{ textAlign: 'center', padding: 'var(--spacing-page-y) var(--spacing-container-px)' }}>
         <p style={{ color: 'var(--text-secondary)' }}>Order not found.</p>
         <Link to="/account/orders" style={{ color: 'var(--accent)', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to orders</Link>
       </div>

@@ -7,29 +7,15 @@
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding: 3rem 1rem; /* py-12 px-4 */
-}
-
-@media (min-width: 640px) {
-  .checkout-container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .checkout-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  padding: var(--spacing-page-y) var(--spacing-container-px);
 }
 
 .checkout-title {
-  font-size: 1.875rem; /* text-3xl */
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.025em;
   color: var(--text-primary);
-  margin-bottom: 2rem; /* mb-8 */
+  margin-bottom: 1.5rem;
 }
 
 .checkout-layout {
@@ -64,24 +50,24 @@
 }
 
 .form-card {
-  background-color: rgba(0, 0, 0, 0.4); /* bg-black/40 */
-  padding: 1.5rem; /* p-6 */
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 1.25rem;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.05); /* border-brand-border/50 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 @media (min-width: 640px) {
   .form-card {
-    padding: 2rem; /* sm:p-8 */
+    padding: 1.5rem;
   }
 }
 
 .form-card-title {
-  font-size: 1.25rem; /* text-xl */
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1.5rem; /* mb-6 */
+  margin-bottom: 1.25rem;
 }
 
 .form-grid {
@@ -165,7 +151,7 @@
 
 .summary-sidebar-card {
   background-color: rgba(0, 0, 0, 0.4);
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
@@ -174,7 +160,7 @@
 
 @media (min-width: 640px) {
   .summary-sidebar-card {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 }
 

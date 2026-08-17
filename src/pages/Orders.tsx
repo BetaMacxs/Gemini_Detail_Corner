@@ -78,7 +78,7 @@ export function Orders() {
       <h1 className="account-title" style={{ marginBottom: '2rem' }}>Order History</h1>
 
       {orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '6rem 1rem', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+        <div style={{ textAlign: 'center', padding: 'var(--spacing-page-y) var(--spacing-container-px)', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
           <Package style={{ margin: '0 auto', display: 'block', height: '3rem', width: '3rem', color: 'var(--text-secondary)' }} />
           <h3 style={{ marginTop: '1rem', fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-primary)' }}>No orders found</h3>
           <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>You haven't placed any orders yet.</p>

@@ -198,7 +198,7 @@ export function AdminInventory() {
   }, 0);
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -213,7 +213,7 @@ export function AdminInventory() {
           <button
             onClick={() => setFilterLowStock(!filterLowStock)}
             className={`btn ${filterLowStock ? 'btn-primary' : 'btn-outline'}`}
-            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            style={{ padding: '0.5rem var(--spacing-container-px)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <AlertTriangle size={16} />
             <span>Low Stock Alerts ({lowStockCount})</span>
@@ -221,7 +221,7 @@ export function AdminInventory() {
           <button
             onClick={fetchInventory}
             className="btn btn-outline"
-            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            style={{ padding: '0.5rem var(--spacing-container-px)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <RefreshCw size={16} />
             <span>Refresh</span>

@@ -105,7 +105,7 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
           Admin <span style={{ color: 'var(--accent)' }}>Dashboard</span>

@@ -26,7 +26,7 @@ export function AdminNav() {
   };
 
   return (
-    <div className="brand-card" style={{ padding: '0.75rem 1rem', marginBottom: '2rem', borderRadius: 'var(--radius-md)' }}>
+    <div className="brand-card" style={{ padding: '0.75rem var(--spacing-container-px)', marginBottom: '2rem', borderRadius: 'var(--radius-md)' }}>
       <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
         {navItems.map((item) => {
           const Icon = item.icon;

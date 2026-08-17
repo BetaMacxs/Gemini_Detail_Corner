@@ -2,21 +2,7 @@
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding: 3rem 1rem;
-}
-
-@media (min-width: 640px) {
-  .account-page {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .account-page {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  padding: var(--spacing-page-y) var(--spacing-container-px);
 }
 
 .account-container {
@@ -26,7 +12,7 @@
 }
 
 .account-title {
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.025em;
@@ -42,13 +28,13 @@
 }
 
 .account-profile-header {
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @media (min-width: 640px) {
   .account-profile-header {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 }
 
@@ -107,7 +93,7 @@
 }
 
 .account-link-item {
-  padding: 1.5rem;
+  padding: 1.25rem;
   display: flex;
   align-items: flex-start;
   transition: background-color 0.2s;
@@ -142,7 +128,7 @@
 
 .account-card-footer {
   background-color: var(--bg);
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 

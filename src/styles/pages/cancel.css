@@ -2,7 +2,7 @@
   max-width: 42rem; /* max-w-2xl */
   margin-left: auto;
   margin-right: auto;
-  padding: 4rem 1rem;
+  padding: var(--spacing-page-y) var(--spacing-container-px);
 }
 
 .cancel-card {

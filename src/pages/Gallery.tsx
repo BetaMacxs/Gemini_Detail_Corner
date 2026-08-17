@@ -51,31 +51,31 @@ export function Gallery() {
       {/* Lightbox */}
       <AnimatePresence>
         {selectedImage && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
-            style={{ 
-              position: 'fixed', 
-              inset: 0, 
-              zIndex: 1000, 
-              backgroundColor: 'rgba(0,0,0,0.9)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1000,
+              backgroundColor: 'rgba(0,0,0,0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               padding: '2rem',
               cursor: 'zoom-out'
             }}
           >
-            <motion.img 
+            <motion.img
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              src={selectedImage} 
-              alt="Detailing result full screen" 
+              src={selectedImage}
+              alt="Detailing result full screen"
               style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 'var(--radius-md)', boxShadow: '0 0 50px rgba(0,0,0,0.5)' }}
             />
-            <button 
+            <button
               style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
               onClick={() => setSelectedImage(null)}
             >
@@ -86,29 +86,35 @@ export function Gallery() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section style={{ position: 'relative', paddingTop: '6rem', paddingBottom: '6rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
+      <section style={{ position: 'relative', paddingTop: '4rem', paddingBottom: '4rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%)', opacity: 0.2 }} />
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
-            Our <span style={{ color: 'var(--accent)' }}>Gallery</span>
-          </h1>
-          <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1.125rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            Witness the transformation. Our gallery showcases the unrivaled depth, clarity, and protection achieved using Detail Corner's premium formulations.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
+              Our <span style={{ color: 'var(--accent)' }}>Gallery</span>
+            </h1>
+            <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              Witness the transformation. Our gallery showcases the unrivaled depth, clarity, and protection achieved using Detail Corner's premium formulations.
+            </p>
+          </motion.div>
         </div>
       </section>
 
-      <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
+      <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {galleryItems.map((url, i) => (
-            <div 
-              key={i} 
-              className="brand-card" 
+            <div
+              key={i}
+              className="brand-card"
               style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: 'var(--radius-lg)', cursor: 'zoom-in' }}
               onClick={() => setSelectedImage(url)}
             >
-              <img 
-                src={url} 
+              <img
+                src={url}
                 alt={`Detailing result ${i + 1}`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}

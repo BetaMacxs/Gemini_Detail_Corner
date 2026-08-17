@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { PackageSearch, Package, Clock, CheckCircle, Truck, XCircle, AlertCircle, ShoppingBag, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 
 export function TrackOrder() {
   const [orderNumber, setOrderNumber] = useState('');
@@ -95,13 +96,19 @@ export function TrackOrder() {
   };
 
   return (
-    <div className="container" style={{ padding: '4rem 1rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="container page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <PackageSearch style={{ height: '3rem', width: '3rem', color: 'var(--accent)', margin: '0 auto 1rem auto' }} />
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>Track Your Order</h1>
+      <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
+          Track Your <span style={{ color: 'var(--accent)' }}>Order</span></h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem' }}>
           Enter your order number and email address to see your order status.
         </p>
+        </motion.div>
       </div>
 
       <div className="brand-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
@@ -168,7 +175,7 @@ export function TrackOrder() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Current Status:</span>
               <span style={{
-                padding: '0.5rem 1rem',
+                padding: '0.5rem var(--spacing-container-px)',
                 borderRadius: '9999px',
                 fontSize: '0.875rem',
                 fontWeight: 700,

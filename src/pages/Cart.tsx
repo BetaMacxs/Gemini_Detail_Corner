@@ -245,7 +245,7 @@ export function Cart() {
                     onClick={handleApplyCoupon}
                     disabled={isValidatingCoupon || !couponInput.trim()}
                     className="btn btn-secondary"
-                    style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
+                    style={{ padding: '0.5rem var(--spacing-container-px)', whiteSpace: 'nowrap' }}
                   >
                     {isValidatingCoupon ? 'Applying...' : 'Apply'}
                   </button>

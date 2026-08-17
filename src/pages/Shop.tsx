@@ -12,7 +12,7 @@ export function Shop() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
-  
+
   const categoryId = searchParams.get('category') || '';
 
   useEffect(() => {
@@ -60,24 +60,30 @@ export function Shop() {
         <div className="shop-header-container">
           <div className="shop-header-content">
             <div>
-              <h1 className="shop-title">
-                Professional <span style={{ color: 'var(--accent)' }}>Inventory</span>
-              </h1>
-              <p className="shop-subtitle">Discover our full range of professional car care supplies.</p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="shop-title">
+                  Professional <span style={{ color: 'var(--accent)' }}>Inventory</span>
+                </h1>
+                <p className="shop-subtitle">Discover our full range of professional car care supplies.</p>
+              </motion.div>
             </div>
-            
+
             <div className="shop-actions">
               <form onSubmit={handleSearch} className="search-form">
                 <Search className="search-icon" />
-                <input 
-                  type="text" 
-                  placeholder="Search products..." 
+                <input
+                  type="text"
+                  placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="search-input"
                 />
               </form>
-              <button 
+              <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`filter-toggle ${isFilterOpen ? 'active' : ''}`}
               >
@@ -95,14 +101,14 @@ export function Shop() {
             <div className="sidebar-filter-section">
               <h3 className="sidebar-filter-heading">Categories</h3>
               <div className="filter-buttons-list">
-                <button 
+                <button
                   onClick={() => handleCategoryChange('')}
                   className={`filter-button ${!categoryId ? 'active' : ''}`}
                 >
                   All Products
                 </button>
                 {categories.map((cat) => (
-                  <button 
+                  <button
                     key={cat.id}
                     onClick={() => handleCategoryChange(cat.id)}
                     className={`filter-button ${categoryId === cat.id ? 'active' : ''}`}
@@ -140,8 +146,8 @@ export function Shop() {
                         <ShoppingBag className="empty-state-icon" />
                         <h3 className="empty-state-title">No Products Found</h3>
                         <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Try adjusting your filters or search query.</p>
-                        <button 
-                          onClick={() => {handleCategoryChange(''); setSearchTerm('');}}
+                        <button
+                          onClick={() => { handleCategoryChange(''); setSearchTerm(''); }}
                           className="clear-filters-btn"
                         >
                           Clear All Filters
@@ -149,7 +155,7 @@ export function Shop() {
                       </div>
                     ) : (
                       paginatedProducts.map((product) => (
-                        <motion.div 
+                        <motion.div
                           key={product.id}
                           layout
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -167,7 +173,7 @@ export function Shop() {
                                   className="product-card-image"
                                 />
                               ) : (
-                                <img 
+                                <img
                                   src={`/${product.slug.toLowerCase()}.png`}
                                   alt={product.name}
                                   className="product-card-image"

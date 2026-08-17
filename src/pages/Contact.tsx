@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Send, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { storeConfig } from '../config/store';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -73,29 +74,30 @@ export function Contact() {
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <section style={{ position: 'relative', paddingTop: '6rem', paddingBottom: '6rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
+      <section style={{ position: 'relative', paddingTop: '4rem', paddingBottom: '4rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%)', opacity: 0.2 }} />
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
+            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
               Get In <span style={{ color: 'var(--accent)' }}>Touch</span>
             </h1>
-            <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1.125rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
               Whether you're a professional detailer or a weekend enthusiast, we're here to provide the technical support and product guidance you need.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' }}>
+      <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
           {/* Contact Info */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
                 Connect with the <span style={{ color: 'var(--accent)' }}>Experts</span>
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -105,7 +107,7 @@ export function Contact() {
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Phone Support</div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>021 555 9876</div>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>{storeConfig.CONTACT_PHONE}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -114,7 +116,7 @@ export function Contact() {
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Email Inquiries</div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>info@detailcorner.co.za</div>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>{storeConfig.CONTACT_EMAIL}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -123,7 +125,7 @@ export function Contact() {
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Our Location</div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>Pacific Business Park, Mitchell's Plain</div>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>{storeConfig.STORE_ADDR}</div>
                   </div>
                 </div>
               </div>
@@ -140,35 +142,35 @@ export function Contact() {
           </div>
 
           {/* Contact Form */}
-          <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '2rem' }}>
+          <div className="brand-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '1.5rem' }}>
               <MessageSquare size={20} />
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Send Message</span>
             </div>
-            
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Full Name</label>
-                  <input 
-                    type="text" name="name" placeholder="John Wick" required value={form.name} onChange={handleChange} 
-                    className="input-field"
+                  <input
+                    type="text" name="name" placeholder="John Wick" required value={form.name} onChange={handleChange}
+                    className="auth-input"
                   />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Email Address</label>
-                  <input 
-                    type="email" name="email" placeholder="john@example.com" required value={form.email} onChange={handleChange} 
-                    className="input-field"
+                  <input
+                    type="email" name="email" placeholder="john@example.com" required value={form.email} onChange={handleChange}
+                    className="auth-input"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Subject</label>
-                <select 
+                <select
                   name="subject" required value={form.subject} onChange={handleChange}
-                  className="input-field form-select"
+                  className="auth-input form-select"
                 >
                   <option value="" disabled hidden>Select a subject</option>
                   <option value="general">General Inquiry</option>
@@ -182,9 +184,9 @@ export function Contact() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontStyle: 'italic' }}>Your Message</label>
-                <textarea 
+                <textarea
                   name="message" rows={5} placeholder="How can we help with your vehicle?" required value={form.message} onChange={handleChange}
-                  className="input-field"
+                  className="auth-input"
                   style={{ resize: 'none' }}
                 />
               </div>
@@ -196,7 +198,7 @@ export function Contact() {
                 type="submit"
                 disabled={loading}
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}
+                style={{ width: '100%', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}
               >
                 {loading ? (
                   <span>Processing...</span>

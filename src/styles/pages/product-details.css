@@ -119,34 +119,34 @@
 }
 
 .product-title {
-  font-size: 3rem; /* text-5xl */
+  font-size: 2.25rem;
   font-weight: 900;
   text-transform: uppercase;
   font-style: italic;
   letter-spacing: -0.05em;
   color: var(--text-primary);
-  line-height: 0.9;
+  line-height: 1;
   margin-bottom: 1rem;
 }
 
 @media (min-width: 768px) {
   .product-title {
-    font-size: 3.75rem; /* text-6xl */
+    font-size: 2.75rem;
   }
 }
 
 .product-price-large {
-  font-size: 2.25rem; /* text-4xl */
+  font-size: 1.75rem;
   font-weight: 900;
   color: var(--accent);
   font-style: italic;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .product-description-text {
   color: var(--text-secondary);
-  font-size: 1.125rem;
-  line-height: 1.625;
+  font-size: 1rem;
+  line-height: 1.6;
   max-width: 36rem;
 }
 
@@ -335,8 +335,8 @@
 
 /* Info Tabs Section */
 .product-info-tabs {
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+  padding-top: var(--spacing-page-y);
+  padding-bottom: var(--spacing-page-y);
   background-color: var(--surface);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -346,8 +346,8 @@
   max-width: 56rem; /* max-w-4xl */
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--spacing-container-px);
+  padding-right: var(--spacing-container-px);
 }
 
 .info-grid {
@@ -436,16 +436,16 @@
 
 /* Reviews Section */
 .reviews-section {
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+  padding-top: var(--spacing-page-y);
+  padding-bottom: var(--spacing-page-y);
 }
 
 .reviews-container {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--spacing-container-px);
+  padding-right: var(--spacing-container-px);
 }
 
 .reviews-layout {
@@ -484,18 +484,18 @@
 }
 
 .reviews-title {
-  font-size: 2.25rem;
+  font-size: 1.875rem;
   font-weight: 900;
   text-transform: uppercase;
   font-style: italic;
   letter-spacing: -0.05em;
-  margin-bottom: 2rem;
-  line-height: 1;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
 }
 
 @media (min-width: 768px) {
   .reviews-title {
-    font-size: 3rem;
+    font-size: 2.25rem;
   }
 }
 
@@ -508,7 +508,7 @@
 }
 
 .rating-big-score {
-  font-size: 3.75rem;
+  font-size: 3rem;
   font-weight: 900;
   color: var(--accent);
   font-style: italic;
@@ -668,7 +668,7 @@
 
 .review-comment {
   color: var(--text-secondary);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-style: italic;
   line-height: 1.6;
   padding-left: 4rem;

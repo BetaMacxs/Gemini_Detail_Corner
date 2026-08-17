@@ -280,7 +280,7 @@ export function AdminPOS() {
   );
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem' }}>
+    <div className="container page-container">
       <style>
         {`
           @media print {
@@ -466,7 +466,7 @@ export function AdminPOS() {
             </div>
 
             {cart.length === 0 ? (
-              <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+              <div style={{ padding: 'var(--spacing-page-y) var(--spacing-container-px)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                 Select products from the catalogue on the left to begin counter sale.
               </div>
             ) : (

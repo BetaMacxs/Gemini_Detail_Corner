@@ -4,11 +4,17 @@ export const storeConfig = {
   STORE_CURRENCY: "ZAR",
   DEFAULT_COUNTRY: "South Africa",
   CONTACT_EMAIL: "info@detailcorner.co.za",
-  CONTACT_PHONE: "082 898 6893",
-  STORE_ADDR: "Pacific Business Park",
+  CONTACT_PHONE: "021 555 9876",
+  STORE_ADDR: "Pacific Business Park, Mitchell's Plain",
   STORE_CITY: "Cape Town",
   STORE_POSTAL: "7785",
   STORE_EMAIL: "khangadijah87@gmail.com",
-  STORE_PHONE: "021 555 9876"
-  
+  STORE_PHONE: "082 898 6893",
+  STORE_VAT_NO: "9248783244",
+  STORE_BANK_ACCOUNT_NAME: "Detail Corner",
+  STORE_BANK_ACCOUNT_NUMBER: "1053564880",
+  STORE_BANK_NAME:"Captitec Business Account",
+  MERCHANT_STORE: "Detail Corner SA (Pty Ltd)",
+  MERCHANT_LOCATION: "Cape Town",
+  MERCHANT_SUPPORT: "support@detailcorner.co.za"
 };

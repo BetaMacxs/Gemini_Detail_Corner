@@ -65,22 +65,13 @@ img {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--spacing-container-px);
+  padding-right: var(--spacing-container-px);
 }
 
-@media (min-width: 640px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+.page-container {
+  padding-top: var(--spacing-page-y);
+  padding-bottom: var(--spacing-page-y);
 }
 
 /* Design System Component Base Styles */
@@ -91,7 +82,7 @@ img {
   padding: 0.75rem 1.75rem;
   border-radius: var(--radius-md);
   font-weight: 800;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-transform: uppercase;
   font-style: italic;
   letter-spacing: 0.05em;

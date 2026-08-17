@@ -194,7 +194,7 @@ export function Addresses() {
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: '4rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '20rem' }}>
+      <div className="container" style={{ padding: 'var(--spacing-page-y) var(--spacing-container-px)', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '20rem' }}>
         <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', borderBottom: '2px solid var(--accent)', animation: 'spin 1s linear infinite' }} />
       </div>
     );
