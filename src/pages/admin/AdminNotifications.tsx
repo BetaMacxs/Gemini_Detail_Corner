@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { AdminNav } from '../../components/AdminNav';
 import { Bell, CheckCircle, AlertTriangle, Package, ShoppingBag, Info, Trash2, CheckSquare, Mail, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from '../../features/toast/store';
 
 interface Notification {
   id: string;
@@ -28,8 +29,8 @@ export function AdminNotifications() {
   }, []);
 
   const sendTestEmail = async (type: string) => {
-    if (!testEmail) {
-      alert('Please enter a test email address');
+    if (!testEmail || !testEmail.includes('@')) {
+      toast.error('Invalid Email', 'Please enter a valid test recipient email address');
       return;
     }
 
@@ -39,11 +40,23 @@ export function AdminNotifications() {
         body: { templateType: type, targetEmail: testEmail }
       });
 
-      if (error) throw error;
-      alert('Test email sent successfully!');
+      if (error) {
+        let message = error.message;
+        if (typeof error === 'object' && error !== null && 'context' in error) {
+          try {
+            const body = await (error as any).context.json();
+            if (body?.error) message = body.error;
+          } catch (_) {
+            // ignore
+          }
+        }
+        throw new Error(message || 'Failed to dispatch email');
+      }
+
+      toast.success('Test Email Sent', `Template (${type}) delivered to ${testEmail}`);
     } catch (err: any) {
       console.error('Error sending test email:', err);
-      alert(`Failed to send test email: ${err.message}`);
+      toast.error('Dispatch Failed', err.message || 'Could not send test email');
     } finally {
       setSendingTest(null);
     }

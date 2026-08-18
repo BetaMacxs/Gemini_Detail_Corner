@@ -1,12 +1,12 @@
 
 export async function sendBrevoEmail({ to, subject, htmlContent }: { to: { email: string, name?: string }[], subject: string, htmlContent: string }) {
-  const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY');
-  const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'noreply@detailcorner.co.za';
-  const FROM_NAME = Deno.env.get('FROM_NAME') || 'Detail Corner';
+  const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || Deno.env.get('VITE_BREVO_API_KEY');
+  const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || Deno.env.get('VITE_FROM_EMAIL') || 'andrews.ashley@outlook.com';
+  const FROM_NAME = Deno.env.get('FROM_NAME') || Deno.env.get('VITE_FROM_NAME') || 'Detail Corner';
 
   if (!BREVO_API_KEY) {
     console.error('BREVO_API_KEY is not set');
-    return { error: 'Email provider not configured' };
+    return { error: 'Email provider not configured (Missing BREVO_API_KEY)' };
   }
 
   try {
