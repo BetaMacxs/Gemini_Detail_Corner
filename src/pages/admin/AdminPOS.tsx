@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { storeConfig } from '../../config/store';
 import { ShoppingCart, Plus, Minus, Trash2, CheckCircle2, Search, CreditCard, UserCheck, Printer, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AdminNav } from '../../components/AdminNav';
+import { toast } from '../../features/toast/store';
 
 interface POSProduct {
   id: string;
@@ -259,6 +260,7 @@ export function AdminPOS() {
     setCart([]);
     setProcessing(false);
     fetchProducts();
+    toast.success('POS Sale Completed', `Order #${orderNumber} processed successfully.`);
   };
 
   const formatPrice = (price: number) => {

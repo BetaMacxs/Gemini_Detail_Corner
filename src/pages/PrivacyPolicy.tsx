@@ -1,11 +1,17 @@
 import React from 'react';
 import { ShieldCheck, Lock, Eye, FileText } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export function PrivacyPolicy() {
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingTop: '4rem', paddingBottom: '6rem' }}>
       <div className="container" style={{ maxWidth: '48rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
           <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--surface)', border: '1px solid var(--border)', marginBottom: '1rem', color: 'var(--accent)' }}>
             <ShieldCheck className="h-8 w-8" />
           </div>
@@ -15,6 +21,7 @@ export function PrivacyPolicy() {
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
             Last updated: August 2026 • Detail Corner South Africa
           </p>
+          </motion.div>
         </div>
 
         <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>

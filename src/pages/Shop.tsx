@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProductsStore } from '../features/products/store';
-import { Search, Filter, ShoppingBag, Star, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCartStore } from '../features/cart/store';
+import { toast } from '../features/toast/store';
+import { Search, Filter, ShoppingBag, Star, SlidersHorizontal, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { storeConfig } from '../config/store';
+import { QuickViewModal } from '../components/QuickViewModal';
+import { ProductWithDetails } from '../types/database';
 
 export function Shop() {
   const { products, categories, isLoading, error, fetchProducts, fetchCategories } = useProductsStore();
@@ -11,6 +15,7 @@ export function Shop() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductWithDetails | null>(null);
   const pageSize = 6;
 
   const categoryId = searchParams.get('category') || '';
@@ -46,11 +51,28 @@ export function Shop() {
     setSearchParams(searchParams);
   };
 
+  const addItem = useCartStore((s) => s.addItem);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
       currency: storeConfig.STORE_CURRENCY,
     }).format(price);
+  };
+
+  const handleQuickAdd = (e: React.MouseEvent, product: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product, undefined, 1);
+    const image = product.images && product.images.length > 0
+      ? (product.images[0].url || product.images[0].storage_path)
+      : `/${product.slug.toLowerCase()}.png`;
+
+    toast.cart(product.name, {
+      quantity: 1,
+      image,
+      priceFormatted: formatPrice(product.price),
+    });
   };
 
   return (
@@ -189,6 +211,23 @@ export function Shop() {
                                 />
                               )}
                               <div className="product-card-overlay"></div>
+                              
+                              {/* Quick View Hover Action */}
+                              <div className="product-card-quick-actions">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setQuickViewProduct(product);
+                                  }}
+                                  className="quickview-card-trigger-btn"
+                                  aria-label={`Quick view ${product.name}`}
+                                >
+                                  <Eye size={14} />
+                                  <span>Quick View</span>
+                                </button>
+                              </div>
                             </div>
                             <div className="product-card-info">
                               <div className="product-rating">
@@ -207,8 +246,30 @@ export function Shop() {
                                 <div className="product-card-footer-price">
                                   {formatPrice(product.price)}
                                 </div>
-                                <div className="add-to-cart-quick-btn">
-                                  <ShoppingBag size={20} style={{ color: '#ffffff' }} />
+                                <div className="product-card-footer-actions">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setQuickViewProduct(product);
+                                    }}
+                                    className="quickview-icon-btn"
+                                    title="Quick View"
+                                    aria-label={`Quick view ${product.name}`}
+                                  >
+                                    <Eye size={18} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleQuickAdd(e, product)}
+                                    className="add-to-cart-quick-btn"
+                                    title="Add to Cart"
+                                    aria-label={`Add ${product.name} to Cart`}
+                                    style={{ border: 'none', cursor: 'pointer' }}
+                                  >
+                                    <ShoppingBag size={18} style={{ color: '#ffffff' }} />
+                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -254,6 +315,13 @@ export function Shop() {
           </div>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={quickViewProduct !== null}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 }

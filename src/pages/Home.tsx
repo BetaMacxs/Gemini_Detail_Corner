@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
@@ -8,12 +8,16 @@ import {
   Zap,
   Sparkles,
   Droplets,
+  Eye,
 } from 'lucide-react';
 import { useProductsStore } from '../features/products/store';
 import { storeConfig } from '../config/store';
+import { QuickViewModal } from '../components/QuickViewModal';
+import { ProductWithDetails } from '../types/database';
 
 export function Home() {
   const { products, fetchProducts, isLoading } = useProductsStore();
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductWithDetails | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -242,6 +246,23 @@ export function Home() {
                       />
 
                       <div className="product-card-overlay"></div>
+
+                      {/* Quick View Hover Action */}
+                      <div className="product-card-quick-actions">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setQuickViewProduct(product);
+                          }}
+                          className="quickview-card-trigger-btn"
+                          aria-label={`Quick view ${product.name}`}
+                        >
+                          <Eye size={14} />
+                          <span>Quick View</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="product-card-info">
@@ -268,8 +289,23 @@ export function Home() {
                         {product.name}
                       </h3>
 
-                      <div className="product-card-price">
-                        {formatPrice(product.price)}
+                      <div className="product-card-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem' }}>
+                        <div className="product-card-price" style={{ margin: 0 }}>
+                          {formatPrice(product.price)}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setQuickViewProduct(product);
+                          }}
+                          className="quickview-icon-btn"
+                          title="Quick View"
+                          aria-label={`Quick view ${product.name}`}
+                        >
+                          <Eye size={16} />
+                        </button>
                       </div>
                     </div>
                   </Link>
@@ -329,6 +365,13 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={quickViewProduct !== null}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 }

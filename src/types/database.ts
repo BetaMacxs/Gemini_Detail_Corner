@@ -24,6 +24,9 @@ export interface Product {
   featured: boolean;
   stock_quantity: number;
   low_stock_threshold: number;
+  specifications: Record<string, string> | null;
+  highlights: string[] | null;
+  application_steps: { title: string; instruction: string }[] | null;
   created_at: string;
   updated_at: string;
 }

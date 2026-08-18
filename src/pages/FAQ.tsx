@@ -15,7 +15,7 @@ export function FAQ() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
             HOW CAN WE <span style={{ color: 'var(--accent)' }}>HELP?</span>
           </h1>
           <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1rem', color: 'var(--text-secondary)' }}>

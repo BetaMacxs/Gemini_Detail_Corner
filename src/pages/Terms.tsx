@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { FileText, Shield, Gavel, Scale } from 'lucide-react';
 
 export function Terms() {
@@ -6,15 +7,21 @@ export function Terms() {
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingTop: '4rem', paddingBottom: '6rem' }}>
       <div className="container" style={{ maxWidth: '48rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
           <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--surface)', border: '1px solid var(--border)', marginBottom: '1rem', color: 'var(--accent)' }}>
             <Gavel size={32} />
-          </div>
+          </div>          
           <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, fontStyle: 'italic', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '-0.05em' }}>
             Terms & <span style={{ color: 'var(--accent)' }}>Conditions</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
             Last updated: August 2026 • Detail Corner South Africa
           </p>
+          </motion.div>
         </div>
 
         <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>

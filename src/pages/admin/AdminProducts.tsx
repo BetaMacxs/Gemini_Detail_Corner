@@ -20,6 +20,9 @@ interface ProductItem {
   categories?: { name: string } | null;
   short_description?: string;
   description?: string;
+  specifications?: any;
+  highlights?: any;
+  application_steps?: any;
   product_images?: { id: string; storage_path: string; url?: string }[];
 }
 
@@ -41,6 +44,9 @@ export function AdminProducts() {
     category_id: '',
     short_description: '',
     description: '',
+    specifications: '',
+    highlights: '',
+    application_steps: '',
     active: true,
     image_url: ''
   });
@@ -88,6 +94,9 @@ export function AdminProducts() {
       category_id: categories[0]?.id || '',
       short_description: '',
       description: '',
+      specifications: '',
+      highlights: '',
+      application_steps: '',
       active: true,
       image_url: ''
     });
@@ -108,6 +117,9 @@ export function AdminProducts() {
       category_id: p.category_id || (categories[0]?.id || ''),
       short_description: p.short_description || '',
       description: p.description || '',
+      specifications: p.specifications ? JSON.stringify(p.specifications, null, 2) : '',
+      highlights: Array.isArray(p.highlights) ? p.highlights.join('\n') : '',
+      application_steps: p.application_steps ? JSON.stringify(p.application_steps, null, 2) : '',
       active: typeof p.active === 'boolean' ? p.active : (typeof p.is_active === 'boolean' ? p.is_active : true),
       image_url: mainImage
     });
@@ -149,6 +161,26 @@ export function AdminProducts() {
     const compareNum = formData.compare_at_price ? parseFloat(formData.compare_at_price) : null;
     const stockNum = parseInt(formData.stock_quantity) || 0;
 
+    let specsObj = null;
+    try {
+      if (formData.specifications) specsObj = JSON.parse(formData.specifications);
+    } catch (e) {
+      alert("Invalid JSON in Specifications");
+      setSaving(false);
+      return;
+    }
+
+    let stepsObj = null;
+    try {
+      if (formData.application_steps) stepsObj = JSON.parse(formData.application_steps);
+    } catch (e) {
+      alert("Invalid JSON in Application Steps");
+      setSaving(false);
+      return;
+    }
+
+    const highlightsArr = formData.highlights.split('\n').filter(h => h.trim() !== '');
+
     let finalImageUrl = formData.image_url;
     if (imageFile) {
       const uploadedUrl = await uploadImage(imageFile, 'products');
@@ -167,6 +199,9 @@ export function AdminProducts() {
       category_id: formData.category_id || null,
       short_description: formData.short_description,
       description: formData.description,
+      specifications: specsObj,
+      highlights: highlightsArr.length > 0 ? highlightsArr : null,
+      application_steps: stepsObj,
       active: formData.active
     };
 
@@ -345,6 +380,21 @@ export function AdminProducts() {
               <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Full Description</label>
                 <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}  placeholder="Detailed product specifications..." />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Specifications (JSON Object)</label>
+                <textarea rows={3} value={formData.specifications} onChange={e => setFormData({ ...formData, specifications: e.target.value })} placeholder='{"pH Level": "7.0", "Scent": "Cherry"}' />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Highlights (One per line)</label>
+                <textarea rows={3} value={formData.highlights} onChange={e => setFormData({ ...formData, highlights: e.target.value })} placeholder="Premium Formula&#10;UV Protection" />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Application Steps (JSON Array)</label>
+                <textarea rows={3} value={formData.application_steps} onChange={e => setFormData({ ...formData, application_steps: e.target.value })} placeholder='[{"title": "Spray", "instruction": "..."}]' />
               </div>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontSize: '0.875rem', cursor: 'pointer' }}>

@@ -42,6 +42,9 @@ create table if not exists public.products (
   featured boolean default false,
   stock_quantity integer default 0 check (stock_quantity >= 0),
   low_stock_threshold integer default 5,
+  specifications jsonb,
+  highlights jsonb,
+  application_steps jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

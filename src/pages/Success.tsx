@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { CheckCircle2, ShoppingBag, Truck, Package, MessageSquare, ChevronRight, AlertTriangle } from 'lucide-react';
 import { storeConfig } from '../config/store';
 import { useCartStore } from '../features/cart/store';
+import { toast } from '../features/toast/store';
 import { motion } from 'motion/react';
 
 export function Success() {
@@ -13,6 +14,7 @@ export function Success() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const clearCart = useCartStore(state => state.clearCart);
+  const toastFiredRef = useRef(false);
 
   useEffect(() => {
     async function fetchAndConfirmOrder() {
@@ -41,6 +43,10 @@ export function Success() {
             // For local orders, we still want to clear the cart if it's a success landing
             clearCart();
             setLoading(false);
+            if (!toastFiredRef.current) {
+              toastFiredRef.current = true;
+              toast.order(match.order.order_number || id, 'Your order has been confirmed successfully!', { orderId: match.order.id });
+            }
           } else {
             setError('We could not find your order details, but your payment may have been successful. Please contact support if you do not receive an email shortly.');
             setLoading(false);
@@ -96,6 +102,11 @@ export function Success() {
         // 4. Clear cart only after successful confirmation logic
         clearCart();
         setLoading(false);
+
+        if (!toastFiredRef.current) {
+          toastFiredRef.current = true;
+          toast.order(orderData.order_number || id, 'Your order checkout is complete and confirmed!', { orderId: orderData.id });
+        }
 
       } catch (err) {
         console.error('Error confirming order:', err);

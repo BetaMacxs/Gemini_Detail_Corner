@@ -19,6 +19,7 @@ import { AdminProducts } from './pages/admin/AdminProducts';
 import { AdminInventory } from './pages/admin/AdminInventory';
 import { AdminCustomers } from './pages/admin/AdminCustomers';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 import { useAuthStore } from './features/auth/store';
 
 import { About } from './pages/About';
@@ -47,6 +48,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />

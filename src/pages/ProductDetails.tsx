@@ -4,8 +4,21 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useProductsStore } from '../features/products/store';
 import { useCartStore } from '../features/cart/store';
 import { useAuthStore } from '../features/auth/store';
+import { toast } from '../features/toast/store';
 import { supabase } from '../lib/supabase';
-import { ShoppingBag, ChevronRight, Check, Star, User, ShieldCheck, Zap, Sparkles, MessageSquare, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Check, Star, User, ShieldCheck, Zap, Sparkles, MessageSquare, ArrowLeft, Plus, Minus, Info, Timer, Droplets, FlaskConical, Award } from 'lucide-react';
+
+// Helper to get icon for specifications
+const getSpecIcon = (key: string) => {
+  const k = key.toLowerCase();
+  if (k.includes('ph')) return <FlaskConical size={20} />;
+  if (k.includes('scent')) return <Sparkles size={20} />;
+  if (k.includes('finish') || k.includes('gloss')) return <Award size={20} />;
+  if (k.includes('dilution')) return <Droplets size={20} />;
+  if (k.includes('durability') || k.includes('timer')) return <Timer size={20} />;
+  if (k.includes('uv') || k.includes('protection')) return <ShieldCheck size={20} />;
+  return <Info size={20} />;
+};
 import { storeConfig } from '../config/store';
 
 export function ProductDetails() {
@@ -128,6 +141,18 @@ export function ProductDetails() {
     addItem(product, selectedVariant, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+
+    const price = selectedVariant ? selectedVariant.price : product.price;
+    const image = product.images && product.images.length > 0 
+      ? (product.images[0].url || product.images[0].storage_path) 
+      : `/${product.slug.toLowerCase()}.png`;
+
+    toast.cart(product.name, {
+      variant: selectedVariant?.name,
+      quantity,
+      image,
+      priceFormatted: formatPrice(price * quantity),
+    });
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -199,6 +224,26 @@ export function ProductDetails() {
     ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length 
     : 0;
 
+  // Default fallbacks if data is missing
+  const specs = product.specifications || {
+    "Grade": "Professional",
+    "Protection": "High Performance",
+    "Finish": "Showroom Shine"
+  };
+
+  const highlights = product.highlights || [
+    "Professional Grade Formulation",
+    "pH Balanced & Surface Safe",
+    "Streak-Free Performance",
+    "UV Protection Integrated"
+  ];
+
+  const applicationSteps = product.application_steps || [
+    { title: "Clean Surface", instruction: "Ensure the surface is cool and free from heavy dirt or contaminants." },
+    { title: "Apply Solution", instruction: "Apply a small amount to a clean microfiber applicator or towel." },
+    { title: "Buff to Shine", instruction: "Gently buff in a circular motion until a high-gloss finish is achieved." }
+  ];
+
   return (
     <div className="product-details-page">
       {/* Product Detail Section */}
@@ -208,6 +253,12 @@ export function ProductDetails() {
             <Link to="/" className="breadcrumb-link">Home</Link>
             <ChevronRight size={12} />
             <Link to="/products" className="breadcrumb-link">Shop</Link>
+            {product.category && (
+              <>
+                <ChevronRight size={12} />
+                <Link to={`/products?category=${product.category.id}`} className="breadcrumb-link">{product.category.name}</Link>
+              </>
+            )}
             <ChevronRight size={12} />
             <span className="breadcrumb-current">{product.name}</span>
           </nav>
@@ -292,22 +343,17 @@ export function ProductDetails() {
 
               {/* Specs Grid */}
               <div className="product-specs-grid">
-                <div className="brand-card product-spec-card">
-                  <div className="spec-icon-wrapper">
-                    <ShieldCheck size={20} style={{ color: 'var(--accent)' }} />
+                {Object.entries(specs).slice(0, 4).map(([key, value], i) => (
+                  <div key={i} className="brand-card product-spec-card">
+                    <div className="spec-icon-wrapper" style={{ color: 'var(--accent)' }}>
+                      {getSpecIcon(key)}
+                    </div>
+                    <div className="spec-text">
+                      <span style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'block', marginBottom: '2px', whiteSpace: 'nowrap' }}>{key}</span>
+                      {value}
+                    </div>
                   </div>
-                  <div className="spec-text">
-                    Premium <br /> Protection
-                  </div>
-                </div>
-                <div className="brand-card product-spec-card">
-                  <div className="spec-icon-wrapper">
-                    <Sparkles size={20} style={{ color: 'var(--accent)' }} />
-                  </div>
-                  <div className="spec-text">
-                    Showroom <br /> Finish
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* Controls Section */}
@@ -390,14 +436,9 @@ export function ProductDetails() {
             <div>
               <h3 className="info-heading">Product <span style={{ color: 'var(--accent)' }}>Information</span></h3>
               <div style={{ color: 'var(--text-secondary)' }}>
-                <p>Designed and formulated to provide professional results at home. Our formula is pH balanced and safe for use on all high-end finishes, ceramic coatings, and wraps.</p>
+                <p>{product.description || product.short_description || "Designed and formulated to provide professional results at home. Our formula is pH balanced and safe for use on all high-end finishes, ceramic coatings, and wraps."}</p>
                 <ul className="info-list">
-                  {[
-                    "Professional Grade Formulation",
-                    "pH Balanced & Surface Safe",
-                    "Streak-Free Performance",
-                    "UV Protection Integrated"
-                  ].map((item, i) => (
+                  {highlights.map((item: string, i: number) => (
                     <li key={i} className="info-list-item">
                       <div className="info-dot"></div>
                       <span className="info-item-text">{item}</span>
@@ -409,16 +450,12 @@ export function ProductDetails() {
             <div>
               <h3 className="info-heading">How to <span style={{ color: 'var(--accent)' }}>Apply</span></h3>
               <div className="application-steps">
-                {[
-                  { step: "01", title: "Clean Surface", desc: "Ensure the surface is cool and free from heavy dirt or contaminants." },
-                  { step: "02", title: "Apply Solution", desc: "Apply a small amount to a clean microfiber applicator or towel." },
-                  { step: "03", title: "Buff to Shine", desc: "Gently buff in a circular motion until a high-gloss finish is achieved." }
-                ].map((step, i) => (
+                {applicationSteps.map((step: any, i: number) => (
                   <div key={i} className="step-item">
-                    <span className="step-number">{step.step}</span>
+                    <span className="step-number">{(i + 1).toString().padStart(2, '0')}</span>
                     <div>
                       <h4 className="step-title">{step.title}</h4>
-                      <p className="step-desc">{step.desc}</p>
+                      <p className="step-desc">{step.instruction || step.desc}</p>
                     </div>
                   </div>
                 ))}

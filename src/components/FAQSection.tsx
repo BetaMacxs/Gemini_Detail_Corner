@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
@@ -55,13 +56,13 @@ export function FAQSection() {
                 Can't find what you're looking for? Contact our support team for personalized assistance.
               </p>
               <div style={{ marginTop: '2rem' }}>
-                <a 
-                  href="/contact" 
+                <Link 
+                  to="/contact" 
                   className="btn btn-outline"
                   style={{ borderRadius: '9999px', padding: '0.75rem 1.5rem', color: 'var(--accent)', borderColor: 'var(--accent)', display: 'inline-flex', alignItems: 'center' }}
                 >
                   Contact Support
-                </a>
+                </Link>
               </div>
             </div>
           </div>
