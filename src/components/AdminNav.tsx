@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Package, Warehouse, FileText, Monitor, Megaphone, Mail, Image, Users } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, Warehouse, FileText, Monitor, Megaphone, Mail, Image, Users, Bell } from 'lucide-react';
 
 export function AdminNav() {
   const location = useLocation();
 
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { label: 'Notifications', path: '/admin/notifications', icon: Bell },
     { label: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { label: 'Products', path: '/admin/products', icon: Package },
     { label: 'Inventory', path: '/admin/inventory', icon: Warehouse },

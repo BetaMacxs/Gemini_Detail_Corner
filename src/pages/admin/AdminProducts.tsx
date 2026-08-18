@@ -185,7 +185,13 @@ export function AdminProducts() {
     if (imageFile) {
       const uploadedUrl = await uploadImage(imageFile, 'products');
       if (uploadedUrl) {
-        finalImageUrl = uploadedUrl;
+        // If it's a Supabase storage URL, we extract just the filename to store as a relative path
+        // This keeps the database clean and portable across environments
+        if (uploadedUrl.includes('/storage/v1/object/public/products/')) {
+          finalImageUrl = uploadedUrl.split('/storage/v1/object/public/products/').pop() || uploadedUrl;
+        } else {
+          finalImageUrl = uploadedUrl;
+        }
       }
     }
 

@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 import { generatePayfastSignature, corsHeaders } from "../_shared/payfast.ts"
+import { sendBrevoEmail } from "../_shared/email.ts"
+import { getOrderConfirmationTemplate, getPaymentFailureTemplate, getAdminNewOrderTemplate } from "../_shared/email-templates.ts"
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -51,7 +53,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: payment, error: paymentFetchError } = await supabaseAdmin.from('payments').select('*').eq('id', paymentId).single();
+    const { data: payment, error: paymentFetchError } = await supabaseAdmin.from('payments').select('*, orders(*)').eq('id', paymentId).single();
     if (paymentFetchError || !payment) throw new Error('Payment not found');
 
     if (payment.status === 'COMPLETED') {
@@ -86,6 +88,32 @@ serve(async (req) => {
     }).eq('id', payment.order_id);
     
     if (orderUpdateError) throw orderUpdateError;
+
+    // Send Email Notifications
+    const order = payment.orders;
+    if (newPaymentStatus === 'COMPLETED') {
+      // 1. Customer Confirmation
+      await sendBrevoEmail({
+        to: [{ email: order.email, name: order.customer_name }],
+        subject: `Order Confirmed - ${order.order_number}`,
+        htmlContent: getOrderConfirmationTemplate(order)
+      });
+
+      // 2. Admin Alert
+      const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'khangadijah87@gmail.com';
+      await sendBrevoEmail({
+        to: [{ email: adminEmail, name: 'Store Admin' }],
+        subject: `New Order Received - ${order.order_number}`,
+        htmlContent: getAdminNewOrderTemplate(order)
+      });
+    } else if (newPaymentStatus === 'FAILED') {
+      // Customer Failure Notice
+      await sendBrevoEmail({
+        to: [{ email: order.email, name: order.customer_name }],
+        subject: `Payment Failed - ${order.order_number}`,
+        htmlContent: getPaymentFailureTemplate(order)
+      });
+    }
 
     return new Response('ok', { status: 200 });
   } catch (error: any) {

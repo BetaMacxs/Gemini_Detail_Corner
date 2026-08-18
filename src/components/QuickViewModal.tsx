@@ -70,9 +70,9 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
   const images = product.images && product.images.length > 0
     ? product.images
-    : [{ url: `/${product.slug.toLowerCase()}.png`, storage_path: `/${product.slug.toLowerCase()}.png`, alt_text: product.name }];
+    : [{ url: `/${product.slug.toLowerCase()}.png`, alt_text: product.name }];
 
-  const activeImage = images[selectedImageIndex]?.url || images[selectedImageIndex]?.storage_path || `/${product.slug.toLowerCase()}.png`;
+  const activeImage = images[selectedImageIndex]?.url || `/${product.slug.toLowerCase()}.png`;
 
   const activePrice = selectedVariant ? selectedVariant.price : product.price;
   const currentStock = selectedVariant

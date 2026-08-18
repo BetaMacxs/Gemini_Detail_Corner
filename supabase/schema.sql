@@ -756,6 +756,127 @@ grant execute on function public.track_order(text, text) to anon, authenticated;
 -- 20. Supabase Storage Buckets & Policies
 -- ==========================================
 
+-- 21. Notifications
+create table if not exists public.notifications (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles on delete cascade,
+  title text not null,
+  message text not null,
+  type text default 'INFO' check (type in ('INFO', 'SUCCESS', 'WARNING', 'ERROR', 'ORDER', 'STOCK', 'SYSTEM')),
+  read boolean default false,
+  link text,
+  created_at timestamp with time zone default now()
+);
+
+alter table public.notifications enable row level security;
+
+drop policy if exists "Users can view their own notifications" on public.notifications;
+create policy "Users can view their own notifications" on public.notifications for select using (auth.uid() = user_id or public.is_admin());
+
+drop policy if exists "Users can update their own notifications" on public.notifications;
+create policy "Users can update their own notifications" on public.notifications for update using (auth.uid() = user_id or public.is_admin());
+
+drop policy if exists "Admins can manage all notifications" on public.notifications;
+create policy "Admins can manage all notifications" on public.notifications using (public.is_admin());
+
+-- Function to create notification for new orders
+create or replace function public.notify_admin_on_order()
+returns trigger as $$
+declare
+  v_admin_id uuid;
+begin
+  -- Get first admin user to notify
+  select id into v_admin_id from public.profiles where is_admin = true limit 1;
+  
+  if v_admin_id is not null then
+    insert into public.notifications (user_id, title, message, type, link)
+    values (
+      v_admin_id, 
+      'New Order Received', 
+      'Order ' || new.order_number || ' has been placed for ' || new.total || ' ZAR.',
+      'ORDER',
+      '/admin/orders'
+    );
+  end if;
+  
+  -- Also notify user if they have a profile
+  if new.customer_id is not null then
+    insert into public.notifications (user_id, title, message, type, link)
+    values (
+      new.customer_id,
+      'Order Confirmation',
+      'Your order ' || new.order_number || ' has been received. Thank you for shopping with Detail Corner!',
+      'SUCCESS',
+      '/account'
+    );
+  end if;
+
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_new_order_notify on public.orders;
+create trigger on_new_order_notify
+  after insert on public.orders
+  for each row execute procedure public.notify_admin_on_order();
+
+-- Function to notify when order status changes
+create or replace function public.notify_on_order_status_change()
+returns trigger as $$
+begin
+  if old.status is distinct from new.status and new.customer_id is not null then
+    insert into public.notifications (user_id, title, message, type, link)
+    values (
+      new.customer_id,
+      'Order Update: ' || new.status,
+      'Your order ' || new.order_number || ' status has changed to ' || new.status || '.',
+      'INFO',
+      '/account'
+    );
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_order_status_change_notify on public.orders;
+create trigger on_order_status_change_notify
+  after update on public.orders
+  for each row execute procedure public.notify_on_order_status_change();
+
+-- Function to notify admin on low stock
+create or replace function public.notify_admin_on_low_stock()
+returns trigger as $$
+declare
+  v_admin_id uuid;
+begin
+  if new.stock_quantity <= new.low_stock_threshold then
+    -- Get first admin user to notify
+    select id into v_admin_id from public.profiles where is_admin = true limit 1;
+    
+    if v_admin_id is not null then
+      insert into public.notifications (user_id, title, message, type, link)
+      values (
+        v_admin_id,
+        'Low Stock Alert',
+        'Product "' || new.name || '" (' || new.sku || ') is running low on stock (' || new.stock_quantity || ' remaining).',
+        'STOCK',
+        '/admin/products'
+      );
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_low_stock_notify on public.products;
+create trigger on_low_stock_notify
+  after update on public.products
+  for each row execute procedure public.notify_admin_on_low_stock();
+-- 22. Webhook Configuration (Note)
+-- The following Supabase Webhooks should be configured in the Dashboard:
+-- 1. Table: public.orders, Event: UPDATE, Edge Function: handle-webhook-notifications
+-- 2. Table: public.products, Event: UPDATE, Edge Function: handle-webhook-notifications
+
 -- Ensure storage buckets exist and are marked public
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values 

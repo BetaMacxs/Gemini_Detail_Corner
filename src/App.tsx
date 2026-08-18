@@ -35,6 +35,7 @@ import { AdminPOS } from './pages/admin/AdminPOS';
 import { AdminAnnouncements } from './pages/admin/AdminAnnouncements';
 import { AdminMessages } from './pages/admin/AdminMessages';
 import { AdminGallery } from './pages/admin/AdminGallery';
+import { AdminNotifications } from './pages/admin/AdminNotifications';
 import { TrackOrder } from "./pages/TrackOrder";
 import { Success } from './pages/Success';
 import { Cancel } from './pages/Cancel';
@@ -96,6 +97,7 @@ export default function App() {
           <Route path="/admin/announcements" element={<ProtectedRoute requireAdmin><AdminAnnouncements /></ProtectedRoute>} />
           <Route path="/admin/messages" element={<ProtectedRoute requireAdmin><AdminMessages /></ProtectedRoute>} />
           <Route path="/admin/gallery" element={<ProtectedRoute requireAdmin><AdminGallery /></ProtectedRoute>} />
+          <Route path="/admin/notifications" element={<ProtectedRoute requireAdmin><AdminNotifications /></ProtectedRoute>} />
           <Route path="/admin/customers" element={<ProtectedRoute requireAdmin><AdminCustomers /></ProtectedRoute>} />
           <Route path="/admin/*" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
         </Route>

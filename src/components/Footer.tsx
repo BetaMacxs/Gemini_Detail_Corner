@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { 
-  PiPhone, 
-  PiEnvelope, 
-  PiMapPin, 
-  PiInstagramLogo, 
-  PiFacebookLogo, 
-  PiTiktokLogo 
-} from 'react-icons/pi';
+  Phone, 
+  Mail, 
+  MapPin, 
+  Instagram, 
+  Facebook, 
+  Music
+} from 'lucide-react';
 import { storeConfig } from '../config/store';
 
 export function Footer() {
@@ -30,7 +30,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on Instagram"
                 title="Instagram (@detail_corner2022)"
               >
-                <PiInstagramLogo size={20} />
+                <Instagram size={20} />
               </a>
               <a 
                 href={storeConfig.SOCIAL_FACEBOOK} 
@@ -40,7 +40,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on Facebook"
                 title="Facebook (Detail Corner)"
               >
-                <PiFacebookLogo size={20} />
+                <Facebook size={20} />
               </a>
               <a 
                 href={storeConfig.SOCIAL_TIKTOK} 
@@ -50,7 +50,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on TikTok"
                 title="TikTok (@detailcorner2022)"
               >
-                <PiTiktokLogo size={20} />
+                <Music size={20} />
               </a>
             </div>
           </div>
@@ -83,17 +83,17 @@ export function Footer() {
             <h3 className="footer-heading">Contact Info</h3>
             <ul className="footer-list footer-contact-list">
               <li className="footer-contact-item">
-                <span className="footer-contact-icon"><PiMapPin /></span>
+                <span className="footer-contact-icon"><MapPin size={20} /></span>
                 <span className="footer-contact-text">
                   Pacific Business Park,<br />Mitchell's Plain, Cape Town 7785
                 </span>
               </li>
               <li className="footer-contact-item center">
-                <span className="footer-contact-icon"><PiPhone /></span>
+                <span className="footer-contact-icon"><Phone size={20} /></span>
                 <span className="footer-contact-text">021 555 9876</span>
               </li>
               <li className="footer-contact-item center">
-                <span className="footer-contact-icon"><PiEnvelope /></span>
+                <span className="footer-contact-icon"><Mail size={20} /></span>
                 <span className="footer-contact-text">info@detailcorner.co.za</span>
               </li>
             </ul>

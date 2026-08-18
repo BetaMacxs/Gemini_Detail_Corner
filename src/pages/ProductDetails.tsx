@@ -278,7 +278,7 @@ export function ProductDetails() {
                   />
                 ) : (
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6rem', opacity: 0.2 }}>
-                    <img src={`/${product.slug.toLowerCase()}.png`} alt={product.name} style={{ maxHeight: '100%', objectFit: 'contain' }} />
+                    <img src={`/${product.slug.toLowerCase()}.png`} alt={product.name} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
               </div>
