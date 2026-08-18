@@ -157,32 +157,32 @@ export function AdminAnnouncements() {
 
       {/* Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="brand-card" style={{ width: '100%', maxWidth: '32rem', padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '32rem' }}>
+            <div className="admin-modal-header">
+              <h3 className="admin-modal-title">
                 {editingItem ? 'Edit Announcement' : 'New Announcement'}
               </h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              <button onClick={() => setShowModal(false)} className="admin-modal-close" aria-label="Close modal">
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Banner Title / Text</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}  placeholder="e.g. Free Shipping on orders over R1000!" />
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="admin-form-group">
+                <label className="admin-label">Banner Title / Text</label>
+                <input type="text" required className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Free Shipping on orders over R1000!" />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Details / Content</label>
-                <input type="text" value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })}  placeholder="Optional longer description..." />
+              <div className="admin-form-group">
+                <label className="admin-label">Details / Content</label>
+                <input type="text" className="admin-input" value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} placeholder="Optional longer description..." />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Type</label>
-                  <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })} >
+              <div className="admin-form-grid admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-label">Type</label>
+                  <select className="admin-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })}>
                     <option value="PROMOTION">PROMOTION</option>
                     <option value="NEWS">NEWS</option>
                     <option value="COMPETITION">COMPETITION</option>
@@ -190,31 +190,31 @@ export function AdminAnnouncements() {
                   </select>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category Tag</label>
-                  <input type="text" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}  placeholder="e.g. SALE" />
+                <div className="admin-form-group">
+                  <label className="admin-label">Category Tag</label>
+                  <input type="text" className="admin-input" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} placeholder="e.g. SALE" />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Start Date</label>
-                  <input type="date" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
+              <div className="admin-form-grid admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-label">Start Date</label>
+                  <input type="date" className="admin-input" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>End Date (Optional)</label>
-                  <input type="date" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
+                <div className="admin-form-group">
+                  <label className="admin-label">End Date (Optional)</label>
+                  <input type="date" className="admin-input" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
                 </div>
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontSize: '0.875rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={formData.visible} onChange={e => setFormData({ ...formData, visible: e.target.checked })} />
+              <label className="admin-checkbox-label">
+                <input type="checkbox" className="admin-checkbox" checked={formData.visible} onChange={e => setFormData({ ...formData, visible: e.target.checked })} />
                 <span>Visible immediately on site header bar</span>
               </label>
 
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem' }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.875rem' }}>Save Banner</button>
+              <div className="admin-modal-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.55rem 1.25rem', fontSize: '0.8125rem' }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.55rem 1.5rem', fontSize: '0.8125rem' }}>Save Banner</button>
               </div>
             </form>
           </div>

@@ -232,14 +232,14 @@ export function AdminInventory() {
       <AdminNav />
 
       {/* Search Input */}
-      <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
-        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+      <div className="admin-search-wrapper" style={{ marginBottom: '1.5rem' }}>
+        <Search size={16} className="admin-search-icon" />
         <input
           type="text"
+          className="admin-search-input"
           placeholder="Filter products or variants..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          style={{ paddingLeft: '2.5rem' }}
         />
       </div>
 
@@ -318,17 +318,9 @@ export function AdminInventory() {
                             <input
                               type="number"
                               min="0"
+                              className={`admin-input admin-input-compact ${availableQty <= p.low_stock_threshold ? 'low-stock' : ''}`}
                               value={currentQty}
                               onChange={(e) => handleStockChange(p.id, parseInt(e.target.value) || 0)}
-                              style={{
-                                width: '5rem',
-                                padding: '0.4rem 0.6rem',
-                                borderRadius: 'var(--radius-sm)',
-                                border: availableQty <= p.low_stock_threshold ? '1px solid #ef4444' : '1px solid var(--border)',
-                                backgroundColor: 'var(--bg)',
-                                color: 'var(--text-primary)',
-                                fontWeight: 700
-                              }}
                             />
                           ) : (
                             <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>-</span>
@@ -396,18 +388,9 @@ export function AdminInventory() {
                               <input
                                 type="number"
                                 min="0"
+                                className={`admin-input admin-input-compact ${vAvailable <= v.low_stock_threshold ? 'low-stock' : ''}`}
                                 value={vQty}
                                 onChange={(e) => handleStockChange(v.id, parseInt(e.target.value) || 0)}
-                                style={{
-                                  width: '4.5rem',
-                                  padding: '0.3rem 0.5rem',
-                                  borderRadius: 'var(--radius-sm)',
-                                  border: vAvailable <= v.low_stock_threshold ? '1px solid #ef4444' : '1px solid var(--border)',
-                                  backgroundColor: 'var(--bg)',
-                                  color: 'var(--text-primary)',
-                                  fontWeight: 600,
-                                  fontSize: '0.8125rem'
-                                }}
                               />
                             </td>
                             <td style={{ padding: '0.75rem 1.5rem', fontSize: '0.8125rem', color: (v.reserved_quantity || 0) > 0 ? 'var(--accent)' : 'var(--text-secondary)' }}>

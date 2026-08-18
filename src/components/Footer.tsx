@@ -1,5 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { 
+  PiPhone, 
+  PiEnvelope, 
+  PiMapPin, 
+  PiInstagramLogo, 
+  PiFacebookLogo, 
+  PiTiktokLogo 
+} from 'react-icons/pi';
+import { storeConfig } from '../config/store';
 
 export function Footer() {
   return (
@@ -14,14 +22,35 @@ export function Footer() {
               Premium automotive detailing supplies for those who demand excellence. Engineered for the professional, accessible to the enthusiast.
             </p>
             <div className="social-links">
-              <a href="#" className="social-link">
-                <Instagram size={20} />
+              <a 
+                href={storeConfig.SOCIAL_INSTAGRAM} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="social-link"
+                aria-label="Follow Detail Corner on Instagram"
+                title="Instagram (@detail_corner2022)"
+              >
+                <PiInstagramLogo size={20} />
               </a>
-              <a href="#" className="social-link">
-                <Facebook size={20} />
+              <a 
+                href={storeConfig.SOCIAL_FACEBOOK} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="social-link"
+                aria-label="Follow Detail Corner on Facebook"
+                title="Facebook (Detail Corner)"
+              >
+                <PiFacebookLogo size={20} />
               </a>
-              <a href="#" className="social-link">
-                <Youtube size={20} />
+              <a 
+                href={storeConfig.SOCIAL_TIKTOK} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="social-link"
+                aria-label="Follow Detail Corner on TikTok"
+                title="TikTok (@detailcorner2022)"
+              >
+                <PiTiktokLogo size={20} />
               </a>
             </div>
           </div>
@@ -54,17 +83,17 @@ export function Footer() {
             <h3 className="footer-heading">Contact Info</h3>
             <ul className="footer-list footer-contact-list">
               <li className="footer-contact-item">
-                <MapPin className="footer-contact-icon" />
+                <span className="footer-contact-icon"><PiMapPin /></span>
                 <span className="footer-contact-text">
                   Pacific Business Park,<br />Mitchell's Plain, Cape Town 7785
                 </span>
               </li>
               <li className="footer-contact-item center">
-                <Phone className="footer-contact-icon" />
+                <span className="footer-contact-icon"><PiPhone /></span>
                 <span className="footer-contact-text">021 555 9876</span>
               </li>
               <li className="footer-contact-item center">
-                <Mail className="footer-contact-icon" />
+                <span className="footer-contact-icon"><PiEnvelope /></span>
                 <span className="footer-contact-text">info@detailcorner.co.za</span>
               </li>
             </ul>

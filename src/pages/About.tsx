@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Shield, Zap, Sparkles, Award } from 'lucide-react';
+import { PiInstagramLogo, PiFacebookLogo, PiTiktokLogo } from 'react-icons/pi';
+import { storeConfig } from '../config/store';
 
 export function About() {
   return (
@@ -88,6 +90,54 @@ export function About() {
                 <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{member.role}</p>
               </div>
             ))}
+          </div>
+
+          {/* Social Community Block */}
+          <div className="brand-card" style={{ marginTop: '3.5rem', padding: '2rem', borderRadius: 'var(--radius-lg)', textAlign: 'center', background: 'radial-gradient(circle at center, var(--accent-glow) 0%, var(--surface) 80%)' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+              Follow Our <span style={{ color: 'var(--accent)' }}>Detailing Journey</span>
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '32rem', margin: '0 auto 1.5rem auto' }}>
+              Watch paint transformations, new product releases, and behind-the-scenes application techniques across our official social channels.
+            </p>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', justifyContent: 'center' }}>
+              <a
+                href={storeConfig.SOCIAL_INSTAGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+                style={{ padding: '0.6rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
+                aria-label="Follow on Instagram"
+                title="Instagram (@detail_corner2022)"
+              >
+                <PiInstagramLogo size={18} />
+                <span>Instagram</span>
+              </a>
+              <a
+                href={storeConfig.SOCIAL_FACEBOOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+                style={{ padding: '0.6rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
+                aria-label="Follow on Facebook"
+                title="Facebook (Detail Corner)"
+              >
+                <PiFacebookLogo size={18} />
+                <span>Facebook</span>
+              </a>
+              <a
+                href={storeConfig.SOCIAL_TIKTOK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+                style={{ padding: '0.6rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
+                aria-label="Follow on TikTok"
+                title="TikTok (@detailcorner2022)"
+              >
+                <PiTiktokLogo size={18} />
+                <span>TikTok</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>

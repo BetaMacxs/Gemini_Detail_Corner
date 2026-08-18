@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Mail, Trash2, CheckCircle2, Search, Calendar } from 'lucide-react';
+import { Trash2, CheckCircle2, Search, Calendar } from 'lucide-react';
+import { PiEnvelope } from 'react-icons/pi';
 import { AdminNav } from '../../components/AdminNav';
 
 interface ContactMessage {
@@ -112,15 +113,14 @@ export function AdminMessages() {
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 1.8fr', gap: '1.5rem', alignItems: 'start' }}>
           {/* Left List */}
           <div className="brand-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="admin-search-wrapper" style={{ marginBottom: '1rem', maxWidth: '100%' }}>
+              <Search size={16} className="admin-search-icon" />
               <input
                 type="text"
+                className="admin-search-input"
                 placeholder="Search messages..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                
-                style={{ paddingLeft: '2.25rem', fontSize: '0.8125rem' }}
               />
             </div>
 
@@ -189,7 +189,7 @@ export function AdminMessages() {
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                 <a href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject || 'Inquiry')}`} className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.8125rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Mail size={16} /> Reply via Email
+                  <PiEnvelope size={16} /> Reply via Email
                 </a>
               </div>
             </div>

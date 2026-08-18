@@ -209,23 +209,22 @@ export function AdminOrders() {
 
       {/* Filter and Search Bar */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: '16rem' }}>
-          <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+        <div className="admin-search-wrapper" style={{ flex: 1, minWidth: '16rem' }}>
+          <Search size={16} className="admin-search-icon" />
           <input
             type="text"
+            className="admin-search-input"
             placeholder="Search by order #, name, email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            
-            style={{ paddingLeft: '2.5rem' }}
           />
         </div>
 
         <select
+          className="admin-select"
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          
-          style={{ width: 'auto', minWidth: '10rem' }}
+          style={{ width: 'auto', minWidth: '11rem' }}
         >
           <option value="ALL">All Statuses</option>
           {ORDER_STATUSES.map(s => (
@@ -349,10 +348,10 @@ export function AdminOrders() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Update Order Status:</span>
                         <select
+                          className="admin-select"
                           value={order.status.toUpperCase()}
                           onChange={e => handleStatusChange(order.id, e.target.value)}
-                          
-                          style={{ width: 'auto', padding: '0.4rem 0.85rem' }}
+                          style={{ width: 'auto', minWidth: '10rem' }}
                         >
                           {ORDER_STATUSES.map(s => (
                             <option key={s} value={s}>{s}</option>

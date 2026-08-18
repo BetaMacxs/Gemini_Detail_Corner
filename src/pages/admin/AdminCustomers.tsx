@@ -66,15 +66,14 @@ export function AdminCustomers() {
       <AdminNav />
 
       {/* Search Input */}
-      <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
-        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+      <div className="admin-search-wrapper" style={{ marginBottom: '1.5rem' }}>
+        <Search size={16} className="admin-search-icon" />
         <input
           type="text"
+          className="admin-search-input"
           placeholder="Filter customers by name or email..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          
-          style={{ paddingLeft: '2.5rem' }}
         />
       </div>
 

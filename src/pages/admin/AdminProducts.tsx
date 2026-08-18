@@ -279,37 +279,36 @@ export function AdminProducts() {
       <AdminNav />
 
       {/* Search Bar */}
-      <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '24rem' }}>
-        <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+      <div className="admin-search-wrapper" style={{ marginBottom: '1.5rem' }}>
+        <Search size={16} className="admin-search-icon" />
         <input
           type="text"
+          className="admin-search-input"
           placeholder="Filter products..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          
-          style={{ paddingLeft: '2.5rem' }}
         />
       </div>
 
       {/* Modal for Add / Edit */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="brand-card" style={{ width: '100%', maxWidth: '36rem', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card">
+            <div className="admin-modal-header">
+              <h3 className="admin-modal-title">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              <button onClick={() => setShowModal(false)} className="admin-modal-close" aria-label="Close modal">
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Product Image</label>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="admin-form-group">
+                <label className="admin-label">Product Image</label>
+                <div className="admin-file-control">
                   {imagePreview && (
-                    <img src={imagePreview} alt="Preview" style={{ width: '4rem', height: '4rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
+                    <img src={imagePreview} alt="Preview" style={{ width: '3.5rem', height: '3.5rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
                   )}
                   <input 
                     type="file" 
@@ -321,49 +320,49 @@ export function AdminProducts() {
                         setImagePreview(URL.createObjectURL(file));
                       }
                     }} 
-                    style={{ fontSize: '0.75rem' }}
                   />
                 </div>
                 <input 
                   type="text" 
+                  className="admin-input"
                   value={formData.image_url} 
                   onChange={e => setFormData({ ...formData, image_url: e.target.value })} 
                   placeholder="Or enter image URL manually..."
-                  style={{ marginTop: '0.5rem' }}
+                  style={{ marginTop: '0.35rem' }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Product Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}  placeholder="e.g. Ceramic Force Coating" />
+              <div className="admin-form-group">
+                <label className="admin-label">Product Name</label>
+                <input type="text" required className="admin-input" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Ceramic Force Coating" />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>SKU</label>
-                  <input type="text" required value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })}  />
+              <div className="admin-form-grid admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-label">SKU</label>
+                  <input type="text" required className="admin-input" value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} />
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Price (ZAR)</label>
-                  <input type="number" step="0.01" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}  placeholder="0.00" />
+                <div className="admin-form-group">
+                  <label className="admin-label">Price (ZAR)</label>
+                  <input type="number" step="0.01" required className="admin-input" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} placeholder="0.00" />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Compare Price (ZAR)</label>
-                  <input type="number" step="0.01" value={formData.compare_at_price} onChange={e => setFormData({ ...formData, compare_at_price: e.target.value })}  placeholder="Optional" />
+              <div className="admin-form-grid admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-label">Compare Price (ZAR)</label>
+                  <input type="number" step="0.01" className="admin-input" value={formData.compare_at_price} onChange={e => setFormData({ ...formData, compare_at_price: e.target.value })} placeholder="Optional" />
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Stock Quantity</label>
-                  <input type="number" required value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}  />
+                <div className="admin-form-group">
+                  <label className="admin-label">Stock Quantity</label>
+                  <input type="number" required className="admin-input" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} />
                 </div>
               </div>
 
               {categories.length > 0 && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Category</label>
-                  <select value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })} >
+                <div className="admin-form-group">
+                  <label className="admin-label">Category</label>
+                  <select className="admin-select" value={formData.category_id} onChange={e => setFormData({ ...formData, category_id: e.target.value })}>
                     <option value="">Select Category</option>
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -372,39 +371,39 @@ export function AdminProducts() {
                 </div>
               )}
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Short Summary</label>
-                <input type="text" value={formData.short_description} onChange={e => setFormData({ ...formData, short_description: e.target.value })}  placeholder="Brief 1-sentence product highlight" />
+              <div className="admin-form-group">
+                <label className="admin-label">Short Summary</label>
+                <input type="text" className="admin-input" value={formData.short_description} onChange={e => setFormData({ ...formData, short_description: e.target.value })} placeholder="Brief 1-sentence product highlight" />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Full Description</label>
-                <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}  placeholder="Detailed product specifications..." />
+              <div className="admin-form-group">
+                <label className="admin-label">Full Description</label>
+                <textarea rows={3} className="admin-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Detailed product specifications..." />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Specifications (JSON Object)</label>
-                <textarea rows={3} value={formData.specifications} onChange={e => setFormData({ ...formData, specifications: e.target.value })} placeholder='{"pH Level": "7.0", "Scent": "Cherry"}' />
+              <div className="admin-form-group">
+                <label className="admin-label">Specifications (JSON Object)</label>
+                <textarea rows={3} className="admin-textarea" value={formData.specifications} onChange={e => setFormData({ ...formData, specifications: e.target.value })} placeholder='{"pH Level": "7.0", "Scent": "Cherry"}' />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Highlights (One per line)</label>
-                <textarea rows={3} value={formData.highlights} onChange={e => setFormData({ ...formData, highlights: e.target.value })} placeholder="Premium Formula&#10;UV Protection" />
+              <div className="admin-form-group">
+                <label className="admin-label">Highlights (One per line)</label>
+                <textarea rows={3} className="admin-textarea" value={formData.highlights} onChange={e => setFormData({ ...formData, highlights: e.target.value })} placeholder="Premium Formula&#10;UV Protection" />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Application Steps (JSON Array)</label>
-                <textarea rows={3} value={formData.application_steps} onChange={e => setFormData({ ...formData, application_steps: e.target.value })} placeholder='[{"title": "Spray", "instruction": "..."}]' />
+              <div className="admin-form-group">
+                <label className="admin-label">Application Steps (JSON Array)</label>
+                <textarea rows={3} className="admin-textarea" value={formData.application_steps} onChange={e => setFormData({ ...formData, application_steps: e.target.value })} placeholder='[{"title": "Spray", "instruction": "..."}]' />
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontSize: '0.875rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={formData.active} onChange={e => setFormData({ ...formData, active: e.target.checked })} />
+              <label className="admin-checkbox-label">
+                <input type="checkbox" className="admin-checkbox" checked={formData.active} onChange={e => setFormData({ ...formData, active: e.target.checked })} />
                 <span>Product is active and visible in store</span>
               </label>
 
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem' }}>Cancel</button>
-                <button type="submit" disabled={saving} className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.875rem' }}>
+              <div className="admin-modal-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.55rem 1.25rem', fontSize: '0.8125rem' }}>Cancel</button>
+                <button type="submit" disabled={saving} className="btn btn-primary" style={{ padding: '0.55rem 1.5rem', fontSize: '0.8125rem' }}>
                   {saving ? 'Saving...' : 'Save Product'}
                 </button>
               </div>

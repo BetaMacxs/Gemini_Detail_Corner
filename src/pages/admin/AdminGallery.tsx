@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { uploadImage } from '../../lib/storage';
-import { Plus, Trash2, X, Image as ImageIcon, Video } from 'lucide-react';
+import { Plus, Trash2, X, Image as ImageIcon } from 'lucide-react';
+import { PiTiktokLogo } from 'react-icons/pi';
 import { AdminNav } from '../../components/AdminNav';
 
 interface GalleryItem {
@@ -162,22 +163,22 @@ export function AdminGallery() {
 
       {/* Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="brand-card" style={{ width: '100%', maxWidth: '32rem', padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>Add Media Item</h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-card" style={{ maxWidth: '32rem' }}>
+            <div className="admin-modal-header">
+              <h3 className="admin-modal-title">Add Media Item</h3>
+              <button onClick={() => setShowModal(false)} className="admin-modal-close" aria-label="Close modal">
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {formData.type === 'IMAGE' && (
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Upload Image</label>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div className="admin-form-group">
+                  <label className="admin-label">Upload Image</label>
+                  <div className="admin-file-control">
                     {imagePreview && (
-                      <img src={imagePreview} alt="Preview" style={{ width: '4rem', height: '4rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
+                      <img src={imagePreview} alt="Preview" style={{ width: '3.5rem', height: '3.5rem', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }} />
                     )}
                     <input 
                       type="file" 
@@ -189,38 +190,38 @@ export function AdminGallery() {
                           setImagePreview(URL.createObjectURL(file));
                         }
                       }} 
-                      style={{ fontSize: '0.75rem' }}
                     />
                   </div>
                 </div>
               )}
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media Title</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}  placeholder="e.g. BMW M3 Ceramic Gloss Transformation" />
+              <div className="admin-form-group">
+                <label className="admin-label">Media Title</label>
+                <input type="text" required className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. BMW M3 Ceramic Gloss Transformation" />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media Type</label>
-                  <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })} >
+              <div className="admin-form-grid admin-form-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-label">Media Type</label>
+                  <select className="admin-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value as any })}>
                     <option value="IMAGE">IMAGE</option>
                     <option value="VIDEO">VIDEO (TikTok/MP4)</option>
                   </select>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Tag / Category</label>
-                  <input type="text" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })}  placeholder="e.g. Paint Correction" />
+                <div className="admin-form-group">
+                  <label className="admin-label">Tag / Category</label>
+                  <input type="text" className="admin-input" value={formData.tags} onChange={e => setFormData({ ...formData, tags: e.target.value })} placeholder="e.g. Paint Correction" />
                 </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              <div className="admin-form-group">
+                <label className="admin-label">
                   Media URL / Image Link {formData.type === 'IMAGE' && imageFile ? '(Optional - File Selected)' : ''}
                 </label>
                 <input 
                   type="text" 
+                  className="admin-input"
                   required={formData.type !== 'IMAGE' && !imageFile} 
                   value={formData.url} 
                   onChange={e => setFormData({ ...formData, url: e.target.value })}  
@@ -228,9 +229,9 @@ export function AdminGallery() {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.6rem 1.25rem', fontSize: '0.875rem' }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.875rem' }}>Add Item</button>
+              <div className="admin-modal-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline" style={{ padding: '0.55rem 1.25rem', fontSize: '0.8125rem' }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.55rem 1.5rem', fontSize: '0.8125rem' }}>Add Item</button>
               </div>
             </form>
           </div>
@@ -254,7 +255,7 @@ export function AdminGallery() {
                 <div style={{ position: 'relative', height: '12rem', backgroundColor: 'var(--bg)', overflow: 'hidden' }}>
                   <img src={item.url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).src = 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=800'; }} />
                   <span style={{ position: 'absolute', top: '0.5rem', left: '0.5rem', padding: '0.25rem 0.5rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(0,0,0,0.7)', color: '#ffffff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {item.type === 'VIDEO' ? <Video size={12} /> : <ImageIcon size={12} />}
+                    {item.type === 'VIDEO' ? <PiTiktokLogo size={12} /> : <ImageIcon size={12} />}
                     {item.type}
                   </span>
                 </div>

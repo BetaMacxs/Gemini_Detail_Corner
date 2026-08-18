@@ -16,5 +16,8 @@ export const storeConfig = {
   STORE_BANK_NAME:"Captitec Business Account",
   MERCHANT_STORE: "Detail Corner SA (Pty Ltd)",
   MERCHANT_LOCATION: "Cape Town",
-  MERCHANT_SUPPORT: "support@detailcorner.co.za"
+  MERCHANT_SUPPORT: "support@detailcorner.co.za",
+  SOCIAL_INSTAGRAM: "https://www.instagram.com/detail_corner2022/",
+  SOCIAL_FACEBOOK: "https://www.facebook.com/p/Detail-Corner-61570508712171/",
+  SOCIAL_TIKTOK: "https://www.tiktok.com/@detailcorner2022/"
 };

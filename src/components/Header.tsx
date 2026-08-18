@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Menu, Shield, Search, X } from 'lucide-react';
+import { PiInstagramLogo, PiFacebookLogo, PiTiktokLogo } from 'react-icons/pi';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthStore } from '../features/auth/store';
 import { useCartStore } from '../features/cart/store';
+import { storeConfig } from '../config/store';
 
 export function Header() {
   const { user, profile } = useAuthStore();
@@ -145,6 +147,44 @@ export function Header() {
                   </span>
                 )}
               </Link>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', marginTop: '0.5rem' }}>
+                <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>Follow Detail Corner</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <a
+                    href={storeConfig.SOCIAL_INSTAGRAM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    style={{ padding: '0.4rem', borderRadius: 'var(--radius-sm)' }}
+                    aria-label="Instagram Profile"
+                    title="Instagram (@detail_corner2022)"
+                  >
+                    <PiInstagramLogo size={16} />
+                  </a>
+                  <a
+                    href={storeConfig.SOCIAL_FACEBOOK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    style={{ padding: '0.4rem', borderRadius: 'var(--radius-sm)' }}
+                    aria-label="Facebook Page"
+                    title="Facebook (Detail Corner)"
+                  >
+                    <PiFacebookLogo size={16} />
+                  </a>
+                  <a
+                    href={storeConfig.SOCIAL_TIKTOK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-link"
+                    style={{ padding: '0.4rem', borderRadius: 'var(--radius-sm)' }}
+                    aria-label="TikTok Account"
+                    title="TikTok (@detailcorner2022)"
+                  >
+                    <PiTiktokLogo size={16} />
+                  </a>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

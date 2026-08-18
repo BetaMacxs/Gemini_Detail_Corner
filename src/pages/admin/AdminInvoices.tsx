@@ -160,15 +160,14 @@ export function AdminInvoices() {
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 2fr', gap: '1.5rem', alignItems: 'start' }}>
           {/* Left Column: Order Selector */}
           <div className="brand-card" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="admin-search-wrapper" style={{ marginBottom: '1rem', maxWidth: '100%' }}>
+              <Search size={16} className="admin-search-icon" />
               <input
                 type="text"
+                className="admin-search-input"
                 placeholder="Search invoices..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                
-                style={{ paddingLeft: '2.25rem', fontSize: '0.8125rem' }}
               />
             </div>
 

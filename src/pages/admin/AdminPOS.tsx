@@ -369,15 +369,14 @@ export function AdminPOS() {
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.8fr) minmax(300px, 1.2fr)', gap: '1.5rem', alignItems: 'start' }}>
           {/* Left Column: Product Selection Grid */}
           <div>
-            <div style={{ marginBottom: '1.25rem', position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="admin-search-wrapper" style={{ marginBottom: '1.25rem' }}>
+              <Search size={16} className="admin-search-icon" />
               <input
                 type="text"
+                className="admin-search-input"
                 placeholder="Search POS catalogue by name or SKU..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                
-                style={{ paddingLeft: '2.5rem' }}
               />
             </div>
 
@@ -510,13 +509,13 @@ export function AdminPOS() {
 
                 {/* Customer Inputs */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>Customer Name</label>
-                    <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)}  style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }} />
+                  <div className="admin-form-group">
+                    <label className="admin-label">Customer Name</label>
+                    <input type="text" className="admin-input" value={customerName} onChange={e => setCustomerName(e.target.value)} />
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>Payment Method</label>
+                  <div className="admin-form-group">
+                    <label className="admin-label">Payment Method</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
                       {(['CARD', 'CASH', 'EFT'] as const).map(m => (
                         <button

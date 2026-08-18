@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../features/auth/store';
-import { LogOut, Package, MapPin, User, Settings } from 'lucide-react';
+import { LogOut, Package, User, Settings } from 'lucide-react';
+import { PiMapPin } from 'react-icons/pi';
 
 export function Account() {
   const { profile, signOut } = useAuthStore();
@@ -44,7 +45,9 @@ export function Account() {
             </Link>
             
             <Link to="/account/addresses" className="account-link-item">
-              <MapPin size={24} style={{ color: 'var(--text-secondary)', marginTop: '0.125rem' }} />
+              <span style={{ display: 'flex', color: 'var(--text-secondary)', marginTop: '0.125rem' }}>
+                <PiMapPin size={24} />
+              </span>
               <div style={{ marginLeft: '1rem' }}>
                 <h3 className="account-link-title">Addresses</h3>
                 <p className="account-link-desc">Manage your shipping and billing addresses.</p>

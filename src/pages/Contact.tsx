@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Phone, Mail, MapPin, Send, MessageSquare } from 'lucide-react';
+import { 
+  PiPhone, 
+  PiEnvelope, 
+  PiMapPin, 
+  PiPaperPlaneTilt, 
+  PiChatText, 
+  PiInstagramLogo, 
+  PiFacebookLogo, 
+  PiTiktokLogo 
+} from 'react-icons/pi';
 import { supabase } from '../lib/supabase';
 import { storeConfig } from '../config/store';
 
@@ -127,7 +136,7 @@ export function Contact() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <Phone size={24} style={{ color: 'var(--accent)' }} />
+                    <PiPhone size={24} color="var(--accent)" />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Phone Support</div>
@@ -136,7 +145,7 @@ export function Contact() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <Mail size={24} style={{ color: 'var(--accent)' }} />
+                    <PiEnvelope size={24} color="var(--accent)" />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Email Inquiries</div>
@@ -145,11 +154,52 @@ export function Contact() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <MapPin size={24} style={{ color: 'var(--accent)' }} />
+                    <PiMapPin size={24} color="var(--accent)" />
                   </div>
                   <div style={{ marginLeft: '1.5rem' }}>
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Our Location</div>
                     <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>{storeConfig.STORE_ADDR}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
+                    <PiInstagramLogo size={24} color="var(--accent)" />
+                  </div>
+                  <div style={{ marginLeft: '1.5rem' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Official Socials</div>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                      <a
+                        href={storeConfig.SOCIAL_INSTAGRAM}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-link"
+                        aria-label="Instagram Profile"
+                        title="Instagram (@detail_corner2022)"
+                      >
+                        <PiInstagramLogo size={18} />
+                      </a>
+                      <a
+                        href={storeConfig.SOCIAL_FACEBOOK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-link"
+                        aria-label="Facebook Page"
+                        title="Facebook (Detail Corner)"
+                      >
+                        <PiFacebookLogo size={18} />
+                      </a>
+                      <a
+                        href={storeConfig.SOCIAL_TIKTOK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="social-link"
+                        aria-label="TikTok Account"
+                        title="TikTok (@detailcorner2022)"
+                      >
+                        <PiTiktokLogo size={18} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -168,7 +218,7 @@ export function Contact() {
           {/* Contact Form */}
           <div className="brand-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', marginBottom: '1.5rem' }}>
-              <MessageSquare size={20} />
+              <PiChatText size={20} />
               <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Send Message</span>
             </div>
 
@@ -228,7 +278,7 @@ export function Contact() {
                   <span>Processing...</span>
                 ) : (
                   <>
-                    <Send size={20} />
+                    <PiPaperPlaneTilt size={20} />
                     <span>Engage Transmission</span>
                   </>
                 )}
