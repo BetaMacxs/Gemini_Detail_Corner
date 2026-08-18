@@ -28,28 +28,52 @@ export function Contact() {
 
     const newMessage = {
       id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `msg_${Date.now()}`,
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      subject: form.subject,
-      message: form.message,
-      status: 'unread',
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim() || undefined,
+      subject: form.subject.trim() || 'General Inquiry',
+      message: form.message.trim(),
+      status: 'UNREAD' as const,
       created_at: new Date().toISOString()
     };
 
     // 1. Attempt Supabase insert
     try {
-      await supabase.from('contact_messages').insert({
-        id: newMessage.id,
+      // First attempt: with phone column and standard UNREAD status
+      const payload: Record<string, any> = {
         name: newMessage.name,
         email: newMessage.email,
-        phone: newMessage.phone,
         subject: newMessage.subject,
         message: newMessage.message,
-        status: 'unread'
-      });
+        status: 'UNREAD'
+      };
+      if (newMessage.phone) {
+        payload.phone = newMessage.phone;
+      }
+
+      const { error: insertError } = await supabase.from('contact_messages').insert(payload);
+
+      // If failed due to phone column not existing in Postgres schema, retry without phone field
+      if (insertError) {
+        console.warn('Primary insert failed, retrying with fallback payload:', insertError.message);
+        const fallbackMessage = newMessage.phone 
+          ? `[Phone: ${newMessage.phone}]\n\n${newMessage.message}` 
+          : newMessage.message;
+
+        const { error: fallbackError } = await supabase.from('contact_messages').insert({
+          name: newMessage.name,
+          email: newMessage.email,
+          subject: newMessage.subject,
+          message: fallbackMessage,
+          status: 'UNREAD'
+        });
+
+        if (fallbackError) {
+          console.warn('DB contact_messages fallback notice:', fallbackError.message);
+        }
+      }
     } catch (dbErr) {
-      console.warn('DB contact_messages notice:', dbErr);
+      console.warn('DB contact_messages exception:', dbErr);
     }
 
     // 2. Local persistence fallback

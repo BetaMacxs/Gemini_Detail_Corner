@@ -13,6 +13,7 @@ import {
 import { useProductsStore } from '../features/products/store';
 import { storeConfig } from '../config/store';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { ProductRating } from '../components/ProductRating';
 import { ProductWithDetails } from '../types/database';
 
 export function Home() {
@@ -266,24 +267,7 @@ export function Home() {
                     </div>
 
                     <div className="product-card-info">
-                      <div className="product-rating">
-                        {[...Array(5)].map((_, index) => (
-                          <Star
-                            key={index}
-                            className="product-rating-star"
-                            style={{
-                              fill:
-                                index < 4
-                                  ? 'var(--gold)'
-                                  : 'none',
-                              color:
-                                index < 4
-                                  ? 'var(--gold)'
-                                  : 'var(--text-secondary)',
-                            }}
-                          />
-                        ))}
-                      </div>
+                      <ProductRating reviews={product.reviews} size={12} className="product-rating" noReviewsText="No reviews" />
 
                       <h3 className="product-card-name">
                         {product.name}

@@ -7,6 +7,7 @@ import { toast } from '../features/toast/store';
 import { Search, Filter, ShoppingBag, Star, SlidersHorizontal, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { storeConfig } from '../config/store';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { ProductRating } from '../components/ProductRating';
 import { ProductWithDetails } from '../types/database';
 
 export function Shop() {
@@ -230,12 +231,7 @@ export function Shop() {
                               </div>
                             </div>
                             <div className="product-card-info">
-                              <div className="product-rating">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className="product-rating-star" style={{ fill: i < 4 ? 'var(--gold)' : 'none', color: i < 4 ? 'var(--gold)' : 'var(--text-secondary)' }} />
-                                ))}
-                                <span style={{ fontSize: '10px', color: 'var(--text-secondary)', marginLeft: '0.5rem', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.1em' }}>(4.8)</span>
-                              </div>
+                              <ProductRating reviews={product.reviews} size={12} className="product-rating" noReviewsText="No reviews" />
                               <h3 className="product-card-name">
                                 {product.name}
                               </h3>

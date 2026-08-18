@@ -20,6 +20,7 @@ const getSpecIcon = (key: string) => {
   return <Info size={20} />;
 };
 import { storeConfig } from '../config/store';
+import { calculateProductRating } from '../utils/rating';
 
 export function ProductDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -220,9 +221,7 @@ export function ProductDetails() {
   const currentStock = selectedVariant ? selectedVariant.stock_quantity : product.stock_quantity;
   const inStock = currentStock > 0;
   const reviews = product.reviews || [];
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length 
-    : 0;
+  const { averageRating, formattedRating, reviewCount, hasReviews } = calculateProductRating(reviews);
 
   // Default fallbacks if data is missing
   const specs = product.specifications || {
@@ -322,12 +321,23 @@ export function ProductDetails() {
               <div>
                 <div className="product-rating-summary">
                   <div className="product-rating-stars">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const isFilled = hasReviews && averageRating !== null && i < Math.round(averageRating);
+                      return (
+                        <Star
+                          key={i}
+                          size={16}
+                          style={{
+                            fill: isFilled ? 'var(--gold)' : 'none',
+                            color: isFilled ? 'var(--gold)' : 'var(--text-secondary)',
+                            opacity: hasReviews ? 1 : 0.35
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                   <a href="#reviews" className="review-count-link">
-                    {reviews.length} Reviews
+                    {hasReviews ? `${formattedRating} (${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'})` : 'No reviews yet'}
                   </a>
                 </div>
                 <h1 className="product-title">
@@ -481,14 +491,28 @@ export function ProductDetails() {
                 </h2>
                 
                 <div className="rating-score-card">
-                  <div className="rating-big-score">{averageRating.toFixed(1)}</div>
+                  <div className="rating-big-score">{hasReviews ? formattedRating : '—'}</div>
                   <div className="product-rating-stars" style={{ marginBottom: '1rem' }}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={20} style={{ fill: i < Math.floor(averageRating) ? 'var(--gold)' : 'none', color: i < Math.floor(averageRating) ? 'var(--gold)' : 'var(--text-secondary)' }} />
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const isFilled = hasReviews && averageRating !== null && i < Math.round(averageRating);
+                      return (
+                        <Star
+                          key={i}
+                          size={20}
+                          style={{
+                            fill: isFilled ? 'var(--gold)' : 'none',
+                            color: isFilled ? 'var(--gold)' : 'var(--text-secondary)',
+                            opacity: hasReviews ? 1 : 0.35
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                   <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
-                    Based on {reviews.length} Verified Purchases
+                    {hasReviews 
+                      ? `Based on ${reviewCount} ${reviewCount === 1 ? 'Verified Purchase' : 'Verified Purchases'}`
+                      : 'No customer reviews yet'
+                    }
                   </div>
                 </div>
 

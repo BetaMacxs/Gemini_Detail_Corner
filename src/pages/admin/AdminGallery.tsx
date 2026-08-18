@@ -36,11 +36,25 @@ export function AdminGallery() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
         setItems(data as GalleryItem[]);
+        try {
+          localStorage.setItem('gallery', JSON.stringify(data));
+        } catch {
+          // ignore storage quota
+        }
+      } else {
+        const local = JSON.parse(localStorage.getItem('gallery') || '[]');
+        if (local && local.length > 0) {
+          setItems(local);
+        }
       }
     } catch (e) {
       console.warn("Error fetching DB gallery:", e);
+      const local = JSON.parse(localStorage.getItem('gallery') || '[]');
+      if (local && local.length > 0) {
+        setItems(local);
+      }
     }
 
     setLoading(false);
@@ -55,7 +69,13 @@ export function AdminGallery() {
     
     try {
       await supabase.from('gallery').delete().eq('id', id);
-      setItems(prev => prev.filter(item => item.id !== id));
+      setItems(prev => {
+        const updated = prev.filter(item => item.id !== id);
+        try {
+          localStorage.setItem('gallery', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
     } catch (e) {
       console.warn("Delete gallery error:", e);
     }
@@ -64,7 +84,8 @@ export function AdminGallery() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let finalUrl = formData.url;
+    let finalUrl = formData.url.trim();
+
     if (formData.type === 'IMAGE' && imageFile) {
       const uploadedUrl = await uploadImage(imageFile, 'gallery');
       if (uploadedUrl) {
@@ -72,22 +93,50 @@ export function AdminGallery() {
       }
     }
 
+    if (!finalUrl) {
+      alert("Please provide an image file or a valid media URL.");
+      return;
+    }
+
     const newItem = {
-      title: formData.title,
+      title: formData.title.trim(),
       type: formData.type,
       url: finalUrl,
-      tags: formData.tags
+      tags: formData.tags.trim()
     };
 
     try {
-      const { error } = await supabase.from('gallery').insert([newItem]);
-      if (error) throw error;
+      const { data, error } = await supabase.from('gallery').insert([newItem]).select();
+      if (error) {
+        console.warn("Supabase insert gallery notice:", error.message);
+      }
       
+      const createdItem: GalleryItem = (data && data[0]) ? data[0] as GalleryItem : {
+        id: `local_${Date.now()}`,
+        ...newItem,
+        created_at: new Date().toISOString()
+      };
+
+      setItems(prev => {
+        const updated = [createdItem, ...prev.filter(i => i.id !== createdItem.id)];
+        try {
+          localStorage.setItem('gallery', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+
       setShowModal(false);
+      setImageFile(null);
+      setImagePreview(null);
+      setFormData({
+        title: '',
+        type: 'IMAGE',
+        url: '',
+        tags: 'Ceramic Coating'
+      });
       fetchGallery();
     } catch (e) {
-      console.warn("Insert gallery error:", e);
-      alert("Failed to add gallery item. Please check database permissions.");
+      console.warn("Insert gallery exception:", e);
     }
   };
 
@@ -167,8 +216,16 @@ export function AdminGallery() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>Media URL / Image Link</label>
-                <input type="text" required value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })}  placeholder="https://..." />
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                  Media URL / Image Link {formData.type === 'IMAGE' && imageFile ? '(Optional - File Selected)' : ''}
+                </label>
+                <input 
+                  type="text" 
+                  required={formData.type !== 'IMAGE' && !imageFile} 
+                  value={formData.url} 
+                  onChange={e => setFormData({ ...formData, url: e.target.value })}  
+                  placeholder={formData.type === 'IMAGE' && imageFile ? 'Image file will be uploaded' : 'https://...'} 
+                />
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>

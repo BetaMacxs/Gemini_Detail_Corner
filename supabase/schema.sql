@@ -248,11 +248,20 @@ create table if not exists public.contact_messages (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   email text not null,
+  phone text,
   subject text,
   message text not null,
-  status text default 'UNREAD' check (status in ('UNREAD', 'READ', 'ARCHIVED')),
+  status text default 'UNREAD' check (status in ('UNREAD', 'READ', 'ARCHIVED', 'unread', 'read', 'archived')),
   created_at timestamp with time zone default now()
 );
+
+-- Ensure phone column exists on existing deployments
+do $$ 
+begin
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'contact_messages' and column_name = 'phone') then
+    alter table public.contact_messages add column phone text;
+  end if;
+end $$;
 
 -- 17. Gallery
 create table if not exists public.gallery (
@@ -742,3 +751,60 @@ end;
 $$ language plpgsql security definer;
 
 grant execute on function public.track_order(text, text) to anon, authenticated;
+
+-- ==========================================
+-- 20. Supabase Storage Buckets & Policies
+-- ==========================================
+
+-- Ensure storage buckets exist and are marked public
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values 
+  ('gallery', 'gallery', true, 20971520, array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'video/mp4', 'video/quicktime', 'video/webm']),
+  ('products', 'products', true, 20971520, array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'])
+on conflict (id) do update set
+  public = true,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Storage Policies for 'gallery'
+drop policy if exists "Gallery items are publicly accessible" on storage.objects;
+create policy "Gallery items are publicly accessible"
+  on storage.objects for select
+  using (bucket_id = 'gallery');
+
+drop policy if exists "Authenticated and authorized users can upload gallery items" on storage.objects;
+create policy "Authenticated and authorized users can upload gallery items"
+  on storage.objects for insert
+  with check (bucket_id = 'gallery');
+
+drop policy if exists "Authenticated and authorized users can update gallery items" on storage.objects;
+create policy "Authenticated and authorized users can update gallery items"
+  on storage.objects for update
+  using (bucket_id = 'gallery');
+
+drop policy if exists "Authenticated and authorized users can delete gallery items" on storage.objects;
+create policy "Authenticated and authorized users can delete gallery items"
+  on storage.objects for delete
+  using (bucket_id = 'gallery');
+
+-- Storage Policies for 'products'
+drop policy if exists "Product images are publicly accessible" on storage.objects;
+create policy "Product images are publicly accessible"
+  on storage.objects for select
+  using (bucket_id = 'products');
+
+drop policy if exists "Authenticated and authorized users can upload product images" on storage.objects;
+create policy "Authenticated and authorized users can upload product images"
+  on storage.objects for insert
+  with check (bucket_id = 'products');
+
+drop policy if exists "Authenticated and authorized users can update product images" on storage.objects;
+create policy "Authenticated and authorized users can update product images"
+  on storage.objects for update
+  using (bucket_id = 'products');
+
+drop policy if exists "Authenticated and authorized users can delete product images" on storage.objects;
+create policy "Authenticated and authorized users can delete product images"
+  on storage.objects for delete
+  using (bucket_id = 'products');
+

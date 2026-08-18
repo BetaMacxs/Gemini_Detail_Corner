@@ -17,6 +17,7 @@ import {
   Layers
 } from 'lucide-react';
 import { ProductWithDetails } from '../types/database';
+import { calculateProductRating } from '../utils/rating';
 import { useCartStore } from '../features/cart/store';
 import { toast } from '../features/toast/store';
 import { storeConfig } from '../config/store';
@@ -113,10 +114,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
     }
   };
 
-  const reviewCount = product.reviews?.length || 0;
-  const avgRating = reviewCount > 0
-    ? (product.reviews.reduce((acc: number, r: any) => acc + (r.rating || 5), 0) / reviewCount).toFixed(1)
-    : '4.8';
+  const { averageRating, formattedRating, reviewCount, hasReviews } = calculateProductRating(product.reviews);
 
   return (
     <AnimatePresence>
@@ -224,18 +222,22 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                   {/* Category & Rating */}
                   <div className="quickview-meta-row">
                     <div className="quickview-rating">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="h-4 w-4"
-                          style={{
-                            fill: i < Math.floor(Number(avgRating)) ? 'var(--gold)' : 'none',
-                            color: i < Math.floor(Number(avgRating)) ? 'var(--gold)' : 'var(--text-secondary)',
-                          }}
-                        />
-                      ))}
+                      {[...Array(5)].map((_, i) => {
+                        const isFilled = hasReviews && averageRating !== null && i < Math.round(averageRating);
+                        return (
+                          <Star
+                            key={i}
+                            className="h-4 w-4"
+                            style={{
+                              fill: isFilled ? 'var(--gold)' : 'none',
+                              color: isFilled ? 'var(--gold)' : 'var(--text-secondary)',
+                              opacity: hasReviews ? 1 : 0.35,
+                            }}
+                          />
+                        );
+                      })}
                       <span className="quickview-rating-text">
-                        {avgRating} ({reviewCount > 0 ? `${reviewCount} reviews` : 'Verified'})
+                        {hasReviews ? `${formattedRating} (${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})` : 'No reviews yet'}
                       </span>
                     </div>
                     {product.sku && (
