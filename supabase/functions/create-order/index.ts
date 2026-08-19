@@ -8,104 +8,200 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    )
+    const authHeader = req.headers.get('Authorization')
+    let userId: string | null = null
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) throw new Error('Unauthorized')
+    // Optional user authentication (allows guest checkout)
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const supabaseAuthClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          { global: { headers: { Authorization: authHeader } } }
+        )
+        const { data: { user } } = await supabaseAuthClient.auth.getUser()
+        if (user) {
+          userId = user.id
+        }
+      } catch (authErr) {
+        console.warn('Guest checkout or invalid auth token:', authErr)
+      }
+    }
 
-    const { items, customerData } = await req.json()
+    const { items, customerData, couponCode } = await req.json()
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new Error('Cart items cannot be empty')
+    }
+
+    if (!customerData || !customerData.email || !customerData.firstName || !customerData.lastName) {
+      throw new Error('Customer contact and delivery information are required')
+    }
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    let subtotal = 0;
-    const orderItems = [];
+    let subtotal = 0
+    const orderItems = []
 
+    // Authoritative pricing check against DB
     for (const item of items) {
-       const { data: product } = await supabaseAdmin.from('products').select('*').eq('id', item.product.id).single();
-       if (!product) throw new Error(`Product not found: ${item.product.id}`);
-       
-       const price = item.variant ? item.variant.price : product.price;
-       const quantity = item.quantity;
-       subtotal += (price * quantity);
-       
-       orderItems.push({
-         product_id: product.id,
-         variant_id: item.variant?.id || null,
-         product_name_snapshot: product.name,
-         sku_snapshot: item.variant ? item.variant.sku : product.sku,
-         variant_snapshot: item.variant ? item.variant.name : null,
-         quantity,
-         unit_price: price,
-         total: price * quantity
-       });
+      const productId = item.product?.id || item.productId
+      const { data: product } = await supabaseAdmin.from('products').select('*').eq('id', productId).single()
+      if (!product) throw new Error(`Product not found: ${productId}`)
+
+      let price = Number(product.price)
+      let sku = product.sku
+      let variantName: string | null = null
+      const variantId = item.variant?.id || item.variantId || null
+
+      if (variantId) {
+        const { data: variant } = await supabaseAdmin.from('product_variants').select('*').eq('id', variantId).single()
+        if (variant) {
+          price = Number(variant.price)
+          sku = variant.sku || sku
+          variantName = variant.name || variant.size || null
+        }
+      }
+
+      const quantity = Math.max(1, parseInt(item.quantity, 10) || 1)
+      const lineTotal = price * quantity
+      subtotal += lineTotal
+
+      orderItems.push({
+        product_id: product.id,
+        variant_id: variantId,
+        product_name_snapshot: product.name,
+        sku_snapshot: sku,
+        variant_snapshot: variantName,
+        quantity,
+        unit_price: price,
+        total: lineTotal
+      })
     }
 
-    const shippingAmount = 100;
-    const total = subtotal + shippingAmount;
-    
-    const orderNumber = `ORD-${Math.floor(Date.now() / 1000).toString()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    // Coupon discount calculation
+    let discountAmount = 0
+    let validatedCouponId: string | null = null
+
+    if (couponCode && typeof couponCode === 'string' && couponCode.trim().length > 0) {
+      const cleanCode = couponCode.trim()
+      const { data: coupon } = await supabaseAdmin
+        .from('coupons')
+        .select('*')
+        .ilike('code', cleanCode)
+        .eq('active', true)
+        .maybeSingle()
+
+      if (coupon) {
+        const now = new Date()
+        const isStarted = !coupon.start_date || new Date(coupon.start_date) <= now
+        const isNotExpired = !coupon.expiry_date || new Date(coupon.expiry_date) >= now
+        const hasUsageLeft = coupon.usage_limit == null || (coupon.usage_count || 0) < coupon.usage_limit
+
+        if (isStarted && isNotExpired && hasUsageLeft) {
+          const discountVal = Number(coupon.discount_value) || 0
+          const discountType = (coupon.discount_type || '').toLowerCase()
+          if (discountType === 'percentage') {
+            discountAmount = Math.round(((subtotal * discountVal) / 100) * 100) / 100
+          } else {
+            discountAmount = Math.min(subtotal, discountVal)
+          }
+          validatedCouponId = coupon.id
+        }
+      }
+    }
+
+    // Shipping calculation: Free over R1000
+    const shippingAmount = (subtotal - discountAmount) >= 1000 || subtotal >= 1000 ? 0 : 100
+    const total = Math.max(0, subtotal - discountAmount + shippingAmount)
+    const taxAmount = Math.round(((total * 15) / 115) * 100) / 100 // 15% South African VAT
+
+    const orderNumber = `ORD-${Math.floor(Date.now() / 1000).toString()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
 
     const { data: order, error: orderInsertError } = await supabaseAdmin.from('orders').insert({
       order_number: orderNumber,
-      customer_id: user.id,
-      email: customerData.email,
-      customer_name: `${customerData.firstName} ${customerData.lastName}`,
-      phone: customerData.phone,
+      customer_id: userId,
+      email: customerData.email.toLowerCase().trim(),
+      customer_name: `${customerData.firstName} ${customerData.lastName}`.trim(),
+      phone: customerData.phone || '',
       billing_information: customerData,
       shipping_information: customerData,
       subtotal,
+      discount_amount: discountAmount,
       shipping_amount: shippingAmount,
+      tax_amount: taxAmount,
       total,
-      status: 'PENDING_PAYMENT'
-    }).select().single();
+      currency: 'ZAR',
+      status: 'PENDING_PAYMENT',
+      payment_status: 'PENDING'
+    }).select().single()
 
-    if (orderInsertError) throw orderInsertError;
+    if (orderInsertError) throw orderInsertError
 
+    // Insert order line items
     const { error: itemsError } = await supabaseAdmin.from('order_items').insert(
       orderItems.map(item => ({ ...item, order_id: order.id }))
-    );
-    if (itemsError) throw itemsError;
+    )
+    if (itemsError) throw itemsError
 
+    // Insert status history
+    await supabaseAdmin.from('order_status_history').insert({
+      order_id: order.id,
+      status: 'PENDING_PAYMENT',
+      notes: 'Order initiated via PayFast checkout'
+    })
+
+    // If coupon was validated, increment usage
+    if (validatedCouponId) {
+      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_id: validatedCouponId }).catch(async () => {
+        const { data: c } = await supabaseAdmin.from('coupons').select('usage_count').eq('id', validatedCouponId).single()
+        if (c) {
+          await supabaseAdmin.from('coupons').update({ usage_count: (c.usage_count || 0) + 1 }).eq('id', validatedCouponId)
+        }
+      })
+    }
+
+    // Insert payment record
     const { data: payment, error: paymentError } = await supabaseAdmin.from('payments').insert({
       order_id: order.id,
       provider: 'PayFast',
       amount: total,
+      currency: 'ZAR',
       status: 'PENDING'
-    }).select().single();
-    if (paymentError) throw paymentError;
+    }).select().single()
+    if (paymentError) throw paymentError
+
+    const frontendBaseUrl = customerData.origin || Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'
 
     const payfastData: Record<string, string> = {
       merchant_id: Deno.env.get('PAYFAST_MERCHANT_ID') || '',
       merchant_key: Deno.env.get('PAYFAST_MERCHANT_KEY') || '',
-      return_url: Deno.env.get('PAYFAST_RETURN_URL') || '',
-      cancel_url: Deno.env.get('PAYFAST_CANCEL_URL') || '',
-      notify_url: Deno.env.get('PAYFAST_NOTIFY_URL') || '',
+      return_url: customerData.return_url || `${frontendBaseUrl}/checkout/success/${order.id}`,
+      cancel_url: customerData.cancel_url || `${frontendBaseUrl}/checkout/cancel`,
+      notify_url: Deno.env.get('PAYFAST_NOTIFY_URL') || 'https://gllpmefitusfsuzrjgtf.supabase.co/functions/v1/payfast-itn',
       name_first: customerData.firstName,
       name_last: customerData.lastName,
       email_address: customerData.email,
       m_payment_id: payment.id,
       amount: total.toFixed(2),
-      item_name: `Order ${orderNumber}`,
-    };
+      item_name: `DetailCorner Order ${orderNumber}`,
+    }
 
-    const signature = generatePayfastSignature(payfastData, Deno.env.get('PAYFAST_PASSPHRASE'));
-    payfastData.signature = signature;
+    const signature = generatePayfastSignature(payfastData, Deno.env.get('PAYFAST_PASSPHRASE'))
+    payfastData.signature = signature
 
-    const isSandbox = Deno.env.get('PAYFAST_SANDBOX') !== 'false';
-    const payfastUrl = isSandbox ? "https://sandbox.payfast.co.za/eng/process" : "https://www.payfast.co.za/eng/process";
+    const isSandbox = Deno.env.get('PAYFAST_SANDBOX') !== 'false'
+    const payfastUrl = isSandbox ? "https://sandbox.payfast.co.za/eng/process" : "https://www.payfast.co.za/eng/process"
 
     return new Response(
       JSON.stringify({ order, payfastData, payfastUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error: any) {
+    console.error('create-order error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,

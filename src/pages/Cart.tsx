@@ -27,50 +27,61 @@ export function Cart() {
     setCouponError('');
 
     try {
+      const code = couponInput.trim();
       const { data: coupon, error } = await supabase
         .from('coupons')
         .select('*')
-        .eq('code', couponInput.trim().toUpperCase())
-        .single();
+        .ilike('code', code)
+        .eq('active', true)
+        .maybeSingle();
 
       if (error || !coupon) {
-        setCouponError('Invalid coupon code');
+        setCouponError('Invalid or inactive coupon code');
         setIsValidatingCoupon(false);
         return;
       }
 
       const now = new Date();
-      if (coupon.valid_from && new Date(coupon.valid_from) > now) {
+      const startDate = coupon.start_date || coupon.valid_from;
+      const expiryDate = coupon.expiry_date || coupon.valid_until;
+
+      if (startDate && new Date(startDate) > now) {
         setCouponError('Coupon is not active yet');
         setIsValidatingCoupon(false);
         return;
       }
-      if (coupon.valid_until && new Date(coupon.valid_until) < now) {
+      if (expiryDate && new Date(expiryDate) < now) {
         setCouponError('Coupon has expired');
         setIsValidatingCoupon(false);
         return;
       }
-      if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) {
+      if (coupon.usage_limit && (coupon.usage_count || 0) >= coupon.usage_limit) {
         setCouponError('Coupon usage limit reached');
         setIsValidatingCoupon(false);
         return;
       }
-      if (coupon.minimum_order_value && subtotal < coupon.minimum_order_value) {
-        setCouponError(`Minimum order value of ${formatPrice(coupon.minimum_order_value)} required`);
+
+      const minSpend = coupon.min_spend || coupon.minimum_order_value || 0;
+      if (minSpend > 0 && subtotal < minSpend) {
+        setCouponError(`Minimum order value of ${formatPrice(minSpend)} required`);
         setIsValidatingCoupon(false);
         return;
       }
 
       let calculatedDiscount = 0;
-      if (coupon.discount_type === 'PERCENTAGE') {
-        calculatedDiscount = (subtotal * coupon.discount_value) / 100;
+      const discountType = (coupon.discount_type || '').toUpperCase();
+      const discountVal = Number(coupon.discount_value) || 0;
+
+      if (discountType === 'PERCENTAGE') {
+        calculatedDiscount = (subtotal * discountVal) / 100;
       } else {
-        calculatedDiscount = coupon.discount_value;
+        calculatedDiscount = Math.min(subtotal, discountVal);
       }
 
       applyCoupon(coupon.code, calculatedDiscount);
       setCouponInput('');
     } catch (err) {
+      console.error('Error validating coupon:', err);
       setCouponError('Failed to validate coupon');
     } finally {
       setIsValidatingCoupon(false);

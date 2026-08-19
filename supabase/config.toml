@@ -1,0 +1,15 @@
+# DetailCorner Supabase Configuration
+
+project_id = "gllpmefitusfsuzrjgtf"
+
+[functions.payfast-itn]
+verify_jwt = false
+
+[functions.create-order]
+verify_jwt = true
+
+[functions.send-test-email]
+verify_jwt = true
+
+[functions.handle-webhook-notifications]
+verify_jwt = true

@@ -120,7 +120,46 @@ export function AdminInvoices() {
   };
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById('tax-invoice-sheet');
+    if (!printContent) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    iframe.style.opacity = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.write(`
+        <html>
+          <head>
+            <title>Tax Invoice - ${selectedInvoice?.order_number || ''}</title>
+            <style>
+              body { font-family: sans-serif; background-color: white; color: black; padding: 20px; margin: 0; }
+              @media print {
+                @page { margin: 15mm; }
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            ${printContent.outerHTML}
+          </body>
+        </html>
+      `);
+      doc.close();
+      
+      iframe.contentWindow?.focus();
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 2000);
+      }, 100);
+    }
   };
 
   const filteredOrders = orders.filter(o => {

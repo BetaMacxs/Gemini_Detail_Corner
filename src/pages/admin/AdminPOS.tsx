@@ -281,56 +281,112 @@ export function AdminPOS() {
     currentPage * itemsPerPage
   );
 
+  const handlePrint = () => {
+    const printContent = document.getElementById('print-receipt-area');
+    if (!printContent) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    iframe.style.opacity = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.write(`
+        <html>
+          <head>
+            <title>POS Receipt</title>
+            <style>
+              body { font-family: monospace; background-color: white; color: black; padding: 10px; margin: 0; width: 100%; max-width: 320px; }
+              @media print {
+                @page { margin: 0; size: 80mm auto; }
+                body { padding: 0; }
+                #print-receipt-area { box-shadow: none !important; margin: 0 !important; padding: 5mm !important; }
+              }
+            </style>
+          </head>
+          <body>
+            ${printContent.outerHTML}
+          </body>
+        </html>
+      `);
+      doc.close();
+      
+      iframe.contentWindow?.focus();
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 2000);
+      }, 100);
+    }
+  };
+
   return (
     <div className="container page-container">
-      <style>
-        {`
-          @media print {
-            body * { visibility: hidden; }
-            #print-receipt-area, #print-receipt-area * { visibility: visible; }
-            #print-receipt-area { position: absolute; left: 0; top: 0; margin: 0; padding: 10px; width: 300px; color: black; font-family: monospace; }
-            .no-print { display: none !important; }
-          }
-        `}
-      </style>
-
       {lastOrder && (
         <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="brand-card" style={{ backgroundColor: 'var(--bg)', padding: '2rem', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px', maxHeight: '90vh', overflowY: 'auto' }}>
             
-            <div id="print-receipt-area" style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '1.5rem', color: 'black' }}>
-              <h2 style={{ textAlign: 'center', marginBottom: '0.2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>{storeConfig.STORE_NAME || 'Detail Corner'}</h2>
-              <p style={{ textAlign: 'center', margin: '0 0 1rem 0', fontSize: '0.85rem' }}>POS Receipt</p>
+            <div id="print-receipt-area" style={{ backgroundColor: 'white', padding: '1.25rem', margin: '0 auto', width: '100%', maxWidth: '320px', color: 'black', fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.4', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+              <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase' }}>{storeConfig.STORE_NAME || 'Detail Corner'}</h2>
+                <div style={{ fontSize: '12px' }}>
+                  <p style={{ margin: 0 }}>{storeConfig.STORE_ADDR || 'Store Address'}</p>
+                  <p style={{ margin: 0 }}>{storeConfig.STORE_CITY || 'City'}, {storeConfig.STORE_POSTAL || '0000'}</p>
+                  <p style={{ margin: 0 }}>Tel: {storeConfig.CONTACT_PHONE || '000 000 0000'}</p>
+                  <p style={{ margin: 0 }}>{storeConfig.STORE_EMAIL || 'info@detailcorner.co.za'}</p>
+                </div>
+              </div>
               
-              <div style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>
+              <div style={{ borderBottom: '1px dashed black', paddingBottom: '0.5rem', marginBottom: '0.5rem', fontSize: '12px' }}>
+                <p style={{ margin: 0 }}>Sale #: {lastOrder.orderNum}</p>
                 <p style={{ margin: 0 }}>Date: {lastOrder.date}</p>
-                <p style={{ margin: 0 }}>Order #: {lastOrder.orderNum}</p>
+                <p style={{ margin: 0 }}>Cashier: {storeConfig.STORE_NAME || 'Admin'}</p>
                 <p style={{ margin: 0 }}>Customer: {lastOrder.customerName}</p>
               </div>
               
-              <div style={{ borderTop: '1px dashed black', borderBottom: '1px dashed black', padding: '0.75rem 0', margin: '1rem 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                  <span>Qty Item</span>
-                  <span>Price</span>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderBottom: '1px dashed black', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                  <span style={{ flex: 2, textAlign: 'left' }}>Item</span>
+                  <span style={{ flex: 1, textAlign: 'center' }}>Qty</span>
+                  <span style={{ flex: 1, textAlign: 'right' }}>Price</span>
                 </div>
                 {lastOrder.items.map((item, idx) => (
-                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.85rem' }}>
-                     <span>{item.quantity}x {item.product.name}</span>
-                     <span>{formatPrice(item.product.price * item.quantity)}</span>
+                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', alignItems: 'flex-start' }}>
+                     <span style={{ flex: 2, paddingRight: '0.5rem', textAlign: 'left', wordBreak: 'break-word' }}>{item.product.name}</span>
+                     <span style={{ flex: 1, textAlign: 'center' }}>{item.quantity}</span>
+                     <span style={{ flex: 1, textAlign: 'right' }}>{formatPrice(item.product.price * item.quantity)}</span>
                    </div>
                 ))}
               </div>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1rem' }}>
-                <span>TOTAL</span>
-                <span>{formatPrice(lastOrder.total)}</span>
+              <div style={{ borderTop: '1px dashed black', paddingTop: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                  <span>Subtotal:</span>
+                  <span>{formatPrice(lastOrder.subtotal)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', marginTop: '0.25rem' }}>
+                  <span>TOTAL:</span>
+                  <span>{formatPrice(lastOrder.total)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                  <span>Payment:</span>
+                  <span>{lastOrder.paymentMethod}</span>
+                </div>
               </div>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem' }}>Paid via: {lastOrder.paymentMethod}</p>
-              <p style={{ margin: '0', textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem' }}>Thank you for your business!</p>
+              
+              <div style={{ textAlign: 'center', borderTop: '1px dashed black', paddingTop: '1rem' }}>
+                <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>THANK YOU</p>
+                <p style={{ margin: 0, fontSize: '12px' }}>Please retain receipt for returns</p>
+              </div>
             </div>
             
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button onClick={() => window.print()} className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+              <button onClick={handlePrint} className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
                 <Printer size={16} /> Print Receipt
               </button>
               <button onClick={() => setLastOrder(null)} className="btn btn-outline" style={{ flex: 1 }}>Close</button>

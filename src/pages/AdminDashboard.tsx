@@ -4,6 +4,9 @@ import { storeConfig } from '../config/store';
 import { supabase } from '../lib/supabase';
 import { ShoppingCart, Package, AlertTriangle, Users, TrendingUp, FileText, Monitor, Megaphone, Mail, Image } from 'lucide-react';
 import { AdminNav } from '../components/AdminNav';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts';
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -14,7 +17,9 @@ export function AdminDashboard() {
     lowStockCount: 0,
     totalProductsCount: 0,
     messagesCount: 0,
-    lowStockItemNames: [] as string[]
+    lowStockItemNames: [] as string[],
+    monthlyRevenue: [] as any[],
+    categorySales: [] as any[]
   });
   const [loading, setLoading] = useState(true);
 
@@ -29,12 +34,46 @@ export function AdminDashboard() {
       let totalProds = 0;
       let msgCnt = 0;
       let lowStockNames: string[] = [];
+      let monthlyRevData: any[] = [];
+      let categoryRevData: any[] = [];
 
       const todayStr = new Date().toISOString().split('T')[0];
 
-      // 1. Orders
+      // 1. Orders and Revenue
       try {
-        const { data: dbOrders } = await supabase.from('orders').select('*');
+        const { data: dbOrders } = await supabase.from('orders').select('*, order_items(*)');
+        const { data: prods } = await supabase.from('products').select('*');
+        const { data: dbCategories } = await supabase.from('categories').select('*');
+
+        if (prods) {
+          totalProds = prods.length;
+          const lowList = prods.filter(p => (p.stock_quantity ?? 10) <= (p.low_stock_threshold ?? 5));
+          lowStockCnt = lowList.length;
+          lowStockNames = lowList.map(p => p.name);
+        }
+
+        // Prepare mappings for categories
+        const productToCat: Record<string, string> = {};
+        if (prods) {
+          prods.forEach(p => { productToCat[p.id] = p.category_id; });
+        }
+
+        const catIdToName: Record<string, string> = {};
+        if (dbCategories) {
+          dbCategories.forEach(c => { catIdToName[c.id] = c.name; });
+        }
+
+        const monthlyRevenue: Record<string, number> = {};
+        const categorySales: Record<string, number> = {};
+
+        // Initialize last 6 months
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const today = new Date();
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+          monthlyRevenue[`${monthNames[d.getMonth()]} ${d.getFullYear()}`] = 0;
+        }
+
         if (dbOrders) {
           totalOrders = dbOrders.length;
           dbOrders.forEach(o => {
@@ -47,31 +86,47 @@ export function AdminDashboard() {
             }
 
             if (isPaid && o.created_at) {
-              const oDate = new Date(o.created_at).toISOString().split('T')[0];
-              if (oDate === todayStr) {
+              const oDate = new Date(o.created_at);
+              const oDateStr = oDate.toISOString().split('T')[0];
+              if (oDateStr === todayStr) {
                 salesToday += val;
+              }
+
+              // Monthly Revenue aggregation
+              const monthKey = `${monthNames[oDate.getMonth()]} ${oDate.getFullYear()}`;
+              if (monthlyRevenue[monthKey] !== undefined) {
+                monthlyRevenue[monthKey] += val;
+              }
+
+              // Category Sales aggregation
+              if (o.order_items && Array.isArray(o.order_items)) {
+                o.order_items.forEach((item: any) => {
+                  const catId = productToCat[item.product_id];
+                  if (catId) {
+                    const itemTotal = Number(item.total || (item.quantity * item.unit_price) || 0);
+                    categorySales[catId] = (categorySales[catId] || 0) + itemTotal;
+                  }
+                });
               }
             }
           });
         }
+
+        monthlyRevData = Object.keys(monthlyRevenue).map(key => ({
+          name: key,
+          revenue: monthlyRevenue[key]
+        }));
+
+        categoryRevData = Object.keys(categorySales).map(catId => ({
+          name: catIdToName[catId] || 'Unknown',
+          value: categorySales[catId]
+        })).sort((a, b) => b.value - a.value).slice(0, 5); // Top 5 categories
+
       } catch (e) {
-        console.warn("Error fetching orders for dashboard:", e);
+        console.warn("Error fetching dashboard data:", e);
       }
 
-      // 2. Products & Low Stock
-      try {
-        const { data: prods } = await supabase.from('products').select('*');
-        if (prods) {
-          totalProds = prods.length;
-          const lowList = prods.filter(p => (p.stock_quantity ?? 10) <= (p.low_stock_threshold ?? 5));
-          lowStockCnt = lowList.length;
-          lowStockNames = lowList.map(p => p.name);
-        }
-      } catch (e) {
-        console.warn("Error fetching products for dashboard:", e);
-      }
-
-      // 3. Contact Messages
+      // 2. Contact Messages
       try {
         const { data: msgs } = await supabase.from('contact_messages').select('*');
         if (msgs) {
@@ -89,7 +144,9 @@ export function AdminDashboard() {
         lowStockCount: lowStockCnt,
         totalProductsCount: totalProds,
         messagesCount: msgCnt,
-        lowStockItemNames: lowStockNames
+        lowStockItemNames: lowStockNames,
+        monthlyRevenue: monthlyRevData,
+        categorySales: categoryRevData
       });
       setLoading(false);
     }
@@ -162,6 +219,80 @@ export function AdminDashboard() {
           </p>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Contact submissions</span>
         </div>
+      </div>
+
+      {/* Analytics Charts Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        
+        {/* Monthly Revenue Chart */}
+        <div className="brand-card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)' }}>Monthly Revenue</h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Past 6 months sales performance</p>
+          </div>
+          <div style={{ height: '300px', width: '100%' }}>
+            {stats.monthlyRevenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.monthlyRevenue} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={(val) => `R${val / 1000}k`} />
+                  <Tooltip 
+                    cursor={{ fill: 'var(--bg-secondary)', opacity: 0.4 }}
+                    contentStyle={{ backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                    formatter={(value: number) => [formatPrice(value), 'Revenue']}
+                  />
+                  <Bar dataKey="revenue" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>Loading data...</div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Categories Pie Chart */}
+        <div className="brand-card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)' }}>Top Categories</h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Revenue distribution by product category</p>
+          </div>
+          <div style={{ height: '300px', width: '100%' }}>
+            {stats.categorySales.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.categorySales}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {stats.categorySales.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                    formatter={(value: number) => [formatPrice(value), 'Revenue']}
+                  />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36} 
+                    iconType="circle"
+                    formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{value}</span>}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>No category data available</div>
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* Low Stock Alerts Section */}
@@ -264,3 +395,4 @@ export function AdminDashboard() {
     </div>
   );
 }
+

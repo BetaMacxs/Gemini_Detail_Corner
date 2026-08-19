@@ -91,7 +91,8 @@ export function Checkout() {
       const { data, error: functionError } = await supabase.functions.invoke('create-order', {
         body: {
           items,
-          customerData: formData
+          customerData: formData,
+          couponCode: couponCode || undefined
         }
       });
 

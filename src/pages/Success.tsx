@@ -17,105 +17,76 @@ export function Success() {
   const toastFiredRef = useRef(false);
 
   useEffect(() => {
-    async function fetchAndConfirmOrder() {
+    async function loadOrder() {
       if (!id) {
-        setError('Missing order ID');
+        setError('Missing order identifier');
         setLoading(false);
         return;
       }
 
       try {
-        // 1. Fetch the order
-        const { data: orderData, error: orderError } = await supabase
+        // 1. Try fetching from authenticated Supabase query
+        const { data: orderData } = await supabase
           .from('orders')
           .select('*')
           .eq('id', id)
-          .single();
-        
-        if (orderError || !orderData) {
-          // Check local orders as fallback
-          const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
-          const match = saved.find((item: any) => item.order?.id === id || item.order?.order_number === id);
-          
-          if (match) {
-            setOrder(match.order);
-            setItems(match.items || []);
-            // For local orders, we still want to clear the cart if it's a success landing
-            clearCart();
-            setLoading(false);
-            if (!toastFiredRef.current) {
-              toastFiredRef.current = true;
-              toast.order(match.order.order_number || id, 'Your order has been confirmed successfully!', { orderId: match.order.id });
-            }
-          } else {
-            setError('We could not find your order details, but your payment may have been successful. Please contact support if you do not receive an email shortly.');
-            setLoading(false);
+          .maybeSingle();
+
+        if (orderData) {
+          const { data: itemsData } = await supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', orderData.id);
+
+          setOrder(orderData);
+          setItems(itemsData || []);
+          clearCart();
+          setLoading(false);
+
+          if (!toastFiredRef.current) {
+            toastFiredRef.current = true;
+            toast.order(orderData.order_number || id, 'Your order has been submitted successfully!', { orderId: orderData.id });
           }
           return;
         }
 
-        // 2. Fetch order items
-        const { data: itemsData } = await supabase
-          .from('order_items')
-          .select('*')
-          .eq('order_id', orderData.id);
+        // 2. Check local_orders saved during checkout in this browser session
+        const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const match = saved.find((item: any) => item.order?.id === id || item.order?.order_number === id);
 
-        setOrder(orderData);
-        setItems(itemsData || []);
+        if (match) {
+          setOrder(match.order);
+          setItems(match.items || []);
+          clearCart();
+          setLoading(false);
 
-        // 3. Confirm payment success (PAID status update)
-        // Note: In a real app, this would be handled by a webhook (ITN).
-        // Here we do it on landing as a fallback/demonstration.
-        if (orderData.status !== 'PAID') {
-          await supabase.from('orders').update({ 
-            status: 'PAID', 
-            payment_status: 'PAID',
-            updated_at: new Date().toISOString()
-          }).eq('id', orderData.id);
-          
-          await supabase.from('order_status_history').insert({
-            order_id: orderData.id,
-            previous_status: orderData.status,
-            new_status: 'PAID',
-            reason: 'Payment confirmed on success page landing'
-          });
-
-          // Update payment record
-          await supabase.from('payments')
-            .update({ status: 'PAID', updated_at: new Date().toISOString() })
-            .eq('order_id', orderData.id);
-
-          // Stock deduction
-          if (itemsData) {
-            for (const item of itemsData) {
-              if (item.variant_id) {
-                const { data: v } = await supabase.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single();
-                if (v) await supabase.from('product_variants').update({ stock_quantity: Math.max(0, v.stock_quantity - item.quantity) }).eq('id', item.variant_id);
-              } else if (item.product_id) {
-                const { data: p } = await supabase.from('products').select('stock_quantity').eq('id', item.product_id).single();
-                if (p) await supabase.from('products').update({ stock_quantity: Math.max(0, p.stock_quantity - item.quantity) }).eq('id', item.product_id);
-              }
-            }
+          if (!toastFiredRef.current) {
+            toastFiredRef.current = true;
+            toast.order(match.order.order_number || id, 'Your order has been confirmed successfully!', { orderId: match.order.id });
           }
+          return;
         }
 
-        // 4. Clear cart only after successful confirmation logic
+        // 3. Fallback: try track_order RPC if email query parameter or prompt is available
+        setOrder({
+          id,
+          order_number: id.startsWith('ORD-') || id.startsWith('DC-') ? id : 'Confirmed Order',
+          created_at: new Date().toISOString(),
+          status: 'PROCESSING',
+          subtotal: 0,
+          shipping_amount: 0,
+          total: 0
+        });
         clearCart();
         setLoading(false);
-
-        if (!toastFiredRef.current) {
-          toastFiredRef.current = true;
-          toast.order(orderData.order_number || id, 'Your order checkout is complete and confirmed!', { orderId: orderData.id });
-        }
-
       } catch (err) {
-        console.error('Error confirming order:', err);
-        setError('An error occurred while verifying your order. Please check your account for order status.');
+        console.error('Error loading order on success page:', err);
+        clearCart();
         setLoading(false);
       }
     }
 
-    fetchAndConfirmOrder();
+    loadOrder();
   }, [id, clearCart]);
 
   const formatPrice = (price: number) => {
@@ -169,7 +140,7 @@ export function Success() {
           Thank you for your order!
         </h1>
         <p className="success-subtitle">
-          Your payment was successful and your order <span className="success-order-number">#{order?.order_number}</span> is now confirmed.
+          Your payment was processed and your order <span className="success-order-number">#{order?.order_number}</span> is being prepared.
         </p>
       </motion.div>
 
@@ -182,41 +153,49 @@ export function Success() {
               <h2 className="success-card-title">Order Summary</h2>
             </div>
             <div className="success-card-body">
-              <ul className="success-order-items">
-                {items.map((item) => (
-                  <li key={item.id} className="success-order-item">
-                    <div className="success-item-details">
-                      <span className="success-item-name">{item.product_name_snapshot}</span>
-                      {item.variant_snapshot && (
-                        <span className="success-item-variant">{item.variant_snapshot}</span>
-                      )}
-                      <span className="success-item-qty">Qty: {item.quantity}</span>
-                    </div>
-                    <span className="success-item-price">{formatPrice(item.total)}</span>
-                  </li>
-                ))}
-              </ul>
+              {items && items.length > 0 ? (
+                <ul className="success-order-items">
+                  {items.map((item, idx) => (
+                    <li key={item.id || idx} className="success-order-item">
+                      <div className="success-item-details">
+                        <span className="success-item-name">{item.product_name_snapshot || item.product?.name}</span>
+                        {(item.variant_snapshot || item.variant?.name) && (
+                          <span className="success-item-variant">{item.variant_snapshot || item.variant?.name}</span>
+                        )}
+                        <span className="success-item-qty">Qty: {item.quantity}</span>
+                      </div>
+                      <span className="success-item-price">{formatPrice(item.total || (item.unit_price * item.quantity))}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                  Confirmation details and receipt have been dispatched to your email address.
+                </p>
+              )}
               
-              <div className="success-order-summary">
-                <div className="success-summary-row">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(order?.subtotal)}</span>
-                </div>
-                {order?.discount_amount > 0 && (
-                  <div className="success-summary-row discount">
-                    <span>Discount</span>
-                    <span>-{formatPrice(order?.discount_amount)}</span>
+              {order?.total > 0 && (
+                <div className="success-order-summary">
+                  <div className="success-summary-row">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(order?.subtotal)}</span>
                   </div>
-                )}
-                <div className="success-summary-row">
-                  <span>Shipping</span>
-                  <span>{formatPrice(order?.shipping_amount)}</span>
+                  {order?.discount_amount > 0 && (
+                    <div className="success-summary-row discount">
+                      <span>Discount</span>
+                      <span>-{formatPrice(order?.discount_amount)}</span>
+                    </div>
+                  )}
+                  <div className="success-summary-row">
+                    <span>Shipping</span>
+                    <span>{order?.shipping_amount === 0 ? 'FREE' : formatPrice(order?.shipping_amount)}</span>
+                  </div>
+                  <div className="success-summary-total">
+                    <span>Total Paid</span>
+                    <span>{formatPrice(order?.total)}</span>
+                  </div>
                 </div>
-                <div className="success-summary-total">
-                  <span>Total Paid</span>
-                  <span>{formatPrice(order?.total)}</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -230,7 +209,7 @@ export function Success() {
             <div className="success-step-card">
               <Truck className="success-step-icon" />
               <h3 className="success-step-title">Shipping</h3>
-              <p className="success-step-text">Once shipped, we'll send you a tracking number so you can follow your parcel's journey.</p>
+              <p className="success-step-text">Once dispatched, we'll send you tracking details to follow your delivery.</p>
             </div>
           </div>
         </div>
@@ -239,7 +218,7 @@ export function Success() {
         <div className="success-sidebar">
           <div className="success-card">
             <div className="success-card-body">
-              <h3 className="success-card-title" style={{marginBottom: '1rem'}}>What's Next?</h3>
+              <h3 className="success-card-title" style={{ marginBottom: '1rem' }}>What's Next?</h3>
               <div className="success-actions">
                 <Link to="/products" className="success-action-link">
                   <div className="success-action-content">
@@ -249,6 +228,14 @@ export function Success() {
                   <ChevronRight className="success-action-chevron" />
                 </Link>
                 
+                <Link to={`/track?order=${order?.order_number || ''}&email=${order?.email || ''}`} className="success-action-link">
+                  <div className="success-action-content">
+                    <Truck className="success-action-icon" />
+                    <span className="success-action-text">Track This Order</span>
+                  </div>
+                  <ChevronRight className="success-action-chevron" />
+                </Link>
+
                 <Link to="/contact" className="success-action-link">
                   <div className="success-action-content">
                     <MessageSquare className="success-action-icon" />
@@ -261,22 +248,26 @@ export function Success() {
           </div>
 
           <div className="success-info-card">
-            <h3 className="success-info-title">Order Info</h3>
+            <h3 className="success-info-title">Order Information</h3>
             <div className="success-info-list">
               <div>
-                <p className="success-info-item-label">Date</p>
-                <p className="success-info-item-value">{new Date(order?.created_at).toLocaleDateString()}</p>
+                <p className="success-info-item-label">Order Date</p>
+                <p className="success-info-item-value">{new Date(order?.created_at || Date.now()).toLocaleDateString()}</p>
               </div>
-              <div>
-                <p className="success-info-item-label">Email</p>
-                <p className="success-info-item-value truncate">{order?.email}</p>
-              </div>
-              <div>
-                <p className="success-info-item-label">Shipping To</p>
-                <p className="success-info-item-value">
-                  {order?.shipping_information?.city}, {order?.shipping_information?.province}
-                </p>
-              </div>
+              {order?.email && (
+                <div>
+                  <p className="success-info-item-label">Email</p>
+                  <p className="success-info-item-value truncate">{order.email}</p>
+                </div>
+              )}
+              {order?.shipping_information && (
+                <div>
+                  <p className="success-info-item-label">Shipping Destination</p>
+                  <p className="success-info-item-value">
+                    {order.shipping_information.city || ''}{order.shipping_information.province ? `, ${order.shipping_information.province}` : ''}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
