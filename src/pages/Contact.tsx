@@ -160,48 +160,7 @@ export function Contact() {
                     <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Our Location</div>
                     <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>{storeConfig.STORE_ADDR}</div>
                   </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <div className="brand-card" style={{ padding: '1rem', borderRadius: 'var(--radius-lg)' }}>
-                    <Instagram size={24} color="var(--accent)" />
-                  </div>
-                  <div style={{ marginLeft: '1.5rem' }}>
-                    <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontStyle: 'italic' }}>Official Socials</div>
-                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                      <a
-                        href={storeConfig.SOCIAL_INSTAGRAM}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="social-link"
-                        aria-label="Instagram Profile"
-                        title="Instagram (@detail_corner2022)"
-                      >
-                        <Instagram size={18} />
-                      </a>
-                      <a
-                        href={storeConfig.SOCIAL_FACEBOOK}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="social-link"
-                        aria-label="Facebook Page"
-                        title="Facebook (Detail Corner)"
-                      >
-                        <Facebook size={18} />
-                      </a>
-                      <a
-                        href={storeConfig.SOCIAL_TIKTOK}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="social-link"
-                        aria-label="TikTok Account"
-                        title="TikTok (@detailcorner2022)"
-                      >
-                        <Music size={18} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                </div>                
               </div>
             </div>
 

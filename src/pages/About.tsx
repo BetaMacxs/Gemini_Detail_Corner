@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Shield, Zap, Sparkles, Award } from 'lucide-react';
+import { Flag, HeartHandshake, Lightbulb, BadgeCheck } from 'lucide-react';
 import { PiInstagramLogo, PiFacebookLogo, PiTiktokLogo } from 'react-icons/pi';
 import { storeConfig } from '../config/store';
 
@@ -51,10 +51,10 @@ export function About() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
               {[
-                { icon: Shield, title: "Protection", desc: "Military grade barriers for every surface." },
-                { icon: Zap, title: "Speed", desc: "Engineered for efficient application." },
-                { icon: Sparkles, title: "Gloss", desc: "Depth and clarity that turns heads." },
-                { icon: Award, title: "Quality", desc: "Tested in the harshest conditions." }
+                { icon: Flag, title: "Local Pride", desc: "Proudly South African. All our products are locally manufactured." },
+                { icon: HeartHandshake, title: "Customer Focused", desc: "Our customers are at the heart of everything we do. We\'re here to help you succeed." },
+                { icon: Lightbulb, title: "Innovation", desc: "Constantly improving and developing new solutions for car care challenges." },
+                { icon: BadgeCheck, title: "Quality", desc: "We never compromise on quality. Every product is tested to meet the highest standards." }
               ].map((item, i) => (
                 <div key={i} className="brand-card" style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)' }}>
                   <item.icon size={32} style={{ height: '2rem', width: '2rem', color: 'var(--accent)', marginBottom: '1.5rem' }} />

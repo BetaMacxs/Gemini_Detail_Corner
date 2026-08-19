@@ -20,7 +20,7 @@ export function Header() {
         <div className="navbar-content">
           <div className="navbar-brand">
             <Link to="/" className="navbar-brand-logo">
-              Detail<span style={{ color: 'var(--accent)' }}>Corner</span>
+              <img src="/logo3.png" alt="Detail Corner" width={110} height={58} />
             </Link>
           </div>
           

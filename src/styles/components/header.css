@@ -1,8 +1,9 @@
-.navbar {
+header.navbar {
   position: sticky;
   top: 0;
   z-index: 50;
   border-bottom: 1px solid var(--border);
+  background: rgba(245, 245, 245, 0.95);
 }
 
 .navbar-container {
@@ -53,7 +54,7 @@
   font-weight: 900; /* font-black */
   text-transform: uppercase;
   letter-spacing: 0.1em; /* tracking-widest */
-  color: var(--text-secondary);
+  color: var(--text-header);
   transition: all 0.3s;
 }
 
@@ -75,7 +76,7 @@
 
 .navbar-icon-btn {
   padding: 0.625rem; /* p-2.5 */
-  color: var(--text-secondary);
+  color: var(--text-header);
   border-radius: var(--radius-md); /* rounded-xl */
   transition: all 0.3s;
   position: relative;

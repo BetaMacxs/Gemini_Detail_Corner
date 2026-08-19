@@ -1,12 +1,6 @@
 import { Link } from 'react-router-dom';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Instagram, 
-  Facebook, 
-  Music
-} from 'lucide-react';
+import { Phone, Mail, MapPin } from 'lucide-react';
+import { PiInstagramLogo, PiFacebookLogo, PiTiktokLogo } from 'react-icons/pi';
 import { storeConfig } from '../config/store';
 
 export function Footer() {
@@ -19,7 +13,7 @@ export function Footer() {
               Detail <span style={{ color: 'var(--accent)' }}>Corner</span>
             </span>
             <p className="footer-brand-description">
-              Premium automotive detailing supplies for those who demand excellence. Engineered for the professional, accessible to the enthusiast.
+              Premium car care products for those who demand excellence. Engineered for the professional, accessible to the enthusiast.
             </p>
             <div className="social-links">
               <a 
@@ -30,7 +24,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on Instagram"
                 title="Instagram (@detail_corner2022)"
               >
-                <Instagram size={20} />
+                <PiInstagramLogo size={20} />
               </a>
               <a 
                 href={storeConfig.SOCIAL_FACEBOOK} 
@@ -40,7 +34,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on Facebook"
                 title="Facebook (Detail Corner)"
               >
-                <Facebook size={20} />
+                <PiFacebookLogo size={20} />
               </a>
               <a 
                 href={storeConfig.SOCIAL_TIKTOK} 
@@ -50,7 +44,7 @@ export function Footer() {
                 aria-label="Follow Detail Corner on TikTok"
                 title="TikTok (@detailcorner2022)"
               >
-                <Music size={20} />
+                <PiTiktokLogo size={20} />
               </a>
             </div>
           </div>
@@ -85,16 +79,16 @@ export function Footer() {
               <li className="footer-contact-item">
                 <span className="footer-contact-icon"><MapPin size={20} /></span>
                 <span className="footer-contact-text">
-                  Pacific Business Park,<br />Mitchell's Plain, Cape Town 7785
+                  {storeConfig.STORE_ADDR}
                 </span>
               </li>
               <li className="footer-contact-item center">
                 <span className="footer-contact-icon"><Phone size={20} /></span>
-                <span className="footer-contact-text">021 555 9876</span>
+                <span className="footer-contact-text">{storeConfig.CONTACT_PHONE}</span>
               </li>
               <li className="footer-contact-item center">
                 <span className="footer-contact-icon"><Mail size={20} /></span>
-                <span className="footer-contact-text">info@detailcorner.co.za</span>
+                <span className="footer-contact-text">{storeConfig.CONTACT_EMAIL}</span>
               </li>
             </ul>
           </div>
