@@ -67,7 +67,7 @@ This document tracks the completion status of the DetailCorner project. It serve
 - [x] **Authoritative Server Pricing**: `create-order` Edge Function calculates pricing, shipping thresholds, and coupon discounts on the server.
 - [x] **ITN Callback Handling**: Automated payment verification and atomic inventory deduction via `payfast-itn` Edge Function.
 - [x] **Coupons & Discounts**: Promo code system with percentage and fixed amount support.
-- [x] **Shipping Rules**: Tiered shipping costs with free shipping threshold (orders R1000+).
+- [x] **Shipping Rules**: Tiered shipping costs with free shipping threshold (orders R500+).
 
 ## 6. Notifications & Email
 - [x] **Order Confirmation**: Real transactional emails dispatched via Brevo in `payfast-itn` upon successful payment.

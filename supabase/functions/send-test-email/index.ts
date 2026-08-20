@@ -95,7 +95,7 @@ serve(async (req) => {
 
     // Generate mock data for template preview
     const mockOrder = {
-      order_number: "TEST-ORD-88291",
+      order_number: "DC-TEST-20260815-1",
       customer_name: user.user_metadata?.full_name || "Valued Customer",
       email: targetEmail,
       total: 1450.00,

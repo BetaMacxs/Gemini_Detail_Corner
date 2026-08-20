@@ -171,7 +171,7 @@ export function AdminAnnouncements() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="admin-form-group">
                 <label className="admin-label">Banner Title / Text</label>
-                <input type="text" required className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Free Shipping on orders over R1000!" />
+                <input type="text" required className="admin-input" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Free Shipping on orders over R500!" />
               </div>
 
               <div className="admin-form-group">

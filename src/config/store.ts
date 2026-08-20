@@ -19,5 +19,7 @@ export const storeConfig = {
   MERCHANT_SUPPORT: "support@detailcorner.co.za",
   SOCIAL_INSTAGRAM: "https://www.instagram.com/detail_corner2022/",
   SOCIAL_FACEBOOK: "https://www.facebook.com/p/Detail-Corner-61570508712171/",
-  SOCIAL_TIKTOK: "https://www.tiktok.com/@detailcorner2022/"
+  SOCIAL_TIKTOK: "https://www.tiktok.com/@detailcorner2022/",
+  FREE_SHIPPING_THRESHOLD: 500,
+  FLAT_SHIPPING_FEE: 100
 };

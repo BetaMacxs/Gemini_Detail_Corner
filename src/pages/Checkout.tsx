@@ -48,8 +48,8 @@ export function Checkout() {
 
   const subtotal = getSubtotal();
   const finalSubtotal = Math.max(0, subtotal - discountAmount);
-  const FREE_SHIPPING_THRESHOLD = 1000;
-  const shipping = finalSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 100;
+  const FREE_SHIPPING_THRESHOLD = storeConfig.FREE_SHIPPING_THRESHOLD || 500;
+  const shipping = finalSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : (storeConfig.FLAT_SHIPPING_FEE || 100);
   const total = finalSubtotal + shipping;
 
   useEffect(() => {
@@ -110,7 +110,10 @@ export function Checkout() {
       const { data, error: functionError } = await supabase.functions.invoke('create-order', {
         body: {
           items,
-          customerData: formData,
+          customerData: {
+            ...formData,
+            origin: window.location.origin
+          },
           couponCode: couponCode || undefined
         }
       });
@@ -561,7 +564,7 @@ export function Checkout() {
                 </div>
                 {shipping > 0 && (
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '-0.5rem', marginBottom: '0.5rem', textAlign: 'right' }}>
-                    Free shipping on orders over {formatPrice(1000)}
+                    Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}
                   </p>
                 )}
                 <div className="summary-cost-row total">

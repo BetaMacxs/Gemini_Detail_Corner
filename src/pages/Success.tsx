@@ -107,7 +107,7 @@ export function Success() {
         // 3. Fallback: try track_order RPC if email query parameter or prompt is available
         setOrder({
           id,
-          order_number: id.startsWith('ORD-') || id.startsWith('DC-') ? id : 'Confirmed Order',
+          order_number: id.startsWith('DC-') || id.startsWith('POS-') ? id : (id.length > 8 ? `DC-${id.slice(0, 8).toUpperCase()}` : id),
           created_at: new Date().toISOString(),
           status: 'PROCESSING',
           subtotal: 0,

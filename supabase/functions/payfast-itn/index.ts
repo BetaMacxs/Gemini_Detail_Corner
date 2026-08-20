@@ -121,39 +121,8 @@ serve(async (req) => {
     const order = orderWithItems || payment.orders
 
     if (newPaymentStatus === 'COMPLETED') {
-      // 1. Server-Side Atomic Inventory Deduction
-      if (orderWithItems && Array.isArray(orderWithItems.order_items)) {
-        for (const item of orderWithItems.order_items) {
-          const qty = Number(item.quantity) || 1
-
-          // Deduct from variant if present
-          if (item.variant_id) {
-            const { data: v } = await supabaseAdmin.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single()
-            if (v) {
-              const newQty = Math.max(0, (v.stock_quantity || 0) - qty)
-              await supabaseAdmin.from('product_variants').update({ stock_quantity: newQty }).eq('id', item.variant_id)
-            }
-          }
-
-          // Deduct from main product
-          if (item.product_id) {
-            const { data: p } = await supabaseAdmin.from('products').select('stock_quantity').eq('id', item.product_id).single()
-            if (p) {
-              const newQty = Math.max(0, (p.stock_quantity || 0) - qty)
-              await supabaseAdmin.from('products').update({ stock_quantity: newQty }).eq('id', item.product_id)
-            }
-          }
-
-          // Log inventory adjustment
-          await supabaseAdmin.from('inventory_logs').insert({
-            product_id: item.product_id,
-            variant_id: item.variant_id || null,
-            change_amount: -qty,
-            reason: `Order ${order.order_number} payment completed`,
-            reference_id: order.id
-          }).catch((err) => console.warn('Could not insert inventory log:', err))
-        }
-      }
+      // 1. Inventory Deduction is handled atomically by database trigger on_order_paid_deduct_stock
+      // when orders.status transitions from PENDING_PAYMENT to PROCESSING / PAID.
 
       // 2. Customer Confirmation Email
       try {

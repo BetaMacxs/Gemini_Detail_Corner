@@ -143,7 +143,7 @@ export function TrackOrder() {
                 id="orderNumber"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
-                placeholder="e.g. ORD-1723700000-123"
+                placeholder="e.g. DC-20260815-1"
                 className="input-field"
                 style={{ width: '100%', fontSize: '0.875rem', padding: '0.75rem' }}
                 required

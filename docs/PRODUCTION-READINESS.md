@@ -23,7 +23,7 @@
 
 4. **Checkout Coupon Integration (`src/pages/Checkout.tsx`)**:
    - **Fix:** Updated `Checkout.tsx` to include `couponCode` in the `create-order` Edge Function invocation payload.
-   - **Live Verification:** Invoked `create-order` with a valid coupon and items; verified authoritative server-side calculation of discounts, shipping thresholds (free over R1000), VAT, and PayFast form generation.
+   - **Live Verification:** Invoked `create-order` with a valid coupon and items; verified authoritative server-side calculation of discounts, shipping thresholds (free over R500), VAT, and PayFast form generation.
 
 ---
 
@@ -123,7 +123,7 @@
 ## 5. PayFast Payment Gateway Flow & ITN Lifecycle
 
 ### Detailed Audit & Fix Summary
-* **Edge Function `create-order`:** Implemented authoritative server-side pricing verification, active coupon validation, free shipping threshold (orders >= R1000 have R0 shipping, else R100), and guest checkout support.
+* **Edge Function `create-order`:** Implemented authoritative server-side pricing verification, active coupon validation, free shipping threshold (orders >= R500 have R0 shipping, else R100), and guest checkout support.
 * **Edge Function `payfast-itn`:** Implemented server-side MD5 signature verification, atomic inventory decrement upon payment completion, order status history logging, and Brevo customer confirmation email dispatch.
 * **Supabase Secrets:** Configured `PAYFAST_NOTIFY_URL` to `https://gllpmefitusfsuzrjgtf.supabase.co/functions/v1/payfast-itn`.
 * **Frontend `Success.tsx`:** Removed unauthorized client-side status mutations and stock loops; displays clean order confirmation and clears cart.
@@ -134,7 +134,7 @@
 | Server-Side Payment Verification | `/supabase/functions/payfast-itn/index.ts` | **PASS** | Validates MD5 hash and updates DB via service role. |
 | Client-Side Status Isolation | `/src/pages/Success.tsx` | **PASS** | Zero client-side status or stock mutations; clean view layer. |
 | Guest Checkout in `create-order` | `/supabase/functions/create-order/index.ts` | **PASS** | Authenticated and guest checkouts handled cleanly. |
-| Authoritative Pricing & Discounts | `/supabase/functions/create-order/index.ts` | **PASS** | Computes subtotal, coupon discount, and free shipping over R1000 server-side. |
+| Authoritative Pricing & Discounts | `/supabase/functions/create-order/index.ts` | **PASS** | Computes subtotal, coupon discount, and free shipping over R500 server-side. |
 | MD5 Signature Algorithms | `/supabase/functions/_shared/payfast.ts` | **PASS** | Complies with PayFast specifications. |
 
 ---

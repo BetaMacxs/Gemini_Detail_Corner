@@ -200,8 +200,8 @@ export function AdminPOS() {
       shipping_amount: 0,
       total,
       currency: storeConfig.STORE_CURRENCY || 'ZAR',
-      status: 'PAID',
-      payment_status: 'PAID',
+      status: 'PENDING_PAYMENT',
+      payment_status: 'PENDING',
       notes: `POS In-Store Checkout (${paymentMethod})`,
       created_at: new Date().toISOString()
     };
@@ -228,6 +228,13 @@ export function AdminPOS() {
 
         await supabase.from('order_items').insert(orderItemsList);
 
+        // Update order status to PAID - this triggers on_order_paid_deduct_stock atomically
+        await supabase.from('orders').update({
+          status: 'PAID',
+          payment_status: 'PAID',
+          updated_at: new Date().toISOString()
+        }).eq('id', dbOrder.id);
+
         await supabase.from('payments').insert({
           order_id: dbOrder.id,
           provider: 'POS',
@@ -238,7 +245,7 @@ export function AdminPOS() {
         
         await supabase.from('order_status_history').insert({
           order_id: dbOrder.id,
-          previous_status: null,
+          previous_status: 'PENDING_PAYMENT',
           new_status: 'PAID',
           reason: 'POS Sale Completed'
         });

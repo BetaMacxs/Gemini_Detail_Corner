@@ -13,18 +13,22 @@ serve(async (req) => {
 
     // Optional user authentication (allows guest checkout)
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const supabaseAuthClient = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-          { global: { headers: { Authorization: authHeader } } }
-        )
-        const { data: { user } } = await supabaseAuthClient.auth.getUser()
-        if (user) {
-          userId = user.id
+      const token = authHeader.replace('Bearer ', '').trim()
+      const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      if (token && token !== anonKey) {
+        try {
+          const supabaseAuthClient = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            anonKey,
+            { global: { headers: { Authorization: authHeader } } }
+          )
+          const { data: { user } } = await supabaseAuthClient.auth.getUser(token)
+          if (user) {
+            userId = user.id
+          }
+        } catch (authErr) {
+          console.warn('Guest checkout or invalid auth token:', authErr)
         }
-      } catch (authErr) {
-        console.warn('Guest checkout or invalid auth token:', authErr)
       }
     }
 
@@ -114,12 +118,27 @@ serve(async (req) => {
       }
     }
 
-    // Shipping calculation: Free over R1000
-    const shippingAmount = (subtotal - discountAmount) >= 1000 || subtotal >= 1000 ? 0 : 100
+    // Shipping calculation: Free over R500
+    const shippingAmount = (subtotal - discountAmount) >= 500 ? 0 : 100
     const total = Math.max(0, subtotal - discountAmount + shippingAmount)
     const taxAmount = Math.round(((total * 15) / 115) * 100) / 100 // 15% South African VAT
 
-    const orderNumber = `ORD-${Math.floor(Date.now() / 1000).toString()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
+    let orderNumber = ''
+    try {
+      const { data: genNumber, error: genError } = await supabaseAdmin.rpc('generate_order_number')
+      if (!genError && genNumber) {
+        orderNumber = genNumber
+      } else {
+        throw genError || new Error('No order number returned from database function')
+      }
+    } catch (_e) {
+      const today = new Date()
+      const dateStr = today.getFullYear().toString() +
+                      (today.getMonth() + 1).toString().padStart(2, '0') +
+                      today.getDate().toString().padStart(2, '0')
+      const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+      orderNumber = `DC-${dateStr}-${randomSuffix}`
+    }
 
     const { data: order, error: orderInsertError } = await supabaseAdmin.from('orders').insert({
       order_number: orderNumber,

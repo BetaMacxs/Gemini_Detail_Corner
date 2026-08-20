@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { storeConfig } from '../../config/store';
 import { ChevronDown, ChevronUp, Search, Calendar, Filter } from 'lucide-react';
 import { AdminNav } from '../../components/AdminNav';
+import { toast } from '../../features/toast/store';
 
 interface OrderItem {
   id: string;
@@ -70,7 +71,7 @@ export function AdminOrders() {
 
           combined.push({
             id: o.id,
-            order_number: o.order_number || `ORD-${o.id.slice(0, 8)}`,
+            order_number: o.order_number || (o.id ? `DC-${o.id.slice(0, 8).toUpperCase()}` : 'DC-ORDER'),
             created_at: o.created_at,
             customer_name: customerName,
             customer_email: o.email || o.shipping_information?.email || 'N/A',
@@ -90,7 +91,7 @@ export function AdminOrders() {
         if (l.order && !combined.some(c => c.id === l.order.id)) {
           combined.push({
             id: l.order.id,
-            order_number: l.order.order_number || `DC-GUEST-${l.order.id.slice(0, 6)}`,
+            order_number: l.order.order_number || (l.order.id ? `DC-${l.order.id.slice(0, 8).toUpperCase()}` : 'DC-ORDER'),
             created_at: l.order.created_at || new Date().toISOString(),
             customer_name: l.order.shipping_address?.firstName ? `${l.order.shipping_address.firstName} ${l.order.shipping_address.lastName || ''}` : 'Guest User',
             customer_email: l.order.shipping_address?.email || 'N/A',
@@ -140,7 +141,7 @@ export function AdminOrders() {
       
       if (newStatus === 'SHIPPED') {
         const order = orders.find(o => o.id === id);
-        alert(`DISPATCH NOTIFICATION SENT:\nEmail successfully sent to ${order?.email || 'customer'} for Order #${order?.order_number || id}\nStatus updated to SHIPPED.`);
+        toast.success('Dispatch Notification Sent', `Order #${order?.order_number || id} marked as SHIPPED. Customer notification dispatched.`);
       }
     } catch (e) {
       console.warn("Update status error:", e);
