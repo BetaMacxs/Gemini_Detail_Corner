@@ -8,17 +8,28 @@ import { supabase } from '../lib/supabase';
 import { AlertCircle } from 'lucide-react';
 import { trackEvent } from '../utils/analytics';
 
+function payfastUrlEncode(str: string): string {
+  return encodeURIComponent(str)
+    .replace(/%20/g, "+")
+    .replace(/!/g, "%21")
+    .replace(/'/g, "%27")
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29")
+    .replace(/\*/g, "%2A")
+    .replace(/~/g, "%7E");
+}
+
 function generatePayfastSignature(data: Record<string, string>, passphrase?: string): string {
   let pfOutput = '';
   for (const key in data) {
     if (Object.prototype.hasOwnProperty.call(data, key) && data[key] !== '') {
-      pfOutput += `${key}=${encodeURIComponent(data[key].trim()).replace(/%20/g, '+')}&`;
+      pfOutput += `${key}=${payfastUrlEncode(data[key].trim())}&`;
     }
   }
 
   let getString = pfOutput.slice(0, -1);
-  if (passphrase) {
-    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
+  if (passphrase && passphrase.trim() !== '') {
+    getString += `&passphrase=${payfastUrlEncode(passphrase.trim())}`;
   }
 
   return md5(getString);

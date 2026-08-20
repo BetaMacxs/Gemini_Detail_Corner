@@ -196,17 +196,19 @@ serve(async (req) => {
     const frontendBaseUrl = customerData.origin || Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'
 
     const payfastData: Record<string, string> = {
-      merchant_id: Deno.env.get('PAYFAST_MERCHANT_ID') || '',
-      merchant_key: Deno.env.get('PAYFAST_MERCHANT_KEY') || '',
+      merchant_id: Deno.env.get('PAYFAST_MERCHANT_ID') || '10046865',
+      merchant_key: Deno.env.get('PAYFAST_MERCHANT_KEY') || 'vpnx7bcoh2xa9',
       return_url: customerData.return_url || `${frontendBaseUrl}/checkout/success/${order.id}`,
       cancel_url: customerData.cancel_url || `${frontendBaseUrl}/checkout/cancel`,
       notify_url: Deno.env.get('PAYFAST_NOTIFY_URL') || 'https://gllpmefitusfsuzrjgtf.supabase.co/functions/v1/payfast-itn',
-      name_first: customerData.firstName,
-      name_last: customerData.lastName,
+      name_first: customerData.firstName || 'Customer',
+      name_last: customerData.lastName || 'User',
       email_address: customerData.email,
       m_payment_id: payment.id,
       amount: total.toFixed(2),
-      item_name: items.map(item => `${item.product.name} x${item.quantity}`).join(', ').substring(0, 100),
+      item_name: (items.map(item => `${item.product.name} x${item.quantity}`).join(', ') || `Order ${order.order_number}`).substring(0, 100),
+      custom_str1: order.order_number,
+      custom_str2: payment.id,
     }
 
     const signature = generatePayfastSignature(payfastData, Deno.env.get('PAYFAST_PASSPHRASE'))
