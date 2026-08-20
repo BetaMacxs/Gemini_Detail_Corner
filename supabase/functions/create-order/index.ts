@@ -206,7 +206,7 @@ serve(async (req) => {
       email_address: customerData.email,
       m_payment_id: payment.id,
       amount: total.toFixed(2),
-      item_name: `DetailCorner Order ${orderNumber}`,
+      item_name: items.map(item => `${item.product.name} x${item.quantity}`).join(', ').substring(0, 100),
     }
 
     const signature = generatePayfastSignature(payfastData, Deno.env.get('PAYFAST_PASSPHRASE'))

@@ -16,6 +16,7 @@ interface OrderItem {
   total: number;
   shipping_address?: string;
   payment_ref?: string;
+  tracking_number?: string;
   items?: { product_name: string; variant?: string; quantity: number; price: number }[];
   expanded?: boolean;
 }
@@ -80,6 +81,7 @@ export function AdminOrders() {
             total: Number(o.total || 0),
             shipping_address: shipAddr,
             payment_ref: `ord_${o.id.slice(0, 8)}`,
+            tracking_number: o.tracking_number || '',
             expanded: false,
             items: mappedItems
           });
@@ -121,6 +123,25 @@ export function AdminOrders() {
 
   const toggleExpand = (id: string) => {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, expanded: !o.expanded } : o));
+  };
+
+  const handleTrackingChange = (id: string, newTracking: string) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, tracking_number: newTracking } : o));
+  };
+
+  const saveTrackingNumber = async (id: string, trackingNumber: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ tracking_number: trackingNumber, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Tracking Updated', `Tracking number saved for order.`);
+    } catch (e: any) {
+      console.warn("Update tracking error:", e);
+      toast.error('Failed to update tracking', e.message || 'Could not save tracking number');
+    }
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -310,6 +331,26 @@ export function AdminOrders() {
                         <div style={{ color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Payment Details</div>
                         <div style={{ color: 'var(--text-primary)' }}>Ref: {order.payment_ref}</div>
                         <div style={{ color: 'var(--text-secondary)' }}>Payment Status: {order.payment_status}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '0.25rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Tracking Number</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                          <input
+                            type="text"
+                            placeholder="e.g. TCG1234567ZA"
+                            value={order.tracking_number || ''}
+                            onChange={(e) => handleTrackingChange(order.id, e.target.value)}
+                            className="input-field"
+                            style={{ padding: '0.4rem 0.6rem', fontSize: '0.8125rem' }}
+                          />
+                          <button
+                            onClick={() => saveTrackingNumber(order.id, order.tracking_number || '')}
+                            className="btn btn-outline"
+                            style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', whiteSpace: 'nowrap' }}
+                          >
+                            Save
+                          </button>
+                        </div>
                       </div>
                     </div>
 
