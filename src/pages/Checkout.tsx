@@ -284,17 +284,19 @@ export function Checkout() {
       }
 
       // Build PayFast redirect parameters
-      const merchantId = (import.meta.env.VITE_PAYFAST_MERCHANT_ID as string) || '10000100';
-      const merchantKey = (import.meta.env.VITE_PAYFAST_MERCHANT_KEY as string) || '46f0cd694581a';
+      const merchantId = (import.meta.env.VITE_PAYFAST_MERCHANT_ID as string) || '10046865';
+      const merchantKey = (import.meta.env.VITE_PAYFAST_MERCHANT_KEY as string) || 'vpnx7bcoh2xa9';
       const passphrase = (import.meta.env.VITE_PAYFAST_PASSPHRASE as string) || '';
       const isSandbox = (import.meta.env.VITE_PAYFAST_SANDBOX as string) !== 'false';
+      const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || 'https://gllpmefitusfsuzrjgtf.supabase.co';
+      const notifyUrl = (import.meta.env.VITE_PAYFAST_NOTIFY_URL as string) || `${supabaseUrl}/functions/v1/payfast-itn`;
 
       const payfastData: Record<string, string> = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
         return_url: `${window.location.origin}/checkout/success/${finalOrderId}`,
         cancel_url: `${window.location.origin}/checkout/cancel`,
-        notify_url: `${window.location.origin}/api/payfast-itn`,
+        notify_url: notifyUrl,
         name_first: formData.firstName || 'Customer',
         name_last: formData.lastName || 'User',
         email_address: formData.email,

@@ -68,6 +68,30 @@ export function TrackOrder() {
         console.warn('track_order RPC error:', rpcError);
       }
 
+      // 2. Fallback: Check local_orders in localStorage (useful for offline/session fallback)
+      try {
+        const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
+        const match = saved.find((item: any) => 
+          (item.order?.order_number?.toLowerCase() === targetOrderNumber.trim().toLowerCase() || item.order?.id === targetOrderNumber.trim()) &&
+          item.order?.email?.toLowerCase() === targetEmail.trim().toLowerCase()
+        );
+        if (match && match.order) {
+          setOrder(match.order);
+          setHistory([
+            {
+              id: 'local-init',
+              status: match.order.status || 'PENDING_PAYMENT',
+              created_at: match.order.created_at || new Date().toISOString(),
+              notes: 'Order placed'
+            }
+          ]);
+          setLoading(false);
+          return;
+        }
+      } catch (lsErr) {
+        console.warn('Local orders search error:', lsErr);
+      }
+
       throw new Error('No matching order found. Please verify your order number and email address.');
     } catch (err: any) {
       console.error('Tracking error:', err);
