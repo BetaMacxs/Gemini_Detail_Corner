@@ -89,7 +89,12 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
       }
 
       if (search) {
-        query = query.ilike('name', `%${search}%`);
+        // Use full text search for better typo tolerance across name and description
+        const searchTerm = search.split(' ').map(word => `${word}:*`).join(' | ');
+        query = query.textSearch('name', searchTerm, {
+          config: 'english',
+          type: 'websearch'
+        });
       }
 
       const { data, error } = await query;

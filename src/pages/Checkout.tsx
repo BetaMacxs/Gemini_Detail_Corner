@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { md5 } from 'js-md5';
 import { useCartStore } from '../features/cart/store';
@@ -6,6 +6,7 @@ import { useAuthStore } from '../features/auth/store';
 import { storeConfig } from '../config/store';
 import { supabase } from '../lib/supabase';
 import { AlertCircle } from 'lucide-react';
+import { trackEvent } from '../utils/analytics';
 
 function generatePayfastSignature(data: Record<string, string>, passphrase?: string): string {
   let pfOutput = '';
@@ -50,6 +51,24 @@ export function Checkout() {
   const FREE_SHIPPING_THRESHOLD = 1000;
   const shipping = finalSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 100;
   const total = finalSubtotal + shipping;
+
+  useEffect(() => {
+    if (items.length > 0) {
+      trackEvent({
+        name: 'begin_checkout',
+        payload: {
+          currency: 'ZAR',
+          value: total,
+          items: items.map(item => ({
+            item_id: item.variant ? item.variant.id : item.product.id,
+            item_name: item.product.name,
+            price: item.variant ? item.variant.price : item.product.price,
+            quantity: item.quantity
+          }))
+        }
+      });
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

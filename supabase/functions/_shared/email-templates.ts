@@ -110,6 +110,26 @@ export const getAdminNewOrderTemplate = (order: any) => getEmailLayout(`
   <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/admin/orders" class="btn">Manage Order</a>
 `);
 
+export const getAbandonedCartTemplate = (order: any) => getEmailLayout(`
+  <h2 style="margin-top: 0;">Did you forget something?</h2>
+  <p>Hi ${order.customer_name},</p>
+  <p>We noticed you left some premium detailing products in your cart. We've saved them for you, but they might sell out soon!</p>
+  
+  <p>You can complete your order securely using the link below:</p>
+  <br>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/checkout" class="btn">Return to Checkout</a>
+`);
+
+export const getReviewRequestTemplate = (order: any) => getEmailLayout(`
+  <h2 style="margin-top: 0;">How was your experience?</h2>
+  <p>Hi ${order.customer_name},</p>
+  <p>It's been a few days since your order <strong>${order.order_number}</strong> arrived! We hope you're loving the products.</p>
+  <p>Would you mind taking a quick minute to review your items? Your feedback helps us maintain the highest quality for the detailing community.</p>
+  
+  <br>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/account/orders/${order.id}" class="btn">Leave a Review</a>
+`);
+
 export const getLowStockTemplate = (product: any) => getEmailLayout(`
   <h2 style="margin-top: 0; color: #f59e0b;">Low Stock Alert</h2>
   <p>The following product is running low on inventory:</p>

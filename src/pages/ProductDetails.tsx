@@ -3,10 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProductsStore } from '../features/products/store';
 import { useCartStore } from '../features/cart/store';
+import { useWishlistStore } from '../features/wishlist/store';
 import { useAuthStore } from '../features/auth/store';
 import { toast } from '../features/toast/store';
 import { supabase } from '../lib/supabase';
-import { ShoppingBag, ChevronRight, Check, Star, User, ShieldCheck, Zap, Sparkles, MessageSquare, ArrowLeft, Plus, Minus, Info, Timer, Droplets, FlaskConical, Award } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Check, Star, User, ShieldCheck, Zap, Sparkles, MessageSquare, ArrowLeft, Plus, Minus, Info, Timer, Droplets, FlaskConical, Award, Heart, Eye } from 'lucide-react';
 
 // Helper to get icon for specifications
 const getSpecIcon = (key: string) => {
@@ -21,11 +22,15 @@ const getSpecIcon = (key: string) => {
 };
 import { storeConfig } from '../config/store';
 import { calculateProductRating } from '../utils/rating';
+import { ProductRating } from '../components/ProductRating';
+import { QuickViewModal } from '../components/QuickViewModal';
+import { ProductWithDetails } from '../types/database';
 
 export function ProductDetails() {
   const { slug } = useParams<{ slug: string }>();
   const { fetchProductBySlug } = useProductsStore();
   const { addItem } = useCartStore();
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
   const [product, setProduct] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,8 +45,34 @@ export function ProductDetails() {
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductWithDetails | null>(null);
 
   const [activeImage, setActiveImage] = useState<string | null>(null);
+
+  const toggleWishlist = () => {
+    if (!product) return;
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
+  const handleQuickAdd = (e: React.MouseEvent, p: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(p, undefined, 1);
+    const image = p.images && p.images.length > 0
+      ? (p.images[0].url || p.images[0].storage_path)
+      : `/${p.slug.toLowerCase()}.png`;
+
+    toast.cart(p.name, {
+      quantity: 1,
+      image,
+      priceFormatted: formatPrice(p.price),
+    });
+  };
 
   useEffect(() => {
     async function loadProduct() {
@@ -55,6 +86,26 @@ export function ProductDetails() {
         }
         if (data.images && data.images.length > 0) {
           setActiveImage(data.images[0].url || data.images[0].storage_path);
+        }
+
+        // Fetch related products (same category, excluding this one)
+        if (data.category_id) {
+          const { data: related } = await supabase
+            .from('products')
+            .select(`
+              *,
+              variants:product_variants(*),
+              images:product_images(*),
+              reviews:product_reviews(*)
+            `)
+            .eq('category_id', data.category_id)
+            .eq('active', true)
+            .neq('id', data.id)
+            .limit(4);
+          
+          if (related) {
+            setRelatedProducts(related);
+          }
         }
       } else {
         setError("Product not found");
@@ -340,10 +391,34 @@ export function ProductDetails() {
                     {hasReviews ? `${formattedRating} (${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'})` : 'No reviews yet'}
                   </a>
                 </div>
-                <h1 className="product-title">
-                  {product.name}
-                </h1>
-                <div className="product-price-large">
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+                  <h1 className="product-title" style={{ margin: 0 }}>
+                    {product.name}
+                  </h1>
+                  <button 
+                    onClick={toggleWishlist}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      cursor: 'pointer', 
+                      padding: '0.5rem', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      color: isInWishlist(product.id) ? 'var(--accent)' : 'var(--text-secondary)',
+                      transition: 'color 0.2s ease, transform 0.2s ease'
+                    }}
+                    title={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    <Heart 
+                      size={24} 
+                      style={{ 
+                        fill: isInWishlist(product.id) ? 'var(--accent)' : 'none' 
+                      }} 
+                    />
+                  </button>
+                </div>
+                <div className="product-price-large" style={{ marginTop: '0.5rem' }}>
                   {formatPrice(currentPrice)}
                 </div>
                 <p className="product-description-text">
@@ -510,7 +585,7 @@ export function ProductDetails() {
                   </div>
                   <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
                     {hasReviews 
-                      ? `Based on ${reviewCount} ${reviewCount === 1 ? 'Verified Purchase' : 'Verified Purchases'}`
+                      ? `Based on ${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'}`
                       : 'No customer reviews yet'
                     }
                   </div>
@@ -520,12 +595,8 @@ export function ProductDetails() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {!user ? (
                     <Link to="/login" className="btn btn-secondary" style={{ textAlign: 'center', display: 'block' }}>
-                      Log In to Review
+                      Sign in to review
                     </Link>
-                  ) : !hasPurchased ? (
-                    <div className="rating-status-badge">
-                      <p className="rating-status-text" style={{ color: 'var(--text-secondary)' }}>Verified Purchase Required to Review</p>
-                    </div>
                   ) : hasReviewed ? (
                     <div className="rating-status-badge">
                       <p className="rating-status-text" style={{ color: 'var(--accent)' }}>You've Shared Your Experience</p>
@@ -658,6 +729,127 @@ export function ProductDetails() {
           </div>
         </div>
       </section>
+
+      {/* Frequently Bought Together / Upselling */}
+      {relatedProducts.length > 0 && (
+        <section style={{ padding: '4rem 0', backgroundColor: 'var(--surface)' }}>
+          <div className="container">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '2rem', textAlign: 'center' }}>
+              You May Also <span style={{ color: 'var(--accent)' }}>Like</span>
+            </h2>
+            <div className="products-grid">
+              {relatedProducts.map(related => {
+                const activeVariants = related.variants?.filter((v: any) => v.active) || [];
+                const price = activeVariants.length > 0 ? activeVariants[0].price : related.price;
+                
+                const imgRecord = related.images?.find((img: any) => img.sort_order === 0) || related.images?.[0];
+                let image = `/${related.slug.toLowerCase()}.png`;
+                if (imgRecord) {
+                  if (imgRecord.url) {
+                    image = imgRecord.url;
+                  } else if (imgRecord.storage_path) {
+                    const baseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://gllpmefitusfsuzrjgtf.supabase.co';
+                    image = imgRecord.storage_path.startsWith('http') || imgRecord.storage_path.startsWith('/') 
+                      ? imgRecord.storage_path 
+                      : `${baseUrl}/storage/v1/object/public/products/${imgRecord.storage_path}`;
+                  }
+                }
+                
+                return (
+                  <motion.div
+                    key={related.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{ y: -8 }}
+                    className="product-card brand-card"
+                  >
+                    <Link to={`/product/${related.slug}`} className="block" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                      <div className="product-card-image-wrapper">
+                        <img 
+                          src={image} 
+                          alt={related.name} 
+                          className="product-card-image"
+                          onError={(e) => {
+                            e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+                            e.currentTarget.style.height = '100%';
+                            e.currentTarget.style.width = '100%';
+                            e.currentTarget.style.objectFit = 'contain';
+                            e.currentTarget.style.padding = '3rem';
+                            e.currentTarget.style.opacity = '0.5';
+                          }}
+                        />
+                        <div className="product-card-overlay"></div>
+                        
+                        <div className="product-card-quick-actions">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setQuickViewProduct(related);
+                            }}
+                            className="quickview-card-trigger-btn"
+                            aria-label={`Quick view ${related.name}`}
+                          >
+                            <Eye size={14} />
+                            <span>Quick View</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="product-card-info">
+                        <ProductRating reviews={related.reviews} size={12} className="product-rating" noReviewsText="No reviews" />
+                        <h3 className="product-card-name">{related.name}</h3>
+                        <p className="product-card-short-desc">
+                          {related.short_description || "Professional grade detailing product for superior results."}
+                        </p>
+                        <div className="product-card-footer">
+                          <div className="product-card-footer-price">
+                            {formatPrice(price)}
+                          </div>
+                          <div className="product-card-footer-actions">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setQuickViewProduct(related);
+                              }}
+                              className="quickview-icon-btn"
+                              title="Quick View"
+                              aria-label={`Quick view ${related.name}`}
+                            >
+                              <Eye size={18} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleQuickAdd(e, related)}
+                              className="add-to-cart-quick-btn"
+                              title="Add to Cart"
+                              aria-label={`Add ${related.name} to Cart`}
+                              style={{ border: 'none', cursor: 'pointer' }}
+                            >
+                              <ShoppingBag size={18} style={{ color: '#ffffff' }} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={quickViewProduct !== null}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 }

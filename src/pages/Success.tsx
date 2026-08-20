@@ -6,6 +6,7 @@ import { storeConfig } from '../config/store';
 import { useCartStore } from '../features/cart/store';
 import { toast } from '../features/toast/store';
 import { motion } from 'motion/react';
+import { trackEvent } from '../utils/analytics';
 
 export function Success() {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,24 @@ export function Success() {
           if (!toastFiredRef.current) {
             toastFiredRef.current = true;
             toast.order(orderData.order_number || id, 'Your order has been submitted successfully!', { orderId: orderData.id });
+            
+            // Track successful purchase
+            try {
+              trackEvent({
+                name: 'purchase',
+                payload: {
+                  transaction_id: orderData.order_number || orderData.id,
+                  currency: 'ZAR',
+                  value: orderData.total,
+                  items: (itemsData || []).map((item: any) => ({
+                    item_id: item.variant_id || item.product_id,
+                    item_name: item.product_name_snapshot,
+                    price: item.unit_price,
+                    quantity: item.quantity
+                  }))
+                }
+              });
+            } catch (e) {}
           }
           return;
         }
@@ -63,6 +82,24 @@ export function Success() {
           if (!toastFiredRef.current) {
             toastFiredRef.current = true;
             toast.order(match.order.order_number || id, 'Your order has been confirmed successfully!', { orderId: match.order.id });
+            
+            // Track successful purchase (local fallback)
+            try {
+              trackEvent({
+                name: 'purchase',
+                payload: {
+                  transaction_id: match.order.order_number || match.order.id,
+                  currency: 'ZAR',
+                  value: match.order.total,
+                  items: (match.items || []).map((item: any) => ({
+                    item_id: item.variant_id || item.product_id,
+                    item_name: item.product_name_snapshot,
+                    price: item.unit_price,
+                    quantity: item.quantity
+                  }))
+                }
+              });
+            } catch (e) {}
           }
           return;
         }

@@ -95,7 +95,24 @@ This document tracks the completion status of the DetailCorner project. It serve
 
 ---
 
-## Remaining Manual / Live Verification Steps
+## Phase 1: Pre-Launch Blockers (Current Focus)
+- [x] **SEO & Meta Data**: Added production `<title>`, Meta tags, OpenGraph data, `robots.txt`, and `sitemap.xml`.
+- [x] **Netlify Deployment Configuration**: Added `netlify.toml` with SPA fallback rules (`/* /index.html 200`) and build commands.
+- [x] **Configuration & Secrets Audit**: Verified that PayFast `PAYFAST_SANDBOX`, `PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, and `PAYFAST_PASSPHRASE` are correctly read from environment variables inside `create-order` and `payfast-itn`.
+- [x] **Final Legal & POPIA Review**: Verify T&Cs, Privacy Policy, and Return Policy explicitly cover South African consumer rights.
+
+## Phase 2: Post-Launch & Core Business Ops (Current Focus)
+- [x] **Marketing Analytics & Tracking**: Added Google Analytics 4 (GA4) and Meta Pixel standard integration into `index.html` and implemented a robust event tracking utility for SPA routing and e-commerce events (`add_to_cart`, `begin_checkout`, `purchase`).
+- [x] **Abandoned Cart Recovery**: Implemented a `recover-carts` Edge Function designed to query abandoned pending checkouts (>2 hours old) and dispatch automated recovery emails via Brevo using a customized template.
+- [x] **Automated Database Backups**: Enable Supabase PITR (Point-in-Time Recovery). *(Note: This requires upgrading the Supabase project to the Pro plan via the Supabase Dashboard -> Database -> Backups).*
+
+## Phase 3: Growth & Enhancements (Complete)
+- [x] **Automated Customer Reviews**: Created a new `request-reviews` Edge Function that emails customers to leave a review 5 days after delivery.
+- [x] **Upselling & Cross-Selling**: Added "You May Also Like" product recommendations to `ProductDetails` pulling related items.
+- [x] **Wishlist Functionality**: Implemented a local Wishlist via Zustand `useWishlistStore` with a dedicated `/wishlist` page and global header icon.
+- [x] **Advanced Search Engine**: Switched product search logic to use Supabase `textSearch` for typo tolerance and native web search query processing.
+
+---
 
 Before opening to public traffic, perform the following live verification tests with real payment credentials:
 

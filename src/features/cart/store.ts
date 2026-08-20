@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ProductWithDetails, ProductVariant } from '../../types/database';
+import { trackEvent } from '../../utils/analytics';
 
 export interface CartItem {
   id: string; // unique id for cart item (could be product.id + variant.id)
@@ -39,6 +40,26 @@ export const useCartStore = create<CartState>()(
       },
       
       addItem: (product, variant, quantity) => {
+        // Track Add to Cart Event
+        try {
+          const price = variant ? variant.price : product.price;
+          trackEvent({
+            name: 'add_to_cart',
+            payload: {
+              currency: 'ZAR',
+              value: price * quantity,
+              items: [{
+                item_id: variant ? variant.id : product.id,
+                item_name: product.name,
+                price: price,
+                quantity: quantity
+              }]
+            }
+          });
+        } catch (e) {
+          // ignore tracking errors
+        }
+
         set((state) => {
           const itemId = variant ? `${product.id}-${variant.id}` : product.id;
           const existingItemIndex = state.items.findIndex(item => item.id === itemId);

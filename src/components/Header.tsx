@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Menu, Shield, Search, X } from 'lucide-react';
+import { ShoppingCart, User, Menu, Shield, Search, X, Heart } from 'lucide-react';
 import { PiInstagramLogo, PiFacebookLogo, PiTiktokLogo } from 'react-icons/pi';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthStore } from '../features/auth/store';
 import { useCartStore } from '../features/cart/store';
+import { useWishlistStore } from '../features/wishlist/store';
 import { storeConfig } from '../config/store';
 
 export function Header() {
@@ -12,6 +13,7 @@ export function Header() {
   const cartItemCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0)
   );
+  const wishlistCount = useWishlistStore(state => state.items.length);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -46,6 +48,24 @@ export function Header() {
 
           <div className="navbar-actions">
             <div className="navbar-actions-group">
+              <Link to="/wishlist" className="navbar-icon-btn" aria-label={`Wishlist with ${wishlistCount} items`}>
+                <Heart className="h-5 w-5" />
+                <AnimatePresence>
+                  {wishlistCount > 0 && (
+                    <motion.span
+                      key="wishlist-count-badge"
+                      initial={{ scale: 0.3, opacity: 0 }}
+                      animate={{ scale: [1.3, 1], opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="cart-badge"
+                    >
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+
               {user ? (
                 <div className="navbar-actions-group">
                   {profile?.is_admin && (
@@ -122,6 +142,31 @@ export function Header() {
                 </Link>
               ))}
 
+              <Link 
+                to="/wishlist" 
+                className="navbar-mobile-link" 
+                onClick={() => setIsMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                  <Heart className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                  Wishlist
+                </span>
+                {wishlistCount > 0 && (
+                  <span
+                    style={{
+                      backgroundColor: 'var(--accent)',
+                      color: '#ffffff',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      padding: '0.2rem 0.65rem',
+                      borderRadius: '9999px',
+                    }}
+                  >
+                    {wishlistCount} {wishlistCount === 1 ? 'item' : 'items'}
+                  </span>
+                )}
+              </Link>
               <Link 
                 to="/cart" 
                 className="navbar-mobile-link" 

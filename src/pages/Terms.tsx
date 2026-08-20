@@ -56,7 +56,14 @@ export function Terms() {
           </section>
 
           <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '1rem' }}>4. Governing Law</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '1rem' }}>4. Consumer Protection Act</h2>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
+              These terms are compliant with the South African Consumer Protection Act (CPA). Your statutory rights regarding defective goods and cooling-off periods apply to all purchases.
+            </p>
+          </section>
+
+          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '1rem' }}>5. Governing Law</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
               These terms are governed by the laws of the Republic of South Africa. Any disputes shall be settled in the competent courts of Cape Town.
             </p>

@@ -13,3 +13,9 @@ verify_jwt = true
 
 [functions.handle-webhook-notifications]
 verify_jwt = true
+
+[functions.recover-carts]
+verify_jwt = false
+
+[functions.request-reviews]
+verify_jwt = false

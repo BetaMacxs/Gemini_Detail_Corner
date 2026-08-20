@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
@@ -21,6 +21,7 @@ import { AdminCustomers } from './pages/admin/AdminCustomers';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
 import { useAuthStore } from './features/auth/store';
+import { usePageTracking } from './utils/analytics';
 
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
@@ -29,6 +30,7 @@ import { Gallery } from './pages/Gallery';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Terms } from './pages/Terms';
 import { Returns } from './pages/Returns';
+import { Wishlist } from './pages/Wishlist';
 
 import { AdminInvoices } from './pages/admin/AdminInvoices';
 import { AdminPOS } from './pages/admin/AdminPOS';
@@ -40,15 +42,17 @@ import { TrackOrder } from "./pages/TrackOrder";
 import { Success } from './pages/Success';
 import { Cancel } from './pages/Cancel';
 
-export default function App() {
+// Wrapper component to use hooks that require Router context
+function AppContent() {
   const initialize = useAuthStore(state => state.initialize);
+  usePageTracking();
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
@@ -82,6 +86,7 @@ export default function App() {
           <Route path="/account/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
           
           <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/success/:id" element={<Success />} />
           <Route path="/checkout/cancel" element={<Cancel />} />
@@ -102,6 +107,14 @@ export default function App() {
           <Route path="/admin/*" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
         </Route>
       </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
