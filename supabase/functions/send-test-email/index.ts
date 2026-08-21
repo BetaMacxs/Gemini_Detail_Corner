@@ -6,7 +6,8 @@ import {
   getPaymentFailureTemplate, 
   getShippingUpdateTemplate, 
   getAdminNewOrderTemplate, 
-  getLowStockTemplate 
+  getLowStockTemplate,
+  getAdminReplyTemplate
 } from "../_shared/email-templates.ts"
 
 const corsHeaders = {
@@ -84,7 +85,7 @@ serve(async (req) => {
 
     // Parse and validate payload
     const body = await req.json().catch(() => ({}));
-    const { templateType, targetEmail } = body;
+    const { templateType, targetEmail, order, customerName, subject: customSubject, replyText, originalMessage, isTest } = body;
 
     if (!templateType || !targetEmail) {
       return new Response(JSON.stringify({ error: 'Bad Request: Missing templateType or targetEmail' }), {
@@ -93,10 +94,9 @@ serve(async (req) => {
       });
     }
 
-    // Generate mock data for template preview
-    const mockOrder = {
+    const orderData = order || {
       order_number: "DC-TEST-20260815-1",
-      customer_name: user.user_metadata?.full_name || "Valued Customer",
+      customer_name: customerName || user.user_metadata?.full_name || "Valued Customer",
       email: targetEmail,
       total: 1450.00,
       status: "PROCESSING",
@@ -111,29 +111,53 @@ serve(async (req) => {
     };
 
     let htmlContent = "";
-    let subject = "[Detail Corner] Test Notification";
+    let subject = customSubject || "[Detail Corner] Notification";
+    const recipientName = customerName || orderData.customer_name || "Valued Customer";
 
     switch (templateType) {
+      case 'ADMIN_REPLY':
+        if (!replyText) {
+          return new Response(JSON.stringify({ error: 'Missing replyText for ADMIN_REPLY' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          });
+        }
+        subject = customSubject ? (customSubject.toLowerCase().startsWith('re:') ? customSubject : `Re: ${customSubject}`) : 'Regarding your inquiry at Detail Corner';
+        htmlContent = getAdminReplyTemplate({
+          customerName: recipientName,
+          replyText,
+          originalMessage,
+          subject: customSubject
+        });
+        break;
+
       case 'ORDER_CONFIRMATION':
-        htmlContent = getOrderConfirmationTemplate(mockOrder);
-        subject = `[TEST] Order Confirmed - ${mockOrder.order_number}`;
+        htmlContent = getOrderConfirmationTemplate(orderData);
+        subject = isTest ? `[TEST] Order Confirmed - ${orderData.order_number}` : `Order Confirmation: #${orderData.order_number}`;
         break;
+
       case 'PAYMENT_FAILURE':
-        htmlContent = getPaymentFailureTemplate(mockOrder);
-        subject = `[TEST] Payment Failed - ${mockOrder.order_number}`;
+        htmlContent = getPaymentFailureTemplate(orderData);
+        subject = isTest ? `[TEST] Payment Failed - ${orderData.order_number}` : `Payment Update for Order #${orderData.order_number}`;
         break;
+
       case 'SHIPPING_UPDATE':
-        htmlContent = getShippingUpdateTemplate(mockOrder);
-        subject = `[TEST] Your order ${mockOrder.order_number} has shipped!`;
+        htmlContent = getShippingUpdateTemplate(orderData);
+        subject = isTest 
+          ? `[TEST] Your order ${orderData.order_number} has shipped!` 
+          : `Your Detail Corner order ${orderData.order_number} has shipped!`;
         break;
+
       case 'ADMIN_NEW_ORDER':
-        htmlContent = getAdminNewOrderTemplate(mockOrder);
-        subject = `[TEST] Admin Alert: New Order ${mockOrder.order_number}`;
+        htmlContent = getAdminNewOrderTemplate(orderData);
+        subject = isTest ? `[TEST] Admin Alert: New Order ${orderData.order_number}` : `New Order Received: #${orderData.order_number}`;
         break;
+
       case 'LOW_STOCK':
         htmlContent = getLowStockTemplate(mockProduct);
-        subject = `[TEST] Low Stock Alert: ${mockProduct.name}`;
+        subject = isTest ? `[TEST] Low Stock Alert: ${mockProduct.name}` : `Low Stock Alert: ${mockProduct.name}`;
         break;
+
       default:
         return new Response(JSON.stringify({ error: `Invalid template type: ${templateType}` }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -143,7 +167,7 @@ serve(async (req) => {
 
     // Dispatch email via Brevo
     const emailResult = await sendBrevoEmail({
-      to: [{ email: targetEmail, name: mockOrder.customer_name }],
+      to: [{ email: targetEmail, name: recipientName }],
       subject,
       htmlContent
     });
@@ -158,7 +182,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: `Test email (${templateType}) sent successfully to ${targetEmail}`,
+      message: `Email (${templateType}) sent successfully to ${targetEmail}`,
       details: emailResult.data
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

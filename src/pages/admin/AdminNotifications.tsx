@@ -316,7 +316,8 @@ export function AdminNotifications() {
               { id: 'PAYMENT_FAILURE', label: 'Payment Failed', description: 'Sent to customers when payment fails.' },
               { id: 'SHIPPING_UPDATE', label: 'Order Shipped', description: 'Sent to customers when tracking is added.' },
               { id: 'ADMIN_NEW_ORDER', label: 'Admin: New Order', description: 'Sent to store admin for new sales.' },
-              { id: 'LOW_STOCK', label: 'Admin: Low Stock', description: 'Sent to store admin when stock is low.' }
+              { id: 'LOW_STOCK', label: 'Admin: Low Stock', description: 'Sent to store admin when stock is low.' },
+              { id: 'ADMIN_REPLY', label: 'Customer Support Reply', description: 'Sent to customers when replying to inquiries.' }
             ].map((template) => (
               <div 
                 key={template.id}

@@ -7,7 +7,20 @@ The React SPA is deployed on Netlify with full SPA client-side routing support (
 ### Netlify Build Settings
 *   **Build command**: `npm run build`
 *   **Publish directory**: `dist`
-*   **Node Version**: 18+ or 20+
+*   **Node Version**: 20 (Configured in `netlify.toml`)
+
+### SPA Routing & Redirects (`netlify.toml` & `_redirects`)
+Direct navigation or refreshing deep routes (e.g. `/shop`, `/products/clear-tyre-shine`, `/track-order`, `/checkout`, `/admin`) is handled via SPA rewrite rules:
+```
+/*    /index.html   200
+```
+HTML files are delivered with `Cache-Control: public, max-age=0, must-revalidate` so that every new deployment immediately delivers the latest hashed JS/CSS bundles rather than stale cached chunks.
+
+### Custom Domain DNS & 404 Resolution (`detailcorner.co.za`)
+If using the custom apex domain alongside `detailcorner.netlify.app`:
+*   **Apex DNS (A record)**: Point `detailcorner.co.za` to Netlify load balancer `75.2.60.5`
+*   **Subdomain (CNAME record)**: Point `www.detailcorner.co.za` to `detailcorner.netlify.app`
+*   **Primary Domain**: If `detailcorner.co.za` is set as Primary in Netlify, ensure DNS has fully propagated. Netlify preview deployments bypass custom domain redirects, whereas production forwards requests according to primary domain rules.
 
 ### Required Netlify Environment Variables
 Set the following under **Site configuration > Environment variables** in your Netlify dashboard:

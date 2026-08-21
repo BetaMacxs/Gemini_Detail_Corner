@@ -41,6 +41,7 @@ import { AdminNotifications } from './pages/admin/AdminNotifications';
 import { TrackOrder } from "./pages/TrackOrder";
 import { Success } from './pages/Success';
 import { Cancel } from './pages/Cancel';
+import { NotFound } from './pages/NotFound';
 
 // Wrapper component to use hooks that require Router context
 function AppContent() {
@@ -58,17 +59,25 @@ function AppContent() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/category/:slug" element={<Shop />} />
           <Route path="/track" element={<TrackOrder />} />
+          <Route path="/track-order" element={<TrackOrder />} />
+          <Route path="/order-tracking" element={<TrackOrder />} />
+          <Route path="/orders/track" element={<TrackOrder />} />
           <Route path="/products" element={<Shop />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
+          <Route path="/products/:slug" element={<ProductDetails />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/terms-of-service" element={<Terms />} />
           <Route path="/returns" element={<Returns />} />
+          <Route path="/refund-policy" element={<Returns />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -82,14 +91,20 @@ function AppContent() {
             } 
           />
           <Route path="/account/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-          <Route path="/account/orders/:id" element={<OrderDetails />} />
+          <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="/account/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+          <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
           <Route path="/account/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
           
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/success/:id" element={<Success />} />
+          <Route path="/checkout/success" element={<Success />} />
+          <Route path="/order-success/:id" element={<Success />} />
+          <Route path="/success/:id" element={<Success />} />
           <Route path="/checkout/cancel" element={<Cancel />} />
+          <Route path="/cancel" element={<Cancel />} />
 
           {/* Admin Protected Routes inside MainLayout */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
@@ -105,6 +120,9 @@ function AppContent() {
           <Route path="/admin/notifications" element={<ProtectedRoute requireAdmin><AdminNotifications /></ProtectedRoute>} />
           <Route path="/admin/customers" element={<ProtectedRoute requireAdmin><AdminCustomers /></ProtectedRoute>} />
           <Route path="/admin/*" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+
+          {/* Global 404 Catch-All Route */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </>

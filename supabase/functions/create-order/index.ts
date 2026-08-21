@@ -124,8 +124,11 @@ serve(async (req) => {
     const taxAmount = Math.round(((total * 15) / 115) * 100) / 100 // 15% South African VAT
 
     let orderNumber = ''
+    const isGuest = !userId || userId === 'guest' || typeof userId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+
     try {
-      const { data: genNumber, error: genError } = await supabaseAdmin.rpc('generate_order_number')
+      const rpcName = isGuest ? 'generate_guest_order_number' : 'generate_order_number'
+      const { data: genNumber, error: genError } = await supabaseAdmin.rpc(rpcName)
       if (!genError && genNumber) {
         orderNumber = genNumber
       } else {
@@ -136,8 +139,8 @@ serve(async (req) => {
       const dateStr = today.getFullYear().toString() +
                       (today.getMonth() + 1).toString().padStart(2, '0') +
                       today.getDate().toString().padStart(2, '0')
-      const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
-      orderNumber = `DC-${dateStr}-${randomSuffix}`
+      const randomSuffix = Math.floor(Math.random() * 900 + 100).toString()
+      orderNumber = isGuest ? `DC-GUEST-${dateStr}-${randomSuffix}` : `DC-${dateStr}-${randomSuffix}`
     }
 
     const { data: order, error: orderInsertError } = await supabaseAdmin.from('orders').insert({

@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { storeConfig } from '../../config/store';
-import { ChevronDown, ChevronUp, Search, Calendar, Filter } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, Mail, CheckCircle2, RefreshCw } from 'lucide-react';
 import { AdminNav } from '../../components/AdminNav';
 import { toast } from '../../features/toast/store';
+
+const ORDER_STATUSES = [
+  'PENDING_PAYMENT',
+  'PAID',
+  'PROCESSING',
+  'PACKED',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED'
+];
 
 interface OrderItem {
   id: string;
@@ -14,39 +24,65 @@ interface OrderItem {
   status: string;
   payment_status: string;
   total: number;
-  shipping_address?: string;
-  payment_ref?: string;
+  shipping_address: string;
+  payment_ref: string;
   tracking_number?: string;
-  items?: { product_name: string; variant?: string; quantity: number; price: number }[];
   expanded?: boolean;
+  items?: any[];
 }
 
 export function AdminOrders() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
   const loadOrders = async () => {
     setLoading(true);
     try {
       const { data: dbOrders, error } = await supabase
         .from('orders')
-        .select('*, order_items(*)')
+        .select(`
+          id,
+          order_number,
+          created_at,
+          customer_name,
+          email,
+          status,
+          payment_status,
+          total,
+          subtotal,
+          shipping_amount,
+          shipping_information,
+          billing_information,
+          tracking_number,
+          order_items (
+            product_name_snapshot,
+            variant_snapshot,
+            quantity,
+            unit_price
+          )
+        `)
         .order('created_at', { ascending: false });
 
       let localOrders: any[] = [];
       try {
         localOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Could not read local_orders fallback:", e);
+      }
 
       const combined: OrderItem[] = [];
 
-      if (!error && dbOrders && dbOrders.length > 0) {
+      if (!error && dbOrders) {
         dbOrders.forEach(o => {
-          let customerName = o.customer_name || 'Guest Customer';
-          if (!o.customer_name && o.shipping_information?.firstName) {
-            customerName = `${o.shipping_information.firstName} ${o.shipping_information.lastName || ''}`.trim();
+          let customerName = o.customer_name || 'Guest User';
+          if (!o.customer_name && o.shipping_information) {
+            const s = o.shipping_information;
+            if (typeof s === 'object' && s.firstName) {
+              customerName = `${s.firstName} ${s.lastName || ''}`.trim();
+            }
           }
 
           let shipAddr = 'No shipping address specified';
@@ -62,7 +98,7 @@ export function AdminOrders() {
             shipAddr = typeof b === 'string' ? b : `${b.address || ''}, ${b.city || ''}, ${b.postalCode || ''}`.replace(/^,\s*|,\s*$/g, '');
           }
 
-          const rawItems = Array.isArray(o.order_items) ? o.order_items : (o.items || []);
+          const rawItems = Array.isArray(o.order_items) ? o.order_items : ((o as any).items || []);
           const mappedItems = rawItems.map((item: any) => ({
             product_name: item.product_name_snapshot || item.product_name || 'Product Item',
             variant: item.variant_snapshot || item.variant || 'Standard',
@@ -72,7 +108,7 @@ export function AdminOrders() {
 
           combined.push({
             id: o.id,
-            order_number: o.order_number || (o.id ? `DC-${o.id.slice(0, 8).toUpperCase()}` : 'DC-ORDER'),
+            order_number: o.order_number || o.id,
             created_at: o.created_at,
             customer_name: customerName,
             customer_email: o.email || o.shipping_information?.email || 'N/A',
@@ -93,7 +129,7 @@ export function AdminOrders() {
         if (l.order && !combined.some(c => c.id === l.order.id)) {
           combined.push({
             id: l.order.id,
-            order_number: l.order.order_number || (l.order.id ? `DC-${l.order.id.slice(0, 8).toUpperCase()}` : 'DC-ORDER'),
+            order_number: l.order.order_number || l.order.id,
             created_at: l.order.created_at || new Date().toISOString(),
             customer_name: l.order.shipping_address?.firstName ? `${l.order.shipping_address.firstName} ${l.order.shipping_address.lastName || ''}` : 'Guest User',
             customer_email: l.order.shipping_address?.email || 'N/A',
@@ -144,11 +180,45 @@ export function AdminOrders() {
     }
   };
 
+  const sendShippingEmail = async (order: OrderItem) => {
+    if (!order.customer_email || order.customer_email === 'N/A') {
+      toast.error('Missing Email', 'This order does not have a customer email address on file.');
+      return;
+    }
+
+    setSendingEmailId(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-test-email', {
+        body: {
+          templateType: 'SHIPPING_UPDATE',
+          targetEmail: order.customer_email,
+          customerName: order.customer_name,
+          order: {
+            order_number: order.order_number,
+            customer_name: order.customer_name,
+            email: order.customer_email,
+            total: order.total,
+            status: 'SHIPPED',
+            tracking_number: order.tracking_number || undefined
+          }
+        }
+      });
+
+      if (error) throw error;
+      toast.success('Shipping Email Sent', `Dispatched tracking notification to ${order.customer_email}`);
+    } catch (err: any) {
+      console.error('Failed to send shipping email:', err);
+      toast.error('Email Dispatch Warning', err.message || 'Could not dispatch shipping email.');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
   const handleStatusChange = async (id: string, newStatus: string) => {
+    const currentOrder = orders.find(o => o.id === id);
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
 
     try {
-      const currentOrder = orders.find(o => o.id === id);
       await supabase.from('orders').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id);
       
       if (currentOrder && currentOrder.status !== newStatus) {
@@ -160,12 +230,19 @@ export function AdminOrders() {
         });
       }
       
-      if (newStatus === 'SHIPPED') {
-        const order = orders.find(o => o.id === id);
-        toast.success('Dispatch Notification Sent', `Order #${order?.order_number || id} marked as SHIPPED. Customer notification dispatched.`);
+      if (newStatus === 'SHIPPED' && currentOrder) {
+        // Automatically dispatch shipping email to customer
+        if (currentOrder.customer_email && currentOrder.customer_email !== 'N/A') {
+          sendShippingEmail({ ...currentOrder, status: 'SHIPPED' });
+        } else {
+          toast.success('Order Marked SHIPPED', `Order #${currentOrder.order_number} status updated.`);
+        }
+      } else {
+        toast.success('Status Updated', `Order #${currentOrder?.order_number || id} is now ${newStatus}.`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Update status error:", e);
+      toast.error('Status Update Failed', e.message || 'Could not update order status.');
     }
 
     try {
@@ -204,27 +281,15 @@ export function AdminOrders() {
     return true;
   });
 
-  const ORDER_STATUSES = [
-    'PENDING',
-    'PAID',
-    'PROCESSING',
-    'PACKED',
-    'SHIPPED',
-    'DELIVERED',
-    'CANCELLED'
-  ];
-
   return (
     <div className="container page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-            Manage <span style={{ color: 'var(--accent)' }}>Orders</span>
-          </h1>
-          <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Customer orders, fulfillment statuses & transaction details.
-          </p>
-        </div>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+          Order <span style={{ color: 'var(--accent)' }}>Management</span>
+        </h1>
+        <p style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          Live order fulfillment, tracking synchronization, and automatic dispatch notifications.
+        </p>
       </div>
 
       <AdminNav />
@@ -268,6 +333,7 @@ export function AdminOrders() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredOrders.map(order => {
             const isPaid = order.status.toUpperCase() === 'PAID' || order.status.toUpperCase() === 'DELIVERED';
+            const isGuest = order.order_number.startsWith('DC-GUEST-') || order.customer_name === 'Guest User';
 
             return (
               <div key={order.id} className="brand-card" style={{ overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
@@ -283,10 +349,15 @@ export function AdminOrders() {
                     userSelect: 'none'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent)' }}>
-                      {order.order_number}
+                      #{order.order_number}
                     </span>
+                    {isGuest && (
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                        GUEST
+                      </span>
+                    )}
                     <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
                       {new Date(order.created_at).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </span>
@@ -385,10 +456,10 @@ export function AdminOrders() {
                       </div>
                     )}
 
-                    {/* Status Select */}
+                    {/* Actions and Status Select */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Update Order Status:</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Status:</span>
                         <select
                           className="admin-select"
                           value={order.status.toUpperCase()}
@@ -399,6 +470,25 @@ export function AdminOrders() {
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
+
+                        <button
+                          onClick={() => sendShippingEmail(order)}
+                          disabled={sendingEmailId === order.id}
+                          className="btn btn-outline"
+                          style={{ padding: '0.45rem 0.9rem', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                        >
+                          {sendingEmailId === order.id ? (
+                            <>
+                              <RefreshCw size={14} className="animate-spin" />
+                              <span>Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Mail size={14} />
+                              <span>Send Shipping Email</span>
+                            </>
+                          )}
+                        </button>
                       </div>
 
                       <div style={{ fontSize: '1.125rem', fontWeight: 900, color: 'var(--text-primary)' }}>

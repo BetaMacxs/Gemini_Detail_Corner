@@ -43,7 +43,9 @@ export function TrackOrder() {
   };
 
   const performLookup = async (targetOrderNumber: string, targetEmail: string) => {
-    if (!targetOrderNumber.trim() || !targetEmail.trim()) return;
+    const cleanNum = targetOrderNumber.trim().replace(/^#+/, '');
+    const cleanEmail = targetEmail.trim().toLowerCase();
+    if (!cleanNum || !cleanEmail) return;
 
     setLoading(true);
     setError(null);
@@ -53,8 +55,8 @@ export function TrackOrder() {
     try {
       // 1. Use secure track_order RPC
       const { data: rpcData, error: rpcError } = await supabase.rpc('track_order', {
-        p_order_number: targetOrderNumber.trim(),
-        p_email: targetEmail.trim().toLowerCase()
+        p_order_number: cleanNum,
+        p_email: cleanEmail
       });
 
       if (!rpcError && rpcData && rpcData.order) {
@@ -72,8 +74,8 @@ export function TrackOrder() {
       try {
         const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
         const match = saved.find((item: any) => 
-          (item.order?.order_number?.toLowerCase() === targetOrderNumber.trim().toLowerCase() || item.order?.id === targetOrderNumber.trim()) &&
-          item.order?.email?.toLowerCase() === targetEmail.trim().toLowerCase()
+          (item.order?.order_number?.toLowerCase().replace(/^#+/, '') === cleanNum.toLowerCase() || item.order?.id === cleanNum) &&
+          item.order?.email?.toLowerCase() === cleanEmail
         );
         if (match && match.order) {
           setOrder(match.order);
@@ -143,7 +145,7 @@ export function TrackOrder() {
                 id="orderNumber"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
-                placeholder="e.g. DC-20260815-1"
+                placeholder="e.g. DC-GUEST-20260820-1 or DC-20260820-1"
                 className="input-field"
                 style={{ width: '100%', fontSize: '0.875rem', padding: '0.75rem' }}
                 required

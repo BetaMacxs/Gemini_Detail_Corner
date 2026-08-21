@@ -162,9 +162,11 @@ export function Checkout() {
 
       const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
       
+      const isGuestCheckout = !validUserId;
       let orderNumber;
       try {
-        const { data: generatedOrderNumber, error: generateError } = await supabase.rpc('generate_order_number');
+        const rpcName = isGuestCheckout ? 'generate_guest_order_number' : 'generate_order_number';
+        const { data: generatedOrderNumber, error: generateError } = await supabase.rpc(rpcName);
         if (generateError || !generatedOrderNumber) {
           throw generateError || new Error('No order number returned');
         }
@@ -175,8 +177,8 @@ export function Checkout() {
         const dateStr = today.getFullYear().toString() + 
                         (today.getMonth() + 1).toString().padStart(2, '0') + 
                         today.getDate().toString().padStart(2, '0');
-        const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-        orderNumber = `DC-${dateStr}-${randomSuffix}`;
+        const randomSuffix = Math.floor(Math.random() * 900 + 100).toString();
+        orderNumber = isGuestCheckout ? `DC-GUEST-${dateStr}-${randomSuffix}` : `DC-${dateStr}-${randomSuffix}`;
       }
       
       const newOrder = {

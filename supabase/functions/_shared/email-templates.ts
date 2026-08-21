@@ -32,7 +32,7 @@ export const getEmailLayout = (content: string) => `
     <div class="footer">
       &copy; ${new Date().getFullYear()} Detail Corner SA. All rights reserved.<br>
       Pacific Business Park, Mitchell's Plain, Cape Town<br>
-      <a href="https://detailcorner.co.za" style="color: #c41e3a; text-decoration: none;">Visit Store</a>
+      <a href="https://detailcorner.netlify.app" style="color: #c41e3a; text-decoration: none;">Visit Store</a>
     </div>
   </div>
 </body>
@@ -60,7 +60,7 @@ export const getOrderConfirmationTemplate = (order: any) => getEmailLayout(`
   </div>
   
   <p>You can track your order status anytime using the link below:</p>
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/track?order=${order.order_number}&email=${order.email}" class="btn">Track Order</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/track?order=${order.order_number}&email=${order.email}" class="btn">Track Order</a>
 `);
 
 export const getPaymentFailureTemplate = (order: any) => getEmailLayout(`
@@ -69,7 +69,7 @@ export const getPaymentFailureTemplate = (order: any) => getEmailLayout(`
   <p>We're sorry, but your payment for order <span class="accent">${order.order_number}</span> was unsuccessful.</p>
   <p>No funds were charged from your account. If you'd like to try again, you can return to the store and place a new order.</p>
   
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/cart" class="btn">Return to Shop</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/cart" class="btn">Return to Shop</a>
 `);
 
 export const getShippingUpdateTemplate = (order: any) => getEmailLayout(`
@@ -85,7 +85,7 @@ export const getShippingUpdateTemplate = (order: any) => getEmailLayout(`
   ` : ''}
   
   <p>Thank you for choosing Detail Corner!</p>
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/track?order=${order.order_number}&email=${order.email}" class="btn">Track Package</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/track?order=${order.order_number}&email=${order.email}" class="btn">Track Package</a>
 `);
 
 export const getAdminNewOrderTemplate = (order: any) => getEmailLayout(`
@@ -107,7 +107,7 @@ export const getAdminNewOrderTemplate = (order: any) => getEmailLayout(`
     </div>
   </div>
   
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/admin/orders" class="btn">Manage Order</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/admin/orders" class="btn">Manage Order</a>
 `);
 
 export const getAbandonedCartTemplate = (order: any) => getEmailLayout(`
@@ -117,7 +117,7 @@ export const getAbandonedCartTemplate = (order: any) => getEmailLayout(`
   
   <p>You can complete your order securely using the link below:</p>
   <br>
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/checkout" class="btn">Return to Checkout</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/checkout" class="btn">Return to Checkout</a>
 `);
 
 export const getReviewRequestTemplate = (order: any) => getEmailLayout(`
@@ -127,7 +127,7 @@ export const getReviewRequestTemplate = (order: any) => getEmailLayout(`
   <p>Would you mind taking a quick minute to review your items? Your feedback helps us maintain the highest quality for the detailing community.</p>
   
   <br>
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/account/orders/${order.id}" class="btn">Leave a Review</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/account/orders/${order.id}" class="btn">Leave a Review</a>
 `);
 
 export const getLowStockTemplate = (product: any) => getEmailLayout(`
@@ -149,5 +149,26 @@ export const getLowStockTemplate = (product: any) => getEmailLayout(`
     </div>
   </div>
   
-  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.co.za'}/admin/products" class="btn">Update Inventory</a>
+  <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}/admin/products" class="btn">Update Inventory</a>
 `);
+
+export const getAdminReplyTemplate = (data: { customerName: string; replyText: string; originalMessage?: string; subject?: string }) => getEmailLayout(`
+  <h2 style="margin-top: 0; color: #1e293b;">Message from Detail Corner Support</h2>
+  <p>Hi ${data.customerName || 'Valued Customer'},</p>
+  
+  <div style="background: #f8fafc; border-left: 4px solid #c41e3a; padding: 18px 20px; border-radius: 4px; margin: 20px 0; font-size: 15px; line-height: 1.6; color: #1e293b; white-space: pre-wrap;">
+${data.replyText}
+  </div>
+  
+  ${data.originalMessage ? `
+  <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 13px;">
+    <p style="margin: 0 0 8px 0; font-weight: 600; color: #475569;">In response to your message${data.subject ? ` regarding "${data.subject}"` : ''}:</p>
+    <blockquote style="margin: 0; padding: 10px 14px; background: #f1f5f9; border-radius: 4px; font-style: italic; white-space: pre-wrap;">${data.originalMessage}</blockquote>
+  </div>
+  ` : ''}
+  
+  <div style="margin-top: 30px; text-align: center;">
+    <a href="${Deno.env.get('FRONTEND_URL') || 'https://detailcorner.netlify.app'}" class="btn">Visit Store</a>
+  </div>
+`);
+

@@ -693,6 +693,37 @@ $$;
 grant execute on function public.generate_pos_order_number() to anon, authenticated;
 grant select, insert, update on public.pos_order_sequences to anon, authenticated;
 
+create table if not exists public.guest_order_sequences (
+  sequence_date date primary key,
+  next_value integer not null default 1
+);
+
+create or replace function public.generate_guest_order_number()
+returns text
+language plpgsql
+security definer
+as $$
+declare
+  v_today date;
+  v_next_val integer;
+  v_order_number text;
+begin
+  v_today := current_date;
+
+  insert into public.guest_order_sequences (sequence_date, next_value)
+  values (v_today, 2)
+  on conflict (sequence_date) do update
+  set next_value = guest_order_sequences.next_value + 1
+  returning (next_value - 1) into v_next_val;
+  
+  v_order_number := 'DC-GUEST-' || to_char(v_today, 'YYYYMMDD') || '-' || v_next_val::text;
+  return v_order_number;
+end;
+$$;
+
+grant execute on function public.generate_guest_order_number() to anon, authenticated;
+grant select, insert, update on public.guest_order_sequences to anon, authenticated;
+
 -- Function for secure public order tracking
 create or replace function public.track_order(p_order_number text, p_email text)
 returns json as $$
@@ -700,12 +731,16 @@ declare
   v_order_id uuid;
   v_order_data json;
   v_history_data json;
+  v_clean_order text;
 begin
-  -- Find the order matching both number and email (case insensitive email)
+  -- Sanitize inputs: strip leading # or whitespace
+  v_clean_order := trim(regexp_replace(p_order_number, '^#+', ''));
+
+  -- Find the order matching both number and email (case insensitive)
   select id into v_order_id
   from public.orders
-  where (order_number = p_order_number or id::text = p_order_number)
-    and lower(email) = lower(p_email)
+  where (lower(order_number) = lower(v_clean_order) or lower(id::text) = lower(v_clean_order))
+    and lower(email) = lower(trim(p_email))
   limit 1;
 
   if v_order_id is null then
