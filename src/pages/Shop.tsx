@@ -122,7 +122,7 @@ export function Shop() {
           {/* Sidebar Filters */}
           <div className={`sidebar-filters ${isFilterOpen ? 'mobile-visible' : ''}`}>
             <div className="sidebar-filter-section">
-              <h3 className="sidebar-filter-heading">Categories</h3>
+              {/* <h3 className="sidebar-filter-heading">Categories</h3> */}
               <div className="filter-buttons-list">
                 <button
                   onClick={() => handleCategoryChange('')}
@@ -145,11 +145,6 @@ export function Shop() {
 
           {/* Product Grid */}
           <div className="shop-content">
-            <div className="results-header">
-              <span className="results-count">
-                Showing {products.length > 0 ? `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, products.length)} of ${products.length}` : '0'} Results
-              </span>
-            </div>
 
             {error ? (
               <div className="error-state">
@@ -242,20 +237,7 @@ export function Shop() {
                                 <div className="product-card-footer-price">
                                   {formatPrice(product.price)}
                                 </div>
-                                <div className="product-card-footer-actions">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      setQuickViewProduct(product);
-                                    }}
-                                    className="quickview-icon-btn"
-                                    title="Quick View"
-                                    aria-label={`Quick view ${product.name}`}
-                                  >
-                                    <Eye size={18} />
-                                  </button>
+                                <div className="product-card-footer-actions">                                 
                                   <button
                                     type="button"
                                     onClick={(e) => handleQuickAdd(e, product)}

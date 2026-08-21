@@ -360,11 +360,6 @@ export function ProductDetails() {
                   })}
                 </div>
               )}
-              
-              {/* Product Badge */}
-              <div className="product-badge-corner">
-                Professional Grade
-              </div>
             </motion.div>
 
             {/* Content Section */}
@@ -424,21 +419,6 @@ export function ProductDetails() {
                 <p className="product-description-text">
                   {product.description || product.short_description || "Experience professional-grade results with our premium detailing solution. Engineered for automotive enthusiasts who demand nothing but the absolute best for their vehicle's finish."}
                 </p>
-              </div>
-
-              {/* Specs Grid */}
-              <div className="product-specs-grid">
-                {Object.entries(specs).slice(0, 4).map(([key, value], i) => (
-                  <div key={i} className="brand-card product-spec-card">
-                    <div className="spec-icon-wrapper" style={{ color: 'var(--accent)' }}>
-                      {getSpecIcon(key)}
-                    </div>
-                    <div className="spec-text">
-                      <span style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'block', marginBottom: '2px', whiteSpace: 'nowrap' }}>{key}</span>
-                      {value}
-                    </div>
-                  </div>
-                ))}
               </div>
 
               {/* Controls Section */}

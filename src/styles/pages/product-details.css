@@ -47,7 +47,7 @@
 }
 
 .product-image-container {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 6 / 4;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background-color: var(--surface);
@@ -164,7 +164,7 @@
 }
 
 .spec-icon-wrapper {
-  background-color: rgba(196, 30, 58, 0.1);
+  
   padding: 0.5rem;
   border-radius: 0.5rem;
 }

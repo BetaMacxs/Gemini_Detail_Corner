@@ -171,14 +171,6 @@ export function Home() {
         <div className="container">
           <div className="section-header">
             <div>
-              <div className="section-eyebrow">
-                <div className="eyebrow-line"></div>
-
-                <span className="eyebrow-text">
-                  Collection
-                </span>
-              </div>
-
               <h2 className="section-title">
                 Featured{' '}
                 <span style={{ color: 'var(--accent)' }}>
@@ -276,20 +268,7 @@ export function Home() {
                       <div className="product-card-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem' }}>
                         <div className="product-card-price" style={{ margin: 0 }}>
                           {formatPrice(product.price)}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setQuickViewProduct(product);
-                          }}
-                          className="quickview-icon-btn"
-                          title="Quick View"
-                          aria-label={`Quick view ${product.name}`}
-                        >
-                          <Eye size={16} />
-                        </button>
+                        </div>                        
                       </div>
                     </div>
                   </Link>
@@ -312,9 +291,7 @@ export function Home() {
           <div
             className="section-eyebrow"
             style={{ justifyContent: 'center' }}
-          >
-            <Sparkles size={20} />
-
+          >            
             <span className="eyebrow-text">
               Join the Community
             </span>
