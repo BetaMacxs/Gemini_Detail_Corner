@@ -3,6 +3,7 @@
 @import "./components/footer.css";
 @import "./components/quick-view.css";
 @import "./components/forms.css";
+@import "./components/admin.css";
 @import "./pages/home.css";
 @import "./pages/shop.css";
 @import "./pages/product-details.css";
@@ -12,6 +13,7 @@
 @import "./pages/account.css";
 @import "./pages/success.css";
 @import "./pages/cancel.css";
+@import "./pages/content.css";
 
 *,
 *::before,

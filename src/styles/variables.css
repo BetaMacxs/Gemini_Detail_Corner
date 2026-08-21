@@ -1,27 +1,90 @@
 :root {
-  --bg: #0f0f0f;                /* deeper, more premium charcoal */
-  --surface: #1a1a1a;           /* card/container background */
-  --accent: #c41e3a;            /* detail crimson */
+  /* Brand Core Colors */
+  --bg: #0f0f0f;                /* Deeper, more premium charcoal */
+  --surface: #1a1a1a;           /* Card/container background */
+  --surface-hover: #242424;     /* Interactive card hover */
+  --surface-subtle: #141414;    /* Slightly darker surface */
+  --surface-card: #1a1a1a;
+  --card-bg: #1a1a1a;
+  
+  --accent: #c41e3a;            /* Detail crimson */
   --accent-hover: #a01830;
+  --accent-active: #8b1226;
   --accent-glow: rgba(196, 30, 58, 0.15);
+  --accent-subtle: rgba(196, 30, 58, 0.08);
+  --accent-border: rgba(196, 30, 58, 0.3);
+
+  /* Text & Contrast */
   --text-primary: #ffffff;
   --text-secondary: #a3a3a3;
-  --text-header: #333;
+  --text-muted: #737373;
+  --text-header: #333333;
   --text-dark: #0f0f0f;
+
+  /* Borders */
   --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: var(--accent);
+
+  /* Status & Feedback Colors */
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --success-border: rgba(34, 197, 94, 0.25);
+  
+  --warning: #eab308;
+  --warning-hover: #ca8a04;
+  --warning-bg: rgba(234, 179, 8, 0.12);
+  --warning-border: rgba(234, 179, 8, 0.25);
+  
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.25);
+
+  --info: #3b82f6;
+  --info-hover: #2563eb;
+  --info-bg: rgba(59, 130, 246, 0.12);
+  --info-border: rgba(59, 130, 246, 0.25);
+
   --gold: #d4a853;
+  --gold-bg: rgba(212, 168, 83, 0.12);
+
+  /* Border Radii */
+  --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+  --radius-full: 9999px;
   
+  /* Layout Spacing */
   --spacing-container-px: 1rem;
   --spacing-page-y: 2.5rem;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
 
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 10px 15px -3px rgba(196, 30, 58, 0.25);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
   --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Semantic brand variables for compatibility during migration */
+  /* Semantic brand variables for compatibility */
   --color-brand-bg: var(--bg);
   --color-brand-surface: var(--surface);
   --color-brand-accent: var(--accent);

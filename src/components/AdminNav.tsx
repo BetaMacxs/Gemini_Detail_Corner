@@ -27,8 +27,8 @@ export function AdminNav() {
   };
 
   return (
-    <div className="brand-card" style={{ padding: '0.75rem var(--spacing-container-px)', marginBottom: '2rem', borderRadius: 'var(--radius-md)' }}>
-      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
+    <div className="admin-nav-container">
+      <div className="admin-nav-list">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -37,22 +37,9 @@ export function AdminNav() {
             <Link
               key={item.path}
               to={item.path}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8125rem',
-                fontWeight: active ? 800 : 600,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                backgroundColor: active ? 'var(--accent)' : 'transparent',
-                color: active ? '#ffffff' : 'var(--text-secondary)',
-                transition: 'all 0.15s ease'
-              }}
+              className={`admin-nav-link ${active ? 'active' : ''}`}
             >
-              <Icon size={16} style={{ flexShrink: 0 }} />
+              <Icon size={16} className="flex-shrink-0" />
               <span>{item.label}</span>
             </Link>
           );

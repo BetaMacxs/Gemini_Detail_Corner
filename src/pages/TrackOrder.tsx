@@ -43,7 +43,9 @@ export function TrackOrder() {
   };
 
   const performLookup = async (targetOrderNumber: string, targetEmail: string) => {
-    const cleanNum = targetOrderNumber.trim().replace(/^#+/, '');
+    const rawNum = targetOrderNumber.trim();
+    const cleanNum = rawNum.replace(/^#+/, '');
+    const withHash = `#${cleanNum}`;
     const cleanEmail = targetEmail.trim().toLowerCase();
     if (!cleanNum || !cleanEmail) return;
 
@@ -53,7 +55,7 @@ export function TrackOrder() {
     setHistory([]);
 
     try {
-      // 1. Use secure track_order RPC
+      // 1. Use secure track_order RPC (try cleanNum first, then withHash)
       const { data: rpcData, error: rpcError } = await supabase.rpc('track_order', {
         p_order_number: cleanNum,
         p_email: cleanEmail
@@ -66,15 +68,58 @@ export function TrackOrder() {
         return;
       }
 
-      if (rpcError) {
-        console.warn('track_order RPC error:', rpcError);
+      // Try RPC with hash prefix
+      const { data: rpcDataHash } = await supabase.rpc('track_order', {
+        p_order_number: withHash,
+        p_email: cleanEmail
+      });
+
+      if (rpcDataHash && rpcDataHash.order) {
+        setOrder(rpcDataHash.order);
+        setHistory(rpcDataHash.history || []);
+        setLoading(false);
+        return;
       }
 
-      // 2. Fallback: Check local_orders in localStorage (useful for offline/session fallback)
+      // 2. Direct Supabase query fallback
+      try {
+        const { data: dbOrder, error: dbErr } = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .or(`order_number.eq.${cleanNum},order_number.eq.${withHash},id.eq.${cleanNum}`)
+          .ilike('email', cleanEmail)
+          .maybeSingle();
+
+        if (!dbErr && dbOrder) {
+          setOrder(dbOrder);
+          const { data: statusHistory } = await supabase
+            .from('order_status_history')
+            .select('*')
+            .eq('order_id', dbOrder.id)
+            .order('created_at', { ascending: true });
+
+          setHistory(statusHistory && statusHistory.length > 0 ? statusHistory : [
+            {
+              id: 'init',
+              status: dbOrder.status || 'PENDING_PAYMENT',
+              created_at: dbOrder.created_at || new Date().toISOString(),
+              notes: 'Order placed'
+            }
+          ]);
+          setLoading(false);
+          return;
+        }
+      } catch (dbQueryErr) {
+        console.warn('Direct order lookup warning:', dbQueryErr);
+      }
+
+      // 3. Fallback: Check local_orders in localStorage (useful for offline/guest session fallback)
       try {
         const saved = JSON.parse(localStorage.getItem('local_orders') || '[]');
         const match = saved.find((item: any) => 
-          (item.order?.order_number?.toLowerCase().replace(/^#+/, '') === cleanNum.toLowerCase() || item.order?.id === cleanNum) &&
+          (item.order?.order_number?.toLowerCase().replace(/^#+/, '') === cleanNum.toLowerCase() || 
+           item.order?.order_number?.toLowerCase() === withHash.toLowerCase() ||
+           item.order?.id === cleanNum) &&
           item.order?.email?.toLowerCase() === cleanEmail
         );
         if (match && match.order) {

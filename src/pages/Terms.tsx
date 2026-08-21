@@ -1,71 +1,76 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { FileText, Shield, Gavel, Scale } from 'lucide-react';
+import { storeConfig } from '../config/store';
 
 export function Terms() {
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingTop: '4rem', paddingBottom: '6rem' }}>
-      <div className="container" style={{ maxWidth: '48rem', margin: '0 auto' }}>
+    <div className="content-page">
+      <div className="container" style={{ maxWidth: '48rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <motion.div
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-          <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--surface)', border: '1px solid var(--border)', marginBottom: '1rem', color: 'var(--accent)' }}>
-            <Gavel size={32} />
-          </div>          
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, fontStyle: 'italic', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '-0.05em' }}>
-            Terms & <span style={{ color: 'var(--accent)' }}>Conditions</span>
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-            Last updated: August 2026 • Detail Corner South Africa
-          </p>
+            <div className="content-hero-icon-badge">
+              <Gavel size={32} />
+            </div>          
+            <h1 className="content-page-title">
+              Terms & <span style={{ color: 'var(--accent)' }}>Conditions</span>
+            </h1>
+            <p className="content-page-subtitle">
+              Last updated: August 2026 • {storeConfig.STORE_NAME} {storeConfig.ORIGIN_CITY}
+            </p>
           </motion.div>
         </div>
 
-        <div className="brand-card" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="brand-card content-card-body">
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--accent)' }}>
+            <h2 className="content-section-title">
               <Scale size={20} />
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>1. Acceptance of Terms</h2>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
-              By accessing and using the Detail Corner website, you agree to be bound by these Terms and Conditions. Our services are provided for automotive enthusiasts and professionals seeking high-caliber detailing supplies and information.
+              <span>1. Acceptance of Terms</span>
+            </h2>
+            <p className="content-section-text">
+              By accessing and using the {storeConfig.STORE_NAME} website, you agree to be bound by these Terms and Conditions. Our services are provided for automotive enthusiasts and professionals seeking high-caliber detailing supplies and technical care formulas.
             </p>
           </section>
 
-          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--accent)' }}>
+          <section className="content-divider-section">
+            <h2 className="content-section-title">
               <FileText size={20} />
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>2. Use of Products</h2>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
-              Detailing products sold on this site are intended for automotive use. Users must strictly follow application instructions and safety warnings provided with each product. Detail Corner is not liable for damages resulting from improper application or use on incompatible surfaces.
+              <span>2. Use of Products</span>
+            </h2>
+            <p className="content-section-text">
+              Detailing products sold on this site are intended for automotive use. Users must strictly follow application instructions and safety warnings provided with each product. {storeConfig.STORE_NAME} is not liable for damages resulting from improper application or use on incompatible surfaces.
             </p>
           </section>
 
-          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--accent)' }}>
+          <section className="content-divider-section">
+            <h2 className="content-section-title">
               <Shield size={20} />
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)' }}>3. Intellectual Property</h2>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
-              All content, including logos, images, product descriptions, and instructional media, is the intellectual property of Detail Corner. Unauthorized reproduction or commercial use is strictly prohibited.
+              <span>3. Intellectual Property</span>
+            </h2>
+            <p className="content-section-text">
+              All content, including logos, images, product descriptions, and instructional media, is the intellectual property of {storeConfig.STORE_NAME}. Unauthorized reproduction or commercial use is strictly prohibited.
             </p>
           </section>
 
-          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '1rem' }}>4. Consumer Protection Act</h2>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
-              These terms are compliant with the South African Consumer Protection Act (CPA). Your statutory rights regarding defective goods and cooling-off periods apply to all purchases.
+          <section className="content-divider-section">
+            <h2 className="content-section-title">
+              <span>4. Consumer Protection Act</span>
+            </h2>
+            <p className="content-section-text">
+              These terms are compliant with the {storeConfig.DEFAULT_COUNTRY} Consumer Protection Act (CPA). Your statutory rights regarding defective goods and cooling-off periods apply to all purchases.
             </p>
           </section>
 
-          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '1rem' }}>5. Governing Law</h2>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9375rem' }}>
-              These terms are governed by the laws of the Republic of South Africa. Any disputes shall be settled in the competent courts of Cape Town.
+          <section className="content-divider-section">
+            <h2 className="content-section-title">
+              <span>5. Governing Law</span>
+            </h2>
+            <p className="content-section-text">
+              These terms are governed by the laws of the Republic of {storeConfig.DEFAULT_COUNTRY}. Any disputes shall be settled in the competent courts of {storeConfig.STORE_CITY}.
             </p>
           </section>
         </div>
@@ -73,3 +78,4 @@ export function Terms() {
     </div>
   );
 }
+

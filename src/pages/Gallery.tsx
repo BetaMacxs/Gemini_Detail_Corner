@@ -88,85 +88,79 @@ export function Gallery() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section style={{ position: 'relative', paddingTop: '4rem', paddingBottom: '4rem', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%)', opacity: 0.2 }} />
+      <section className="content-page-hero">
+        <div className="content-hero-glow" />
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.05em', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1 }}>
+            <h1 className="content-page-title">
               Our <span style={{ color: 'var(--accent)' }}>Gallery</span>
             </h1>
-            <p style={{ maxWidth: '42rem', margin: '0 auto', fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Witness the transformation. Our gallery showcases the unrivaled depth, clarity, and protection achieved using Detail Corner's premium formulations.
+            <p className="content-page-subtitle">
+              Witness the transformation. Our gallery showcases the unrivaled depth, clarity, and protection achieved using {storeConfig.STORE_NAME}'s premium formulations.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="container" style={{ paddingTop: '3.5rem', paddingBottom: '4rem' }}>
+        <div className="gallery-grid">
           {galleryItems.map((url, i) => (
             <div
               key={i}
-              className="brand-card"
-              style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: 'var(--radius-lg)', cursor: 'zoom-in' }}
+              className="gallery-item-card"
               onClick={() => setSelectedImage(url)}
             >
               <img
                 src={url}
                 alt={`Detailing result ${i + 1}`}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                className="gallery-item-image"
               />
             </div>
           ))}
         </div>
 
         {/* Social Video & Transformations Callout */}
-        <div className="brand-card" style={{ marginTop: '3.5rem', padding: '2rem', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
+        <div className="social-callout-card">
           <h3 style={{ fontSize: '1.25rem', fontWeight: 900, textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
             Watch Full Video <span style={{ color: 'var(--accent)' }}>Transformations</span>
           </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '34rem', margin: '0 auto 1.5rem auto' }}>
-            Catch ASMR detailing videos, ceramic coating walk-throughs, and customer rides on our TikTok and Instagram feeds.
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '34rem', margin: '0 auto' }}>
+            Catch ASMR detailing videos, ceramic coating walk-throughs, and customer rides on our official channels.
           </p>
-          <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', justifyContent: 'center' }}>
+          <div className="social-pills-row">
             <a
               href={storeConfig.SOCIAL_TIKTOK}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-link"
-              style={{ padding: '0.6rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
-              aria-label="Detail Corner on TikTok"
-              title="TikTok (@detailcorner2022)"
+              className="social-pill-link"
+              aria-label={`${storeConfig.STORE_NAME} on TikTok`}
+              title={`TikTok (${storeConfig.SOCIAL_TIKTOK_HANDLE})`}
             >
               <PiTiktokLogo size={18} />
-              <span>TikTok @detailcorner2022</span>
+              <span>TikTok {storeConfig.SOCIAL_TIKTOK_HANDLE}</span>
             </a>
             <a
               href={storeConfig.SOCIAL_INSTAGRAM}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-link"
-              style={{ padding: '0.6rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
-              aria-label="Detail Corner on Instagram"
-              title="Instagram (@detail_corner2022)"
+              className="social-pill-link"
+              aria-label={`${storeConfig.STORE_NAME} on Instagram`}
+              title={`Instagram (${storeConfig.SOCIAL_INSTAGRAM_HANDLE})`}
             >
               <PiInstagramLogo size={18} />
-              <span>Instagram @detail_corner2022</span>
+              <span>Instagram {storeConfig.SOCIAL_INSTAGRAM_HANDLE}</span>
             </a>
             <a
               href={storeConfig.SOCIAL_FACEBOOK}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-link"
-              style={{ padding: '0.6rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase' }}
-              aria-label="Detail Corner on Facebook"
-              title="Facebook (Detail Corner)"
+              className="social-pill-link"
+              aria-label={`${storeConfig.STORE_NAME} on Facebook`}
+              title={`Facebook (${storeConfig.SOCIAL_FACEBOOK_HANDLE})`}
             >
               <PiFacebookLogo size={18} />
               <span>Facebook</span>

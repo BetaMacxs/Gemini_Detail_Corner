@@ -160,23 +160,33 @@ export function Checkout() {
         }
       }
 
+      const isGuest = !validUserId;
       const orderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ord_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
       
-      let orderNumber;
-      try {
-        const { data: generatedOrderNumber, error: generateError } = await supabase.rpc('generate_order_number');
-        if (generateError || !generatedOrderNumber) {
-          throw generateError || new Error('No order number returned');
-        }
-        orderNumber = generatedOrderNumber;
-      } catch (err) {
-        console.warn('Failed to generate secure order number from database, falling back to client-side generation:', err);
+      let orderNumber: string;
+      if (isGuest) {
+        // Guest orders strictly follow #DC-GUEST-YYYYMMDD-X format
         const today = new Date();
         const dateStr = today.getFullYear().toString() + 
                         (today.getMonth() + 1).toString().padStart(2, '0') + 
                         today.getDate().toString().padStart(2, '0');
-        const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-        orderNumber = `DC-${dateStr}-${randomSuffix}`;
+        const randomSuffix = Math.floor(Math.random() * 90000 + 10000).toString();
+        orderNumber = `#DC-GUEST-${dateStr}-${randomSuffix}`;
+      } else {
+        try {
+          const { data: generatedOrderNumber, error: generateError } = await supabase.rpc('generate_order_number');
+          if (generateError || !generatedOrderNumber) {
+            throw generateError || new Error('No order number returned');
+          }
+          orderNumber = generatedOrderNumber.startsWith('#') ? generatedOrderNumber : `#${generatedOrderNumber}`;
+        } catch (err) {
+          const today = new Date();
+          const dateStr = today.getFullYear().toString() + 
+                          (today.getMonth() + 1).toString().padStart(2, '0') + 
+                          today.getDate().toString().padStart(2, '0');
+          const randomSuffix = Math.floor(Math.random() * 90000 + 10000).toString();
+          orderNumber = `#DC-${dateStr}-${randomSuffix}`;
+        }
       }
       
       const newOrder = {
