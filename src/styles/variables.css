@@ -1,29 +1,30 @@
 :root {
-  /* Brand Core Colors */
-  --bg: #0f0f0f;                /* Deeper, more premium charcoal */
-  --surface: #1a1a1a;           /* Card/container background */
-  --surface-hover: #242424;     /* Interactive card hover */
-  --surface-subtle: #141414;    /* Slightly darker surface */
-  --surface-card: #1a1a1a;
-  --card-bg: #1a1a1a;
+  /* Brand Core Surfaces - Deep Obsidian & Charcoal Elevation */
+  --bg: #0c0d0e;                /* Obsidian deep canvas */
+  --surface: #141618;           /* Primary container & card elevation */
+  --surface-hover: #1b1e22;     /* Interactive hover elevation */
+  --surface-subtle: #101214;    /* Inset/recessed background */
+  --surface-card: #141618;
+  --surface-elevated: #202428;  /* Dropdowns, modals, floating panels */
+  --card-bg: #141618;
   
-  --accent: #c41e3a;            /* Detail crimson */
-  --accent-hover: #a01830;
-  --accent-active: #8b1226;
-  --accent-glow: rgba(196, 30, 58, 0.15);
+  --accent: #c41e3a;            /* Detail crimson signature */
+  --accent-hover: #dc2626;      /* Vibrant hover crimson */
+  --accent-active: #991b1b;
+  --accent-glow: rgba(196, 30, 58, 0.2);
   --accent-subtle: rgba(196, 30, 58, 0.08);
-  --accent-border: rgba(196, 30, 58, 0.3);
+  --accent-border: rgba(196, 30, 58, 0.35);
 
-  /* Text & Contrast */
+  /* Text & Contrast Hierarchy */
   --text-primary: #ffffff;
-  --text-secondary: #a3a3a3;
-  --text-muted: #737373;
-  --text-header: #333333;
-  --text-dark: #0f0f0f;
+  --text-secondary: #9ca3af;     /* Refined silver-grey */
+  --text-muted: #6b7280;         /* Subtle helper text */
+  --text-header: #f3f4f6;        /* High-contrast header white */
+  --text-dark: #0c0d0e;
 
-  /* Borders */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  /* Borders & Hairlines */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-focus: var(--accent);
 

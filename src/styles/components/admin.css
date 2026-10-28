@@ -152,41 +152,56 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .admin-table th {
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1.25rem;
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid var(--border);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: rgba(12, 13, 14, 0.95);
+  border-bottom: 1px solid var(--border-strong);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .admin-table td {
-  padding: 1rem 1.25rem;
+  padding: 0.95rem 1.25rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+  transition: background-color var(--transition-fast);
+}
+
+.admin-table tbody tr {
+  transition: background-color var(--transition-fast);
 }
 
 .admin-table tbody tr:hover {
-  background: var(--surface-hover);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .admin-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.admin-order-num, .admin-sku {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* Status Badges */
@@ -194,12 +209,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.25rem 0.75rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .admin-badge-success {
@@ -256,11 +272,12 @@
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 0.875rem;
-  transition: border-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .admin-search-input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .admin-search-icon {
